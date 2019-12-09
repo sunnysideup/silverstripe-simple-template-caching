@@ -1,3 +1,7 @@
+---
+Name: simple_template_caching
+---
+
 PageController:
   extensions:
     - Sunnysideup\SimpleTemplateCaching\Extensions\PageControllerExtension
