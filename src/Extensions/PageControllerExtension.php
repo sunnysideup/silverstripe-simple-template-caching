@@ -8,38 +8,11 @@ use SilverStripe\Security\Security;
 
 class PageControllerExtension extends Extension
 {
-    private static $_cache_key_content = null;
 
-    private static $_cache_key_footer = null;
-
+    /**
+     * @var null|bool
+     */
     private static $_can_cache_content = null;
-
-    public function CacheKeyContent(): string
-    {
-        if (self::$_cache_key_content === null) {
-            self::$_cache_key_content = 'C_' . $this->CacheKeyHeader();
-        }
-
-        return self::$_cache_key_content;
-    }
-
-    public function CacheKeyHeader(): string
-    {
-        return 'H_' .
-            $this->CacheKeyFooter() . '_' .
-            'ID_' . $this->owner->ID . '_';
-    }
-
-    public function CacheKeyFooter(): string
-    {
-        if (self::$_cache_key_footer === null) {
-            self::$_cache_key_footer = 'Page_' .
-            SiteTree::get()->count() . '_' .
-            strtotime(SiteTree::get()->Max('LastEdited'));
-        }
-
-        return 'F_' . self::$_cache_key_footer;
-    }
 
     public function HasCacheKeys(): bool
     {
@@ -59,4 +32,72 @@ class PageControllerExtension extends Extension
         }
         return self::$_can_cache_content;
     }
+    
+    public function HasCacheKeyHeader(): bool
+    {
+        return $this->HasCacheKeys();
+    }
+    
+    public function HasCacheKeyMenu(): bool
+    {
+        return $this->HasCacheKeys();
+    }   
+    
+    public function HasCacheKeyContent(): bool
+    {
+        return $this->HasCacheKeys();
+    }    
+
+    public function HasCacheKeyFooter(): bool
+    {
+        return $this->HasCacheKeys();
+    }      
+
+    public function CacheKeyHeader(): string
+    {
+        return 'H_' .
+            $this->cacheKeySiteTreeChanges() . '_' .
+            'ID_' . $this->owner->ID . '_';
+    }
+
+    public function CacheKeyMenu(): string
+    {
+        return 'M_' .
+            $this->cacheKeySiteTreeChanges() . '_' .
+            'ID_' . $this->owner->ID . '_';
+    }
+    
+    public function CacheKeyContent(): string
+    {
+        return 'C_' .
+            $this->cacheKeySiteTreeChanges() . '_' .
+            'ID_' . $this->owner->ID . '_';
+
+        return self::$_cache_key_content;
+    }
+
+    public function CacheKeyFooter(): string
+    {
+        return 'F_' .
+            $this->cacheKeySiteTreeChanges() . '_' .
+            'ID_' . $this->owner->ID . '_';
+    }
+
+    /**
+     *
+     * @var null|bool
+     */
+    private static $_cache_key_sitetree_changes = null;
+
+    protected function cacheKeySiteTreeChanges() : string
+    {
+        if(self::$_cache_key_sitetree_changes === null) {
+            self::$_cache_key_sitetree_changes = 
+                SiteTree::get()->count() . '_' .
+                strtotime(SiteTree::get()->Max('LastEdited'));        
+        }
+        
+        return self::$_cache_key_sitetree_changes;
+    }
+    
 }
