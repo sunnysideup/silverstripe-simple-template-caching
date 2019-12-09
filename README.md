@@ -25,6 +25,15 @@ Basic Caching Functionality For Page Templates
         <% include Header %>
     <% end_if %>
 
+    <% if $HasCacheKeyMenu %>
+        <% cached $CacheKeyMenu %>
+            <!-- cached menu -->
+            <% include Menu %>
+        <% end_cached %>
+    <% else %>
+        <% include Menu %>
+    <% end_if %>
+        
     <% if $HasCacheKeyContent %>
         <% cached $CacheKeyContent %>
             <!-- cached content -->
