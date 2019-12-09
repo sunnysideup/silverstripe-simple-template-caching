@@ -7,7 +7,7 @@ Basic Caching Functionality For Page Templates
 
 # usage
 
-```ss
+```html
 
 <!doctype html>
 <html lang="$ContentLocale">
