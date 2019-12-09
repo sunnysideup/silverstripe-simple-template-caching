@@ -25,16 +25,14 @@ Basic Caching Functionality For Page Templates
         <% include Header %>
     <% end_if %>
 
-    <main id="main">
-        <% if $HasCacheKeyContent %>
-            <% cached $CacheKeyContent %>
-                <!-- cached content -->
-                $Layout
-            <% end_cached %>
-        <% else %>
+    <% if $HasCacheKeyContent %>
+        <% cached $CacheKeyContent %>
+            <!-- cached content -->
             $Layout
-        <% end_if %>
-    </main>
+        <% end_cached %>
+    <% else %>
+        $Layout
+    <% end_if %>
 
     <% if $HasCacheKeyFooter %>
     <% cached $CacheKeyFooter %>
