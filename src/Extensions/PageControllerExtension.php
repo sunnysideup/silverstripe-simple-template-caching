@@ -100,7 +100,7 @@ class PageControllerExtension extends Extension
     protected function cacheKeySiteTreeChanges() : string
     {
         if(self::$_cache_key_sitetree_changes === null) {
-            self::$_cache_key_sitetree_changes = SiteConfigExtension::site_cache_key();
+            self::$_cache_key_sitetree_changes = SimpleTemplateCachingSiteConfigExtension::site_cache_key();
         }
 
         return self::$_cache_key_sitetree_changes;
