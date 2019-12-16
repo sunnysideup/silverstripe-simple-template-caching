@@ -72,7 +72,7 @@ class DataObjectExtension extends DataExtension
 
     private function doUpdateCache($className){
         if($this->canUpdateCache($className)){
-            SiteConfigExtension::update_cache_key();
+            SimpleTemplateCachingSiteConfigExtension::update_cache_key();
         }
     }
 
