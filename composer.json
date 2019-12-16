@@ -1,5 +1,5 @@
 {
-    "name": "sunnysideup/silverstripe-simple-template-caching",
+    "name": "sunnysideup/simple-template-caching",
     "description": "Basic functions for caching content in your SS templates.",
     "authors": [
         {
@@ -18,7 +18,7 @@
     "type": "silverstripe-vendormodule",
     "license": "BSD-3-Clause",
     "require": {
-        "silverstripe/cms": "4.6.x-dev"
+        "silverstripe/cms": "^4.0"
     },
     "autoload": {
         "psr-4": {
