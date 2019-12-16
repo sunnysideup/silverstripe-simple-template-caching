@@ -5,3 +5,27 @@ Name: simple_template_caching
 PageController:
   extensions:
     - Sunnysideup\SimpleTemplateCaching\Extensions\PageControllerExtension
+
+SilverStripe\SiteConfig\SiteConfig:
+  extensions:
+    - Sunnysideup\SimpleTemplateCaching\Extensions\SiteConfigExtension
+
+SilverStripe\ORM\DataObject:
+  extensions:
+    - Sunnysideup\SimpleTemplateCaching\Extensions\DataObjectExtension
+
+Sunnysideup\SimpleTemplateCaching\Extensions\DataObjectExtension:
+  excluded_classes:
+   - SilverStripe\SiteConfig\SiteConfig
+   - SilverStripe\Security\Group
+   - SilverStripe\Security\GroupTag
+   - SilverStripe\Security\LoginAttempt
+   - SilverStripe\Security\Member
+   - SilverStripe\Security\MemberPassword
+   - SilverStripe\Security\Permission
+   - SilverStripe\UserForms\Model\Submission\SubmittedForm
+   - SilverStripe\UserForms\Model\Submission\SubmittedFormField
+   - SilverStripe\UserForms\Model\Submission\SubmittedFileField
+   - SilverStripe\UserForms\Model\Submission\SubmittedFileField
+   - SilverStripe\Versioned\ChangeSet
+   - SilverStripe\Versioned\ChangeSetItem

@@ -97,8 +97,6 @@ class PageControllerExtension extends Extension
     {
         if(self::$_cache_key_sitetree_changes === null) {
             self::$_cache_key_sitetree_changes = SiteConfigExtension::site_cache_key();
-                // SiteTree::get()->count() . '_' .
-                // strtotime(SiteTree::get()->Max('LastEdited'));
         }
 
         return self::$_cache_key_sitetree_changes;
