@@ -10,9 +10,9 @@ class PageControllerExtension extends Extension
 {
 
     private static $indexes = [
-        'LastEdited' => true,    
+        'LastEdited' => true,
     ];
-    
+
     /**
      * @var null|bool
      */
@@ -36,26 +36,26 @@ class PageControllerExtension extends Extension
         }
         return self::$_can_cache_content;
     }
-    
+
     public function HasCacheKeyHeader(): bool
     {
         return $this->HasCacheKeys();
     }
-    
+
     public function HasCacheKeyMenu(): bool
     {
         return $this->HasCacheKeys();
-    }   
-    
+    }
+
     public function HasCacheKeyContent(): bool
     {
         return $this->HasCacheKeys();
-    }    
+    }
 
     public function HasCacheKeyFooter(): bool
     {
         return $this->HasCacheKeys();
-    }      
+    }
 
     public function CacheKeyHeader(): string
     {
@@ -70,7 +70,7 @@ class PageControllerExtension extends Extension
             $this->cacheKeySiteTreeChanges() . '_' .
             'ID_' . $this->owner->ID . '_';
     }
-    
+
     public function CacheKeyContent(): string
     {
         return 'C_' .
@@ -96,12 +96,12 @@ class PageControllerExtension extends Extension
     protected function cacheKeySiteTreeChanges() : string
     {
         if(self::$_cache_key_sitetree_changes === null) {
-            self::$_cache_key_sitetree_changes = 
-                SiteTree::get()->count() . '_' .
-                strtotime(SiteTree::get()->Max('LastEdited'));        
+            self::$_cache_key_sitetree_changes = SiteConfigExtension::site_cache_key();
+                // SiteTree::get()->count() . '_' .
+                // strtotime(SiteTree::get()->Max('LastEdited'));
         }
-        
+
         return self::$_cache_key_sitetree_changes;
     }
-    
+
 }
