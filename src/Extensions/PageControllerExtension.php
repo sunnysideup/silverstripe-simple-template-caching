@@ -73,11 +73,15 @@ class PageControllerExtension extends Extension
 
     public function CacheKeyContent(): string
     {
-        return 'C_' .
+        $cacheKey = 'C_' .
             $this->cacheKeySiteTreeChanges() . '_' .
             'ID_' . $this->owner->ID . '_';
 
-        return self::$_cache_key_content;
+        if($this->owner->hasMethod('CacheKeyContentCustom')){
+            $cacheKey .= $this->owner->CacheKeyContentCustom();
+        }
+
+        return $cacheKey;
     }
 
     public function CacheKeyFooter(): string

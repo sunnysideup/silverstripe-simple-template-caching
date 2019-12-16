@@ -8,7 +8,7 @@ use SilverStripe\ORM\DB;
 use SilverStripe\ORM\FieldType\DBDatetime;
 use SilverStripe\SiteConfig\SiteConfig;
 
-class SiteConfigExtension extends DataExtension
+class SimpleTemplateCachingSiteConfigExtension extends DataExtension
 {
 
     private static $db = [

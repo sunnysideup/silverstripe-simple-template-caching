@@ -8,7 +8,7 @@ PageController:
 
 SilverStripe\SiteConfig\SiteConfig:
   extensions:
-    - Sunnysideup\SimpleTemplateCaching\Extensions\SiteConfigExtension
+    - Sunnysideup\SimpleTemplateCaching\Extensions\SimpleTemplateCachingSiteConfigExtension
 
 SilverStripe\ORM\DataObject:
   extensions:

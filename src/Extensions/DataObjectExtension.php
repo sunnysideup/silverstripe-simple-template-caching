@@ -19,6 +19,7 @@ class DataObjectExtension extends DataExtension
             $this->doUpdateCache($className);
         }
         //if the dataobject has the versioned extension then the cache should be invalidated onAfterPublish
+        //hasStages function is part of the Versioned class so safe to check here
         else if (!$owner->hasStages()){
             $this->doUpdateCache($className);
         }
@@ -30,19 +31,20 @@ class DataObjectExtension extends DataExtension
         $this->doUpdateCache($this->owner->ClassName);
     }
 
-    public function updateManyManyComponents()
-    {
-        $owner = $this->owner;
-        $className = $owner->ClassName;
+    //* this function needs further consideration as it is called many times on the front end */
+    // public function updateManyManyComponents()
+    // {
+    //     $owner = $this->owner;
+    //     $className = $owner->ClassName;
 
-        if(!$owner->hasExtension(Versioned::class)){
-            $this->doUpdateCache($className);
-        }
-        //if the dataobject has the versioned extension then the cache should be invalidated onAfterPublish
-        else if (!$owner->hasStages()){
-            $this->doUpdateCache($className);
-        }
-    }
+    //     if(!$owner->hasExtension(Versioned::class)){
+    //         $this->doUpdateCache($className);
+    //     }
+    //     //if the dataobject has the versioned extension then the cache should be invalidated onAfterPublish
+    //     else if (!$owner->hasStages()){
+    //         $this->doUpdateCache($className);
+    //     }
+    // }
 
     public function onBeforeRollback(){
         $this->doUpdateCache($this->owner->ClassName);
