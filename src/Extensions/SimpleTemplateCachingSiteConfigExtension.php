@@ -3,6 +3,7 @@
 namespace Sunnysideup\SimpleTemplateCaching\Extensions;
 
 use SilverStripe\Forms\DatetimeField;
+use SilverStripe\Forms\FieldList;
 use SilverStripe\ORM\DataExtension;
 use SilverStripe\ORM\DB;
 use SilverStripe\ORM\FieldType\DBDatetime;
@@ -15,7 +16,7 @@ class SimpleTemplateCachingSiteConfigExtension extends DataExtension
         'CacheKeyLastEdited' => 'DBDatetime',
     ];
 
-    public function updateCMSFields($fields)
+    public function updateCMSFields(FieldList $fields)
     {
         $fields->addFieldsToTab(
             'Root.Main',
