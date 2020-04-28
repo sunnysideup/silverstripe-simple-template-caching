@@ -100,9 +100,13 @@ class PageControllerExtension extends Extension
 
     public function CacheKeyGenerator($letter) : string
     {
-        $string = $letter.'_' .
-            $this->cacheKeySiteTreeChanges() . '_' .
-            'ID_' . $this->owner->ID;
+        if($this->HasCacheKeys()) {
+            $string = $letter.'_' .
+                $this->cacheKeySiteTreeChanges() . '_' .
+                'ID_' . $this->owner->ID;
+        } else {
+            $string = 'NOT_CACHED'.time().'_'.rand(0,999999999999);
+        }
 
         return $string;
     }
