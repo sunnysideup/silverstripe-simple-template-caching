@@ -92,7 +92,7 @@ class PageControllerExtension extends Extension
     {
         $cacheKey = $this->CacheKeyGenerator('C');
         if($this->owner->hasMethod('CacheKeyContentCustom')){
-            $cacheKey .= $this->owner->CacheKeyContentCustom();
+            $cacheKey .= '_'.$this->owner->CacheKeyContentCustom();
         }
 
         return $cacheKey;
@@ -100,9 +100,12 @@ class PageControllerExtension extends Extension
 
     public function CacheKeyGenerator($letter) : string
     {
-        return $letter.'_' .
+
+        $string = $letter.'_' .
             $this->cacheKeySiteTreeChanges() . '_' .
-            'ID_' . $this->owner->ID . '_';
+            'ID_' . $this->owner->ID;
+        print_r($string);
+        return $string;
     }
 
 
