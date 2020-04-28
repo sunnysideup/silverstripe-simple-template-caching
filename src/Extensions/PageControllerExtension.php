@@ -33,7 +33,13 @@ class PageControllerExtension extends Extension
             }
             $requestVars = $this->owner->request->requestVars();
             if ($requestVars) {
-                self::$_can_cache_content_string .= implode('-', $requestVars);
+                foreach($this->owner->request->requestVars() as $item) {
+                    if(is_string($item)) {
+                        self::$_can_cache_content_string .= $item;
+                    } elseif( is_numeric($item)) {
+                        self::$_can_cache_content_string .= $item;
+                    }
+                }
             }
             $member = Security::getCurrentUser();
             if($member && $member->exists()) {
@@ -75,7 +81,7 @@ class PageControllerExtension extends Extension
 
     public function CacheKeyHeader(): string
     {
-         $this->CacheKeyGenerator('H');
+        return $this->CacheKeyGenerator('H');
     }
 
     public function CacheKeyMenu(): string
