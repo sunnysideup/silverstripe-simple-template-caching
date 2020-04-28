@@ -100,11 +100,10 @@ class PageControllerExtension extends Extension
 
     public function CacheKeyGenerator($letter) : string
     {
-
         $string = $letter.'_' .
             $this->cacheKeySiteTreeChanges() . '_' .
             'ID_' . $this->owner->ID;
-        print_r($string);
+
         return $string;
     }
 
