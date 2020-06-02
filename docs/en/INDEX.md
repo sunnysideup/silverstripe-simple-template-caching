@@ -1,12 +1,18 @@
 # silverstripe-simple-template-caching
 Basic Caching Functionality For Page Templates
 
-# install
+# make an exception
+add the following to your Page (or Home Page or whatever) Controller:
 
-`composer require sunnysideup/simple-template-caching`
-a
+```php
+function canCachePage() : bool
+{
+     return false;
+}
+```
+
 # usage
-
+Here is how to use it in the Page.ss file (or similar):
 ```html
 
 <!doctype html>
