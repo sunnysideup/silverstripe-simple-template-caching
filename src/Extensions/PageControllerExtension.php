@@ -23,6 +23,9 @@ class PageControllerExtension extends Extension
     {
         if (self::$_can_cache_content === null) {
             self::$_can_cache_content_string = '';
+            if ($this->owner->hasMethod('canCachePage')) {
+                self::$_can_cache_content_string = $this->owner->canCachePage() ? '' : 'can-no-cache-'.$this->owner->ID;
+            }
             $action = $this->owner->request->param('Action');
             if ($action) {
                 self::$_can_cache_content_string .= $action;
