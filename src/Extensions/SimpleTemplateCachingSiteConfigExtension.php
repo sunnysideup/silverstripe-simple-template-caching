@@ -11,7 +11,6 @@ use SilverStripe\SiteConfig\SiteConfig;
 
 class SimpleTemplateCachingSiteConfigExtension extends DataExtension
 {
-
     private static $db = [
         'CacheKeyLastEdited' => 'DBDatetime',
     ];
@@ -21,7 +20,7 @@ class SimpleTemplateCachingSiteConfigExtension extends DataExtension
         $fields->addFieldsToTab(
             'Root.Main',
             [
-                DatetimeField::create('CacheKeyLastEdited', 'Content Last Edited')->setRightTitle('The frontend template cache will be invalidated every time this value changes.')
+                DatetimeField::create('CacheKeyLastEdited', 'Content Last Edited')->setRightTitle('The frontend template cache will be invalidated every time this value changes.'),
             ]
         );
     }
@@ -37,5 +36,4 @@ class SimpleTemplateCachingSiteConfigExtension extends DataExtension
     {
         DB::query("UPDATE \"SiteConfig\" SET \"CacheKeyLastEdited\" = '" . DBDatetime::now()->Rfc2822() . "';");
     }
-
 }

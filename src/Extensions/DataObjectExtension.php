@@ -15,12 +15,12 @@ class DataObjectExtension extends DataExtension
         $owner = $this->owner;
         $className = $owner->ClassName;
 
-        if(!$owner->hasExtension(Versioned::class)){
+        // NB.
+        // if the dataobject has the versioned extension then the cache should be invalidated onAfterPublish
+        // hasStages function is part of the Versioned class so safe to check here
+        if (! $owner->hasExtension(Versioned::class)) {
             $this->doUpdateCache($className);
-        }
-        //if the dataobject has the versioned extension then the cache should be invalidated onAfterPublish
-        //hasStages function is part of the Versioned class so safe to check here
-        else if (!$owner->hasStages()){
+        } elseif (! $owner->hasStages()) {
             $this->doUpdateCache($className);
         }
     }
@@ -46,38 +46,46 @@ class DataObjectExtension extends DataExtension
     //     }
     // }
 
-    public function onBeforeRollback(){
+    public function onBeforeRollback()
+    {
         $this->doUpdateCache($this->owner->ClassName);
     }
 
-    public function onAfterPublish(){
+    public function onAfterPublish()
+    {
         $this->doUpdateCache($this->owner->ClassName);
     }
 
-    public function onAfterArchive(){
+    public function onAfterArchive()
+    {
         $this->doUpdateCache($this->owner->ClassName);
     }
 
-    public function onAfterUnpublish(){
+    public function onAfterUnpublish()
+    {
         $this->doUpdateCache($this->owner->ClassName);
     }
 
-    public function onAfterVersionedPublish(){
+    public function onAfterVersionedPublish()
+    {
         $this->doUpdateCache($this->owner->ClassName);
     }
 
-    public function onAfterWriteToStage($toStage){
+    public function onAfterWriteToStage($toStage)
+    {
         $this->doUpdateCache($this->owner->ClassName);
     }
 
-    private function doUpdateCache($className){
-        if($this->canUpdateCache($className)){
+    private function doUpdateCache($className)
+    {
+        if ($this->canUpdateCache($className)) {
             SimpleTemplateCachingSiteConfigExtension::update_cache_key();
         }
     }
 
-    private function canUpdateCache($className){
+    private function canUpdateCache($className)
+    {
         $excludedClasses = Config::inst()->get(self::class, 'excluded_classes');
-        return in_array($className, $excludedClasses) ? false : true;
+        return in_array($className, $excludedClasses, true) ? false : true;
     }
 }
