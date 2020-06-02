@@ -25,15 +25,22 @@ class PageControllerExtension extends Extension
             self::$_can_cache_content_string = '';
             if ($this->owner->hasMethod('canCachePage')) {
                 self::$_can_cache_content_string = $this->owner->canCachePage() ? '' : 'can-no-cache-'.$this->owner->ID;
+                if (self::$_can_cache_content_string !== '') {self::$_can_cache_content = false; return false;}
             }
+            
+            //action 
             $action = $this->owner->request->param('Action');
             if ($action) {
                 self::$_can_cache_content_string .= $action;
+                if (self::$_can_cache_content_string !== '') {self::$_can_cache_content = false; return false;}
             }
             $id = $this->owner->request->param('ID');
+            // id
             if ($id) {
                 self::$_can_cache_content_string .= $id;
+                if (self::$_can_cache_content_string !== '') {self::$_can_cache_content = false; return false;}
             }
+            //request vars
             $requestVars = $this->owner->request->requestVars();
             if ($requestVars) {
                 foreach($this->owner->request->requestVars() as $item) {
@@ -43,16 +50,19 @@ class PageControllerExtension extends Extension
                         self::$_can_cache_content_string .= $item;
                     }
                 }
+                if (self::$_can_cache_content_string !== '') {self::$_can_cache_content = false; return false;}
             }
+            
+            //member
             $member = Security::getCurrentUser();
             if($member && $member->exists()) {
                 self::$_can_cache_content_string .= $member->ID;
+                if (self::$_can_cache_content_string !== '') {self::$_can_cache_content = false; return false;}
             }
-            if (self::$_can_cache_content_string !== '') {
-                self::$_can_cache_content = false;
-            } else {
-                self::$_can_cache_content = true;
-            }
+            
+            // we are ok!
+            self::$_can_cache_content = true;
+
         }
         return self::$_can_cache_content;
     }
