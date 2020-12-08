@@ -6,6 +6,10 @@ PageController:
   extensions:
     - Sunnysideup\SimpleTemplateCaching\Extensions\PageControllerExtension
 
+SilverStripe\CMS\Model\SiteTree:
+  extensions:
+    - Sunnysideup\SimpleTemplateCaching\Extensions\AddLastEditedIndex
+
 SilverStripe\SiteConfig\SiteConfig:
   extensions:
     - Sunnysideup\SimpleTemplateCaching\Extensions\SimpleTemplateCachingSiteConfigExtension

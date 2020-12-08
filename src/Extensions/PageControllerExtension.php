@@ -7,18 +7,21 @@ use SilverStripe\Security\Security;
 
 class PageControllerExtension extends Extension
 {
-
     /**
      * @var bool|null
      */
     private static $_can_cache_content = null;
 
+    /**
+     *
+     * @var string
+     */
     private static $_can_cache_content_string = '';
 
     /**
-     * @var bool|null
+     * @var string|null
      */
-    private static $_cache_key_sitetree_changes = null;
+    protected static $_cache_key_sitetree_changes = null;
 
     public function HasCacheKeys(): bool
     {
@@ -149,7 +152,7 @@ class PageControllerExtension extends Extension
     {
         if (self::$_cache_key_sitetree_changes === null) {
             self::$_cache_key_sitetree_changes = SimpleTemplateCachingSiteConfigExtension::site_cache_key();
-            self::$_cache_key_sitetree_changes .= $this->getCanCacheContentString();
+            self::$_cache_key_sitetree_changes .= $this->getCanCacheContentString() ;
         }
 
         return self::$_cache_key_sitetree_changes;
