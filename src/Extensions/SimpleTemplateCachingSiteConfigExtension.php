@@ -18,9 +18,10 @@ class SimpleTemplateCachingSiteConfigExtension extends DataExtension
     public function updateCMSFields(FieldList $fields)
     {
         $fields->addFieldsToTab(
-            'Root.Main',
+            'Root.Caching',
             [
-                DatetimeField::create('CacheKeyLastEdited', 'Content Last Edited')->setRightTitle('The frontend template cache will be invalidated every time this value changes.'),
+                DatetimeField::create('CacheKeyLastEdited', 'Content Last Edited')
+                    ->setRightTitle('The frontend template cache will be invalidated every time this value changes.'),
             ]
         );
     }
@@ -34,6 +35,6 @@ class SimpleTemplateCachingSiteConfigExtension extends DataExtension
 
     public static function update_cache_key()
     {
-        DB::query("UPDATE \"SiteConfig\" SET \"CacheKeyLastEdited\" = '" . DBDatetime::now()->Rfc2822() . "';");
+        DB::query('UPDATE "SiteConfig" SET "CacheKeyLastEdited" = \'' . DBDatetime::now()->Rfc2822() . '\';');
     }
 }

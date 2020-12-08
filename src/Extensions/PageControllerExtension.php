@@ -7,9 +7,6 @@ use SilverStripe\Security\Security;
 
 class PageControllerExtension extends Extension
 {
-    private static $indexes = [
-        'LastEdited' => true,
-    ];
 
     /**
      * @var bool|null
