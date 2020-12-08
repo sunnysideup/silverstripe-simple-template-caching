@@ -8,9 +8,7 @@ use SilverStripe\Versioned\Versioned;
 
 class DataObjectExtension extends DataExtension
 {
-    private static $indexes = [
-        'LastEdited' => true,
-    ];
+
 
     public function onAfterWrite()
     {
@@ -87,7 +85,7 @@ class DataObjectExtension extends DataExtension
         }
     }
 
-    private function canUpdateCache($className): bool
+    private function canUpdateCache($className) : bool
     {
         $excludedClasses = Config::inst()->get(self::class, 'excluded_classes');
 
