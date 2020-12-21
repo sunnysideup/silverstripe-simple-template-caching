@@ -29,8 +29,7 @@ class PageControllerExtension extends Extension
             self::$_can_cache_content_string = '';
             if ($this->owner->hasMethod('canCachePage')) {
                 self::$_can_cache_content_string = $this->owner->canCachePage() ? '' : 'can-no-cache-' . $this->owner->ID;
-                if (self::$_can_cache_content_string !== '') {
-                    self::$_can_cache_content = false;
+                if ($this->canCacheCheck() === false) {
                     return false;
                 }
             }
@@ -39,8 +38,7 @@ class PageControllerExtension extends Extension
             $action = $this->owner->request->param('Action');
             if ($action) {
                 self::$_can_cache_content_string .= $action;
-                if (self::$_can_cache_content_string !== '') {
-                    self::$_can_cache_content = false;
+                if ($this->canCacheCheck() === false) {
                     return false;
                 }
             }
@@ -48,10 +46,10 @@ class PageControllerExtension extends Extension
             // id
             if ($id) {
                 self::$_can_cache_content_string .= $id;
-                if (self::$_can_cache_content_string !== '') {
-                    self::$_can_cache_content = false;
+                if ($this->canCacheCheck() === false) {
                     return false;
                 }
+
             }
             //request vars
             $requestVars = $this->owner->request->requestVars();
@@ -62,10 +60,9 @@ class PageControllerExtension extends Extension
                     } elseif (is_numeric($item)) {
                         self::$_can_cache_content_string .= $item;
                     }
-                }
-                if (self::$_can_cache_content_string !== '') {
-                    self::$_can_cache_content = false;
-                    return false;
+                    if ($this->canCacheCheck() === false) {
+                        return false;
+                    }
                 }
             }
 
@@ -73,8 +70,7 @@ class PageControllerExtension extends Extension
             $member = Security::getCurrentUser();
             if ($member && $member->exists()) {
                 self::$_can_cache_content_string .= $member->ID;
-                if (self::$_can_cache_content_string !== '') {
-                    self::$_can_cache_content = false;
+                if ($this->canCacheCheck() === false) {
                     return false;
                 }
             }
@@ -83,6 +79,17 @@ class PageControllerExtension extends Extension
             self::$_can_cache_content = true;
         }
         return self::$_can_cache_content;
+    }
+
+    protected function canCacheCheck() : bool
+    {
+        if (self::$_can_cache_content_string !== '') {
+            self::$_can_cache_content = false;
+
+            return false;
+        }
+
+        return true;
     }
 
     public function HasCacheKeyHeader(): bool

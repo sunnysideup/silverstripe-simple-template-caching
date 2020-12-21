@@ -20,7 +20,6 @@ SilverStripe\ORM\DataObject:
 
 Sunnysideup\SimpleTemplateCaching\Extensions\DataObjectExtension:
   excluded_classes:
-   - SilverStripe\SiteConfig\SiteConfig
    - SilverStripe\Security\Group
    - SilverStripe\Security\GroupTag
    - SilverStripe\Security\LoginAttempt
