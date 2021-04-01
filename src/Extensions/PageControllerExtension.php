@@ -10,12 +10,12 @@ class PageControllerExtension extends Extension
     /**
      * @var string|null
      */
-    protected static $_cache_key_sitetree_changes = null;
+    protected static $_cache_key_sitetree_changes;
 
     /**
      * @var bool|null
      */
-    private static $_can_cache_content = null;
+    private static $_can_cache_content;
 
     /**
      * @var string
@@ -28,7 +28,7 @@ class PageControllerExtension extends Extension
             self::$_can_cache_content_string = '';
             if ($this->owner->hasMethod('canCachePage')) {
                 self::$_can_cache_content_string = $this->owner->canCachePage() ? '' : 'can-no-cache-' . $this->owner->ID;
-                if ($this->canCacheCheck() === false) {
+                if (! $this->canCacheCheck()) {
                     return false;
                 }
             }
@@ -37,7 +37,7 @@ class PageControllerExtension extends Extension
             $action = $this->owner->request->param('Action');
             if ($action) {
                 self::$_can_cache_content_string .= $action;
-                if ($this->canCacheCheck() === false) {
+                if (! $this->canCacheCheck()) {
                     return false;
                 }
             }
@@ -45,7 +45,7 @@ class PageControllerExtension extends Extension
             // id
             if ($id) {
                 self::$_can_cache_content_string .= $id;
-                if ($this->canCacheCheck() === false) {
+                if (! $this->canCacheCheck()) {
                     return false;
                 }
             }
@@ -58,7 +58,7 @@ class PageControllerExtension extends Extension
                     } elseif (is_numeric($item)) {
                         self::$_can_cache_content_string .= $item;
                     }
-                    if ($this->canCacheCheck() === false) {
+                    if (! $this->canCacheCheck()) {
                         return false;
                     }
                 }
@@ -68,7 +68,7 @@ class PageControllerExtension extends Extension
             $member = Security::getCurrentUser();
             if ($member && $member->exists()) {
                 self::$_can_cache_content_string .= $member->ID;
-                if ($this->canCacheCheck() === false) {
+                if (! $this->canCacheCheck()) {
                     return false;
                 }
             }

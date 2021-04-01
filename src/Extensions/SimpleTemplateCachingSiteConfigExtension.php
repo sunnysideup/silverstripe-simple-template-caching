@@ -35,6 +35,6 @@ class SimpleTemplateCachingSiteConfigExtension extends DataExtension
 
     public static function update_cache_key()
     {
-        DB::query('UPDATE "SiteConfig" SET "CacheKeyLastEdited" = \'' . DBDatetime::now()->Rfc2822() . '\';');
+        DB::query('UPDATE "SiteConfig" SET "CacheKeyLastEdited" = \'' . DBDatetime::now()->Rfc2822() . "';");
     }
 }

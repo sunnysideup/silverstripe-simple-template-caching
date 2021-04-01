@@ -87,6 +87,6 @@ class DataObjectExtension extends DataExtension
     {
         $excludedClasses = Config::inst()->get(self::class, 'excluded_classes');
 
-        return in_array($className, $excludedClasses, true) ? false : true;
+        return ! in_array($className, $excludedClasses, true);
     }
 }
