@@ -8,8 +8,6 @@ use SilverStripe\Versioned\Versioned;
 
 class DataObjectExtension extends DataExtension
 {
-
-
     public function onAfterWrite()
     {
         parent::onAfterWrite();
@@ -85,7 +83,7 @@ class DataObjectExtension extends DataExtension
         }
     }
 
-    private function canUpdateCache($className) : bool
+    private function canUpdateCache($className): bool
     {
         $excludedClasses = Config::inst()->get(self::class, 'excluded_classes');
 

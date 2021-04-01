@@ -8,20 +8,19 @@ use SilverStripe\Security\Security;
 class PageControllerExtension extends Extension
 {
     /**
+     * @var string|null
+     */
+    protected static $_cache_key_sitetree_changes = null;
+
+    /**
      * @var bool|null
      */
     private static $_can_cache_content = null;
 
     /**
-     *
      * @var string
      */
     private static $_can_cache_content_string = '';
-
-    /**
-     * @var string|null
-     */
-    protected static $_cache_key_sitetree_changes = null;
 
     public function HasCacheKeys(): bool
     {
@@ -49,7 +48,6 @@ class PageControllerExtension extends Extension
                 if ($this->canCacheCheck() === false) {
                     return false;
                 }
-
             }
             //request vars
             $requestVars = $this->owner->request->requestVars();
@@ -79,17 +77,6 @@ class PageControllerExtension extends Extension
             self::$_can_cache_content = true;
         }
         return self::$_can_cache_content;
-    }
-
-    protected function canCacheCheck() : bool
-    {
-        if (self::$_can_cache_content_string !== '') {
-            self::$_can_cache_content = false;
-
-            return false;
-        }
-
-        return true;
     }
 
     public function HasCacheKeyHeader(): bool
@@ -150,6 +137,17 @@ class PageControllerExtension extends Extension
         return $string;
     }
 
+    protected function canCacheCheck(): bool
+    {
+        if (self::$_can_cache_content_string !== '') {
+            self::$_can_cache_content = false;
+
+            return false;
+        }
+
+        return true;
+    }
+
     protected function getCanCacheContentString(): string
     {
         return self::$_can_cache_content_string;
@@ -159,7 +157,7 @@ class PageControllerExtension extends Extension
     {
         if (self::$_cache_key_sitetree_changes === null) {
             self::$_cache_key_sitetree_changes = SimpleTemplateCachingSiteConfigExtension::site_cache_key();
-            self::$_cache_key_sitetree_changes .= $this->getCanCacheContentString() ;
+            self::$_cache_key_sitetree_changes .= $this->getCanCacheContentString();
         }
 
         return self::$_cache_key_sitetree_changes;
