@@ -8,12 +8,12 @@ use SilverStripe\Security\Security;
 class PageControllerExtension extends Extension
 {
     /**
-     * @var string|null
+     * @var null|string
      */
     protected static $_cache_key_sitetree_changes;
 
     /**
-     * @var bool|null
+     * @var null|bool
      */
     private static $_can_cache_content;
 
@@ -24,7 +24,7 @@ class PageControllerExtension extends Extension
 
     public function HasCacheKeys(): bool
     {
-        if (self::$_can_cache_content === null) {
+        if (null === self::$_can_cache_content) {
             self::$_can_cache_content_string = '';
             if ($this->owner->hasMethod('canCachePage')) {
                 self::$_can_cache_content_string = $this->owner->canCachePage() ? '' : 'can-no-cache-' . $this->owner->ID;
@@ -76,6 +76,7 @@ class PageControllerExtension extends Extension
             // we are ok!
             self::$_can_cache_content = true;
         }
+
         return self::$_can_cache_content;
     }
 
@@ -139,7 +140,7 @@ class PageControllerExtension extends Extension
 
     protected function canCacheCheck(): bool
     {
-        if (self::$_can_cache_content_string !== '') {
+        if ('' !== self::$_can_cache_content_string) {
             self::$_can_cache_content = false;
 
             return false;
@@ -155,7 +156,7 @@ class PageControllerExtension extends Extension
 
     protected function cacheKeySiteTreeChanges(): string
     {
-        if (self::$_cache_key_sitetree_changes === null) {
+        if (null === self::$_cache_key_sitetree_changes) {
             self::$_cache_key_sitetree_changes = SimpleTemplateCachingSiteConfigExtension::site_cache_key();
             self::$_cache_key_sitetree_changes .= $this->getCanCacheContentString();
         }
