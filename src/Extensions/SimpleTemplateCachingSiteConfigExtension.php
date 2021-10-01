@@ -26,7 +26,7 @@ class SimpleTemplateCachingSiteConfigExtension extends DataExtension
         );
     }
 
-    public static function site_cache_key()
+    public static function site_cache_key() : string
     {
         $obj = SiteConfig::current_site_config();
 
