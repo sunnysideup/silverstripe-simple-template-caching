@@ -26,11 +26,11 @@ class SimpleTemplateCachingSiteConfigExtension extends DataExtension
         );
     }
 
-    public static function site_cache_key() : string
+    public static function site_cache_key(): string
     {
         $obj = SiteConfig::current_site_config();
 
-        return strtotime($obj->CacheKeyLastEdited);
+        return (string) 'ts_'.strtotime($obj->CacheKeyLastEdited);
     }
 
     public static function update_cache_key()

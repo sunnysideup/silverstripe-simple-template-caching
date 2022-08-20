@@ -41,6 +41,7 @@ class PageControllerExtension extends Extension
                     return false;
                 }
             }
+
             $id = $this->owner->request->param('ID');
             // id
             if ($id) {
@@ -49,6 +50,7 @@ class PageControllerExtension extends Extension
                     return false;
                 }
             }
+
             //request vars
             $requestVars = $this->owner->request->requestVars();
             if ($requestVars) {
@@ -58,6 +60,7 @@ class PageControllerExtension extends Extension
                     } elseif (is_numeric($item)) {
                         self::$_can_cache_content_string .= $item;
                     }
+
                     if (! $this->canCacheCheck()) {
                         return false;
                     }
