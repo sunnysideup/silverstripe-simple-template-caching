@@ -103,19 +103,19 @@ class PageControllerExtension extends Extension
         return $this->HasCacheKeys();
     }
 
-    public function CacheKeyHeader(): string
+    public function CacheKeyHeader($includePageId = true): string
     {
-        return $this->CacheKeyGenerator('H');
+        return $this->CacheKeyGenerator('H', $includePageId);
     }
 
-    public function CacheKeyMenu(): string
+    public function CacheKeyMenu($includePageId = true): string
     {
-        return $this->CacheKeyGenerator('M');
+        return $this->CacheKeyGenerator('M', $includePageId);
     }
 
-    public function CacheKeyFooter(): string
+    public function CacheKeyFooter($includePageId = true): string
     {
-        return $this->CacheKeyGenerator('F');
+        return $this->CacheKeyGenerator('F', $includePageId);
     }
 
     public function CacheKeyContent(): string
@@ -128,12 +128,16 @@ class PageControllerExtension extends Extension
         return $cacheKey;
     }
 
-    public function CacheKeyGenerator($letter): string
+    public function CacheKeyGenerator($letter, $includePageId = true): string
     {
         if ($this->HasCacheKeys()) {
             $string = $letter . '_' .
-                $this->cacheKeySiteTreeChanges() . '_' .
-                'ID_' . $this->owner->ID;
+                $this->cacheKeySiteTreeChanges();
+
+            if ($includePageId) {
+                $string .= '_ID_' . $this->owner->ID;
+            }
+
         } else {
             $string = 'NOT_CACHED' . time() . '_' . rand(0, 999999999999);
         }
