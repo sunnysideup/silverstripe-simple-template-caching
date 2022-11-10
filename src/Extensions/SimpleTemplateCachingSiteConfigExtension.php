@@ -4,6 +4,7 @@ namespace Sunnysideup\SimpleTemplateCaching\Extensions;
 
 use SilverStripe\Forms\DatetimeField;
 use SilverStripe\Forms\ReadonlyField;
+use SilverStripe\Forms\CheckboxField;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\ORM\DataExtension;
 use SilverStripe\ORM\DB;
@@ -13,6 +14,7 @@ use SilverStripe\SiteConfig\SiteConfig;
 class SimpleTemplateCachingSiteConfigExtension extends DataExtension
 {
     private static $db = [
+        'HasCaching' => 'Boolean(1)',
         'CacheKeyLastEdited' => 'DBDatetime',
         'ClassNameLastEdited' => 'Varchar(200)',
     ];
@@ -22,6 +24,7 @@ class SimpleTemplateCachingSiteConfigExtension extends DataExtension
         $fields->addFieldsToTab(
             'Root.Caching',
             [
+                CheckboxField::create('HasCaching', 'Use caching'),
                 DatetimeField::create('CacheKeyLastEdited', 'Content Last Edited')
                     ->setRightTitle('The frontend template cache will be invalidated every time this value changes.'),
                 ReadonlyField::create('ClassNameLastEdited', 'Last class updated')
@@ -33,8 +36,11 @@ class SimpleTemplateCachingSiteConfigExtension extends DataExtension
     public static function site_cache_key(): string
     {
         $obj = SiteConfig::current_site_config();
-
-        return (string) 'ts_'.strtotime($obj->CacheKeyLastEdited);
+        if($obj->HasCaching) {
+            return (string) 'ts_'.strtotime($obj->CacheKeyLastEdited);
+        } else {
+            return  (string) 'ts_'.time();
+        }
     }
 
     public static function update_cache_key(?string $className = '')
