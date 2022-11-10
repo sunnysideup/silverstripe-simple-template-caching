@@ -12,7 +12,7 @@ class DataObjectExtension extends DataExtension
     {
         parent::onAfterWrite();
 
-        $owner = $this->owner;
+        $owner = $this->getOwner();
         $className = $owner->ClassName;
 
         // NB.
@@ -28,7 +28,7 @@ class DataObjectExtension extends DataExtension
     public function onAfterDelete()
     {
         parent::onAfterDelete();
-        $this->doUpdateCache($this->owner->ClassName);
+        $this->doUpdateCache();
     }
 
     //* this function needs further consideration as it is called many times on the front end */
@@ -48,38 +48,39 @@ class DataObjectExtension extends DataExtension
 
     public function onBeforeRollback()
     {
-        $this->doUpdateCache($this->owner->ClassName);
+        $this->doUpdateCache();
     }
 
     public function onAfterPublish()
     {
-        $this->doUpdateCache($this->owner->ClassName);
+        $this->doUpdateCache();
     }
 
     public function onAfterArchive()
     {
-        $this->doUpdateCache($this->owner->ClassName);
+        $this->doUpdateCache();
     }
 
     public function onAfterUnpublish()
     {
-        $this->doUpdateCache($this->owner->ClassName);
+        $this->doUpdateCache();
     }
 
     public function onAfterVersionedPublish()
     {
-        $this->doUpdateCache($this->owner->ClassName);
+        $this->doUpdateCache();
     }
 
     public function onAfterWriteToStage($toStage)
     {
-        $this->doUpdateCache($this->owner->ClassName);
+        $this->doUpdateCache();
     }
 
-    private function doUpdateCache($className)
+    private function doUpdateCache()
     {
-        if ($this->canUpdateCache($className)) {
-            SimpleTemplateCachingSiteConfigExtension::update_cache_key();
+        $className = (string) $this->getOwner()->ClassName;
+        if ($className && $this->canUpdateCache($className)) {
+            SimpleTemplateCachingSiteConfigExtension::update_cache_key($className);
         }
     }
 
