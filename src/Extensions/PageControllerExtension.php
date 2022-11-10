@@ -103,17 +103,17 @@ class PageControllerExtension extends Extension
         return $this->HasCacheKeys();
     }
 
-    public function CacheKeyHeader($includePageId = true): string
+    public function CacheKeyHeader(?bool $includePageId = true): string
     {
         return $this->CacheKeyGenerator('H', $includePageId);
     }
 
-    public function CacheKeyMenu($includePageId = true): string
+    public function CacheKeyMenu(?bool $includePageId = true): string
     {
         return $this->CacheKeyGenerator('M', $includePageId);
     }
 
-    public function CacheKeyFooter($includePageId = true): string
+    public function CacheKeyFooter(?bool $includePageId = true): string
     {
         return $this->CacheKeyGenerator('F', $includePageId);
     }
