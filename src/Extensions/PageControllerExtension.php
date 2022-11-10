@@ -10,7 +10,7 @@ class PageControllerExtension extends Extension
     /**
      * @var null|string
      */
-    protected static $_cache_key_sitetree_changes;
+    protected static $_cache_key_any_data_object_changes;
 
     /**
      * @var null|bool
@@ -132,10 +132,10 @@ class PageControllerExtension extends Extension
     {
         if ($this->HasCacheKeys()) {
             $string = $letter . '_' .
-                $this->cacheKeySiteTreeChanges() . '_' .
+                $this->cacheKeyAnyDataObjectChanges() . '_' .
                 'ID_' . $this->owner->ID;
         } else {
-            $string = 'NOT_CACHED' . time() . '_' . rand(0, 999999999999);
+            $string = 'NOT_CACHED_' . time() . '_' . rand(0, 999);
         }
 
         return $string;
@@ -143,7 +143,7 @@ class PageControllerExtension extends Extension
 
     protected function canCacheCheck(): bool
     {
-        if ('' !== self::$_can_cache_content_string) {
+        if ('' !== trim(self::$_can_cache_content_string)) {
             self::$_can_cache_content = false;
 
             return false;
@@ -157,13 +157,13 @@ class PageControllerExtension extends Extension
         return self::$_can_cache_content_string;
     }
 
-    protected function cacheKeySiteTreeChanges(): string
+    protected function cacheKeyAnyDataObjectChanges(): string
     {
-        if (null === self::$_cache_key_sitetree_changes) {
-            self::$_cache_key_sitetree_changes = SimpleTemplateCachingSiteConfigExtension::site_cache_key();
-            self::$_cache_key_sitetree_changes .= $this->getCanCacheContentString();
+        if (null === self::$_cache_key_any_data_object_changes) {
+            self::$_cache_key_any_data_object_changes = SimpleTemplateCachingSiteConfigExtension::site_cache_key();
+            self::$_cache_key_any_data_object_changes .= $this->getCanCacheContentString();
         }
 
-        return self::$_cache_key_sitetree_changes;
+        return self::$_cache_key_any_data_object_changes;
     }
 }
