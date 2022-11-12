@@ -41,8 +41,7 @@ class ObjectsUpdated extends DataObject
      */
     private static $summary_fields = [
         'Created'      => 'Updated',
-        'ClassNameLastEdited'      => 'ClassName',
-        'ClassNameTitle'      => 'Human readable name',
+        'ClassNameTitle' => 'Record name    ',
     ];
 
     /**
@@ -67,4 +66,5 @@ class ObjectsUpdated extends DataObject
         }
         return 'class not found';
     }
+
 }

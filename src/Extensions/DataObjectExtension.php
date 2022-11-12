@@ -6,6 +6,8 @@ use SilverStripe\Core\Config\Config;
 use SilverStripe\ORM\DataExtension;
 use SilverStripe\Versioned\Versioned;
 
+use Sunnysideup\SimpleTemplateCaching\Model\ObjectsUpdated;
+
 class DataObjectExtension extends DataExtension
 {
     public function onAfterWrite()
@@ -86,7 +88,11 @@ class DataObjectExtension extends DataExtension
 
     private function canUpdateCache($className): bool
     {
-        $excludedClasses = Config::inst()->get(self::class, 'excluded_classes');
+        // we want to always avoid this to avoid a loop.
+        if($className === ObjectsUpdated::class) {
+            return false;
+        }
+        $excludedClasses = (array) Config::inst()->get(self::class, 'excluded_classes_for_caching');
 
         return ! in_array($className, $excludedClasses, true);
     }

@@ -20,6 +20,8 @@ use Sunnysideup\SimpleTemplateCaching\Model\ObjectsUpdated;
 
 class SimpleTemplateCachingSiteConfigExtension extends DataExtension
 {
+    private const MAX_OBJECTS_UPDATED = 1000;
+
     private static $db = [
         'HasCaching' => 'Boolean(1)',
         'RecordCacheUpdates' => 'Boolean(0)',
@@ -50,8 +52,8 @@ class SimpleTemplateCachingSiteConfigExtension extends DataExtension
                 [
                     GridField::create(
                         'ObjectsUpdated',
-                        'Last 1000 objects updated',
-                        ObjectsUpdated::get()->limit(1000),
+                        'Last '.self::MAX_OBJECTS_UPDATED.' objects updated',
+                        ObjectsUpdated::get()->limit(self::MAX_OBJECTS_UPDATED),
                         GridFieldConfig_RecordViewer::create()
                     )
                 ]
@@ -82,9 +84,10 @@ class SimpleTemplateCachingSiteConfigExtension extends DataExtension
             ;');
         }
         if($obj->RecordCacheUpdates) {
-            $record = Injector::inst()
+            $recordId = Injector::inst()
                 ->create(ObjectsUpdated::class, ['ClassNameLastEdited' => $className])
                 ->write();
+            DB::query('DELETE FROM ObjectsUpdated WHERE ID < '.(Int) ($recordId - self::MAX_OBJECTS_UPDATED));
         }
     }
 }
