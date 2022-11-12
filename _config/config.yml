@@ -32,3 +32,4 @@ Sunnysideup\SimpleTemplateCaching\Extensions\DataObjectExtension:
    - SilverStripe\UserForms\Model\Submission\SubmittedFileField
    - SilverStripe\Versioned\ChangeSet
    - SilverStripe\Versioned\ChangeSetItem
+   - SilverStripe\SessionManager\Models\LoginSession
