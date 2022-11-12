@@ -39,8 +39,9 @@ class SimpleTemplateCachingSiteConfigExtension extends DataExtension
             'Root.Caching',
             [
                 CheckboxField::create('HasCaching', 'Use caching'),
-                CheckboxField::create('RecordCacheUpdates', 'To work out when the cache is being updated, you can track every change. This will slow down all your edits, so it is recommend only to turn this on temporarily - for tuning purposes.'),
-                DatetimeField::create('CacheKeyLastEdited', 'Content Last Edited')
+                CheckboxField::create('RecordCacheUpdates', 'Record every change?')
+                    ->setDescription('To work out when the cache is being updated, you can track every change. This will slow down all your edits, so it is recommend only to turn this on temporarily - for tuning purposes.'),
+                ReadonlyField::create('CacheKeyLastEdited', 'Content Last Edited')
                     ->setRightTitle('The frontend template cache will be invalidated every time this value changes. It changes every time anything is changed in the database.'),
                 ReadonlyField::create('ClassNameLastEdited', 'Last class updated')
                     ->setRightTitle('Last object updated. The name of this object is: '.$name),
