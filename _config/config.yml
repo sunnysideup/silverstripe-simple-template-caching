@@ -26,6 +26,7 @@ Sunnysideup\SimpleTemplateCaching\Extensions\DataObjectExtension:
    - SilverStripe\Security\Member
    - SilverStripe\Security\MemberPassword
    - SilverStripe\Security\Permission
+   - SilverStripe\Security\RememberLoginHash
    - SilverStripe\UserForms\Model\Submission\SubmittedForm
    - SilverStripe\UserForms\Model\Submission\SubmittedFormField
    - SilverStripe\UserForms\Model\Submission\SubmittedFileField
