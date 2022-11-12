@@ -80,8 +80,9 @@ class SimpleTemplateCachingSiteConfigExtension extends DataExtension
                 UPDATE "SiteConfig"
                 SET
                     "CacheKeyLastEdited" = \'' . DBDatetime::now()->Rfc2822() . '\',
-                    "ClassNameLastEdited" = \'' . addslashes($className). '\'
+                    "ClassNameLastEdited" = \'' . addslashes((string) $className). '\'
                 WHERE ID = '.$obj->ID.'
+                LIMIT 1
             ;');
         }
         if($obj->RecordCacheUpdates) {
