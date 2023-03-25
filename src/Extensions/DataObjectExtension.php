@@ -5,7 +5,6 @@ namespace Sunnysideup\SimpleTemplateCaching\Extensions;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\ORM\DataExtension;
 use SilverStripe\Versioned\Versioned;
-
 use Sunnysideup\SimpleTemplateCaching\Model\ObjectsUpdated;
 
 class DataObjectExtension extends DataExtension
@@ -89,7 +88,7 @@ class DataObjectExtension extends DataExtension
     private function canUpdateCache($className): bool
     {
         // we want to always avoid this to avoid a loop.
-        if($className === ObjectsUpdated::class) {
+        if (ObjectsUpdated::class === $className) {
             return false;
         }
         $excludedClasses = (array) Config::inst()->get(self::class, 'excluded_classes_for_caching');

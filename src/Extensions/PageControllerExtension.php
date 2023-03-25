@@ -131,12 +131,11 @@ class PageControllerExtension extends Extension
     public function CacheKeyGenerator($letter, $includePageId = true): string
     {
         if ($this->HasCacheKeys()) {
-            $string = $letter . '_' .$this->cacheKeyAnyDataObjectChanges();
+            $string = $letter . '_' . $this->cacheKeyAnyDataObjectChanges();
 
             if ($includePageId) {
                 $string .= '_ID_' . $this->owner->ID;
             }
-
         } else {
             $string = 'NOT_CACHED_' . '_ID_' . $this->owner->ID . time() . '_' . rand(0, 999);
         }
