@@ -14,6 +14,15 @@ use SilverStripe\ORM\FieldType\DBDatetime;
 use SilverStripe\SiteConfig\SiteConfig;
 use Sunnysideup\SimpleTemplateCaching\Model\ObjectsUpdated;
 
+/**
+ * Class \Sunnysideup\SimpleTemplateCaching\Extensions\SimpleTemplateCachingSiteConfigExtension
+ *
+ * @property SiteConfig|SimpleTemplateCachingSiteConfigExtension $owner
+ * @property bool $HasCaching
+ * @property bool $RecordCacheUpdates
+ * @property string $CacheKeyLastEdited
+ * @property string $ClassNameLastEdited
+ */
 class SimpleTemplateCachingSiteConfigExtension extends DataExtension
 {
     private const MAX_OBJECTS_UPDATED = 1000;

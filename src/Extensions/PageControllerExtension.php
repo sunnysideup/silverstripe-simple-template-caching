@@ -5,6 +5,11 @@ namespace Sunnysideup\SimpleTemplateCaching\Extensions;
 use SilverStripe\Core\Extension;
 use SilverStripe\Security\Security;
 
+/**
+ * Class \Sunnysideup\SimpleTemplateCaching\Extensions\PageControllerExtension
+ *
+ * @property PageController|PageControllerExtension $owner
+ */
 class PageControllerExtension extends Extension
 {
     /**

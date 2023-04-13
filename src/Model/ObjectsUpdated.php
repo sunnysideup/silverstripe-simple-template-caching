@@ -8,11 +8,7 @@ use SilverStripe\ORM\DataObject;
 /**
  * A blog category for generalising blog posts.
  *
- * @method Blog Blog()
- *
- * @property string $Title
- * @property string $URLSegment
- * @property int    $BlogID
+ * @property string $ClassNameLastEdited
  */
 class ObjectsUpdated extends DataObject
 {
