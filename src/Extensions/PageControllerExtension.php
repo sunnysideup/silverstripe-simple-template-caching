@@ -4,6 +4,7 @@ namespace Sunnysideup\SimpleTemplateCaching\Extensions;
 
 use SilverStripe\Core\Extension;
 use SilverStripe\Security\Security;
+use PageController;
 
 /**
  * Class \Sunnysideup\SimpleTemplateCaching\Extensions\PageControllerExtension
@@ -29,6 +30,9 @@ class PageControllerExtension extends Extension
 
     public function HasCacheKeys(): bool
     {
+        /** @var PageController owner */
+
+        $owner = $this->owner;
         if (null === self::$_can_cache_content) {
             self::$_can_cache_content_string = '';
             if ($this->owner->hasMethod('canCachePage')) {
