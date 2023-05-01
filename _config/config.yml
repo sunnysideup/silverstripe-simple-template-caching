@@ -33,3 +33,13 @@ Sunnysideup\SimpleTemplateCaching\Extensions\DataObjectExtension:
    - SilverStripe\Versioned\ChangeSet
    - SilverStripe\Versioned\ChangeSetItem
    - SilverStripe\SessionManager\Models\LoginSession
+---
+Name: corecache_extended
+After:
+  - '#corecache'
+---
+Psr\SimpleCache\CacheInterface.cacheblock:
+  factory: SilverStripe\Core\Cache\CacheFactory
+  constructor:
+    namespace: "graphql"
+    defaultLifetime: 864000
