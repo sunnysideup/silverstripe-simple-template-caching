@@ -38,8 +38,9 @@ Name: corecache_extended
 After:
   - '#corecache'
 ---
-Psr\SimpleCache\CacheInterface.cacheblock:
-  factory: SilverStripe\Core\Cache\CacheFactory
-  constructor:
-    namespace: "graphql"
-    defaultLifetime: 864000
+SilverStripe\Core\Injector\Injector:
+  Psr\SimpleCache\CacheInterface.cacheblock:
+    factory: SilverStripe\Core\Cache\CacheFactory
+    constructor:
+      namespace: "cacheblock"
+      defaultLifetime: 864000 # 10 days!
