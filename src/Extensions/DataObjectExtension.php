@@ -8,7 +8,7 @@ use SilverStripe\Versioned\Versioned;
 use Sunnysideup\SimpleTemplateCaching\Model\ObjectsUpdated;
 
 /**
- * Class \Sunnysideup\SimpleTemplateCaching\Extensions\DataObjectExtension
+ * Class \Sunnysideup\SimpleTemplateCaching\Extensions\DataObjectExtension.
  *
  * @property DataObject|DataObjectExtension $owner
  */
