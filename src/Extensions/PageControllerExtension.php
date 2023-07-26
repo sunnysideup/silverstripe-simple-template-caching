@@ -33,45 +33,30 @@ class PageControllerExtension extends Extension
         /** @var PageController owner */
         $owner = $this->owner;
         if (null === self::$_can_cache_content) {
+            $canCache = true;
             self::$_can_cache_content_string = '';
             if ($this->owner->hasMethod('canCachePage')) {
-                self::$_can_cache_content_string = $this->owner->canCachePage() ? '' : 'can-no-cache-' . $this->owner->ID;
-                if (! $this->canCacheCheck()) {
-                    return false;
-                }
+                // if it can cache the page, then it the cache string will remain empty.
+                self::$_can_cache_content_string .= $this->owner->canCachePage() ? '' : 'can-no-cache-' . $this->owner->ID. '_'.rand(0, 99999999999999999);
             }
 
             //action
             $action = $this->owner->request->param('Action');
             if ($action) {
                 self::$_can_cache_content_string .= $action;
-                if (! $this->canCacheCheck()) {
-                    return false;
-                }
             }
 
             $id = $this->owner->request->param('ID');
             // id
             if ($id) {
                 self::$_can_cache_content_string .= $id;
-                if (! $this->canCacheCheck()) {
-                    return false;
-                }
             }
 
             //request vars
             $requestVars = $this->owner->request->requestVars();
             if ($requestVars) {
                 foreach ($this->owner->request->requestVars() as $item) {
-                    if (is_string($item)) {
-                        self::$_can_cache_content_string .= $item;
-                    } elseif (is_numeric($item)) {
-                        self::$_can_cache_content_string .= $item;
-                    }
-
-                    if (! $this->canCacheCheck()) {
-                        return false;
-                    }
+                    self::$_can_cache_content_string .= (string) $item;
                 }
             }
 
@@ -79,11 +64,10 @@ class PageControllerExtension extends Extension
             $member = Security::getCurrentUser();
             if ($member && $member->exists()) {
                 self::$_can_cache_content_string .= $member->ID;
-                if (! $this->canCacheCheck()) {
-                    return false;
-                }
             }
-
+            if (! $this->canCacheCheck()) {
+                return false;
+            }
             // we are ok!
             self::$_can_cache_content = true;
         }
@@ -151,6 +135,11 @@ class PageControllerExtension extends Extension
         return $string;
     }
 
+    /**
+     * if the cache string is NOT empty then we cannot cache.
+     *
+     * @return boolean
+     */
     protected function canCacheCheck(): bool
     {
         if ('' !== trim(self::$_can_cache_content_string)) {
