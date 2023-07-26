@@ -33,7 +33,6 @@ class PageControllerExtension extends Extension
         /** @var PageController owner */
         $owner = $this->owner;
         if (null === self::$_can_cache_content) {
-            $canCache = true;
             self::$_can_cache_content_string = '';
             if ($this->owner->hasMethod('canCachePage')) {
                 // if it can cache the page, then it the cache string will remain empty.
@@ -65,11 +64,8 @@ class PageControllerExtension extends Extension
             if ($member && $member->exists()) {
                 self::$_can_cache_content_string .= $member->ID;
             }
-            if (! $this->canCacheCheck()) {
-                return false;
-            }
-            // we are ok!
-            self::$_can_cache_content = true;
+            // crucial
+            self::$_can_cache_content = ('' === trim(self::$_can_cache_content_string));
         }
 
         return self::$_can_cache_content;
@@ -129,26 +125,22 @@ class PageControllerExtension extends Extension
                 $string .= '_ID_' . $this->owner->ID;
             }
         } else {
-            $string = 'NOT_CACHED_' . '_ID_' . $this->owner->ID . time() . '_' . rand(0, 999);
+            $string = 'NOT_CACHED_' . '_ID_' . $this->owner->ID . time() . '_' . rand(0, 99999999999999);
         }
 
         return $string;
     }
 
     /**
-     * if the cache string is NOT empty then we cannot cache.
+     * if the cache string is NOT empty then we cannot cache
+     * as there are specific caching values that indicate the page can not be cached.
      *
      * @return boolean
      */
     protected function canCacheCheck(): bool
     {
-        if ('' !== trim(self::$_can_cache_content_string)) {
-            self::$_can_cache_content = false;
-
-            return false;
-        }
-
-        return true;
+        // back to source
+        return $this->HasCacheKeys();
     }
 
     protected function getCanCacheContentString(): string
