@@ -1,30 +1,32 @@
 {
-    "name": "sunnysideup/simple-template-caching",
-    "description": "Basic functions for caching content in your SS templates.",
-    "authors": [
-        {
-            "name": "Nicolaas Francken",
-            "email": "modules@sunnysideup.co.nz",
-            "role": "lead developer"
-        },
-        {
-            "name": "LABCAT",
-            "homepage": "https://github.com/LABCAT/"
-        }
-    ],
-    "keywords": [
-        "silverstripe", "cache", "content"
-    ],
-    "type": "silverstripe-vendormodule",
-    "license": "BSD-3-Clause",
-    "require": {
-        "silverstripe/cms": "^4.0 || ^5.0"
+  "name": "sunnysideup/simple-template-caching",
+  "description": "Basic functions for caching content in your SS templates.",
+  "authors": [
+    {
+      "name": "Nicolaas Francken",
+      "email": "modules@sunnysideup.co.nz",
+      "role": "lead developer"
     },
-    "autoload": {
-        "psr-4": {
-            "Sunnysideup\\SimpleTemplateCaching\\": "src/"
-        }
-    },
-    "minimum-stability": "dev",
-    "prefer-stable": true
+    {
+      "name": "LABCAT",
+      "homepage": "https://github.com/LABCAT/"
+    }
+  ],
+  "keywords": [
+    "silverstripe",
+    "cache",
+    "content"
+  ],
+  "type": "silverstripe-vendormodule",
+  "license": "BSD-3-Clause",
+  "require": {
+    "silverstripe/cms": "^4.0 || ^5.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Sunnysideup\\SimpleTemplateCaching\\": "src/"
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
 }
