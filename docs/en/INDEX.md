@@ -24,7 +24,7 @@ Here is how to use it in the Page.ss file (or similar):
 
     <% if $HasCacheKeyHeader %>
     <% cached $CacheKeyHeader %>
-        <!-- cached header -->
+        <!-- cached header, one per site! -->
         <% include Header %>
     <% end_cached %>
     <% else %>
@@ -33,7 +33,7 @@ Here is how to use it in the Page.ss file (or similar):
 
     <% if $HasCacheKeyMenu %>
         <% cached $CacheKeyMenu %>
-            <!-- cached menu -->
+            <!-- cached menu unique for each page -->
             <% include Menu %>
         <% end_cached %>
     <% else %>
@@ -42,7 +42,7 @@ Here is how to use it in the Page.ss file (or similar):
         
     <% if $HasCacheKeyContent %>
         <% cached $CacheKeyContent %>
-            <!-- cached content -->
+            <!-- cached content unique for each page -->
             $Layout
         <% end_cached %>
     <% else %>
@@ -51,7 +51,7 @@ Here is how to use it in the Page.ss file (or similar):
 
     <% if $HasCacheKeyFooter %>
     <% cached $CacheKeyFooter %>
-        <!-- cached footer -->
+        <!-- cached footer, one per site -->
         <% include Footer %>
     <% end_cached %>
     <% else %>
