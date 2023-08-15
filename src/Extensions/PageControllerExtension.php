@@ -28,6 +28,11 @@ class PageControllerExtension extends Extension
      */
     private static $_can_cache_content_string = '';
 
+    /**
+     * does the page have cache keys AKA can it be cached?
+     *
+     * @return boolean
+     */
     public function HasCacheKeys(): bool
     {
         /** @var PageController owner */
@@ -36,7 +41,7 @@ class PageControllerExtension extends Extension
             self::$_can_cache_content_string = '';
             if ($this->owner->hasMethod('canCachePage')) {
                 // if it can cache the page, then it the cache string will remain empty.
-                self::$_can_cache_content_string .= $this->owner->canCachePage() ? '' : 'can-no-cache-' . $this->owner->ID. '_'.rand(0, 99999999999999999);
+                self::$_can_cache_content_string .= $this->owner->canCachePage() ? '' : 'can-cache-page-no' . $this->owner->ID. '_'.time();
             }
 
             //action
@@ -55,7 +60,7 @@ class PageControllerExtension extends Extension
             $requestVars = $this->owner->request->requestVars();
             if ($requestVars) {
                 foreach ($this->owner->request->requestVars() as $item) {
-                    self::$_can_cache_content_string .= (string) $item;
+                    self::$_can_cache_content_string .= (string) serialize($item);
                 }
             }
 
@@ -91,7 +96,7 @@ class PageControllerExtension extends Extension
         return $this->HasCacheKeys();
     }
 
-    public function CacheKeyHeader(?bool $includePageId = true): string
+    public function CacheKeyHeader(?bool $includePageId = false): string
     {
         return $this->CacheKeyGenerator('H', $includePageId);
     }
@@ -101,7 +106,7 @@ class PageControllerExtension extends Extension
         return $this->CacheKeyGenerator('M', $includePageId);
     }
 
-    public function CacheKeyFooter(?bool $includePageId = true): string
+    public function CacheKeyFooter(?bool $includePageId = false): string
     {
         return $this->CacheKeyGenerator('F', $includePageId);
     }
@@ -116,7 +121,7 @@ class PageControllerExtension extends Extension
         return $cacheKey;
     }
 
-    public function CacheKeyGenerator($letter, $includePageId = true): string
+    public function CacheKeyGenerator(string $letter, ?bool $includePageId = true): string
     {
         if ($this->HasCacheKeys()) {
             $string = $letter . '_' . $this->cacheKeyAnyDataObjectChanges();
@@ -125,7 +130,7 @@ class PageControllerExtension extends Extension
                 $string .= '_ID_' . $this->owner->ID;
             }
         } else {
-            $string = 'NOT_CACHED_' . '_ID_' . $this->owner->ID . time() . '_' . rand(0, 99999999999999);
+            $string = 'NOT_CACHED_' . '_ID_' . $this->owner->ID . time() . '_' . rand(0, 1000000);
         }
 
         return $string;

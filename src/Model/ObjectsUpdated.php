@@ -43,22 +43,22 @@ class ObjectsUpdated extends DataObject
      */
     private static $field_labels = [
         'Created' => 'Updated',
+        'Title' => 'Human readable name',
         'ClassNameLastEdited' => 'Code name',
-        'ClassNameTitle' => 'Human readable name',
     ];
     /**
      * @var array
      */
     private static $casting = [
-        'ClassNameTitle' => 'Varchar',
+        'Title' => 'Varchar',
     ];
 
-    public function getClassNameTitle(): string
+    public function getitle(): string
     {
         if (class_exists($this->getOwner()->ClassNameLastEdited)) {
             return Injector::inst()->get($this->getOwner()->ClassNameLastEdited)->i18n_singular_name();
         }
 
-        return 'class not found';
+        return 'ERROR: class not found';
     }
 }
