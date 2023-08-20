@@ -5,6 +5,11 @@ use SilverStripe\Control\Middleware\HTTPCacheControlMiddleware;
 use SilverStripe\Core\Extension;
 use SilverStripe\Versioned\Versioned;
 
+/**
+ * Class \ControllerExtension
+ *
+ * @property ControllerExtension $owner
+ */
 class ControllerExtension extends Extension
 {
     public function onBeforeInit()
