@@ -35,7 +35,7 @@ See [composer.json](composer.json) for details
 
 
 ```
-composer require sunnysideup/
+composer require sunnysideup/simple-template-caching
 ```
 
 ### Configuration
