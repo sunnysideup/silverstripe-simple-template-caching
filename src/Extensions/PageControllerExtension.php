@@ -30,8 +30,6 @@ class PageControllerExtension extends Extension
 
     /**
      * does the page have cache keys AKA can it be cached?
-     *
-     * @return boolean
      */
     public function HasCacheKeys(): bool
     {
@@ -41,7 +39,7 @@ class PageControllerExtension extends Extension
             self::$_can_cache_content_string = '';
             if ($this->owner->hasMethod('canCachePage')) {
                 // if it can cache the page, then it the cache string will remain empty.
-                self::$_can_cache_content_string .= $this->owner->canCachePage() ? '' : 'can-cache-page-no' . $this->owner->ID. '_'.time();
+                self::$_can_cache_content_string .= $this->owner->canCachePage() ? '' : 'can-cache-page-no' . $this->owner->ID . '_' . time();
             }
 
             //action
@@ -139,8 +137,6 @@ class PageControllerExtension extends Extension
     /**
      * if the cache string is NOT empty then we cannot cache
      * as there are specific caching values that indicate the page can not be cached.
-     *
-     * @return boolean
      */
     protected function canCacheCheck(): bool
     {

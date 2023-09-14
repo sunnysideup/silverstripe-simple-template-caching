@@ -6,7 +6,7 @@ use SilverStripe\Core\Extension;
 use SilverStripe\Versioned\Versioned;
 
 /**
- * Class \ControllerExtension
+ * Class \ControllerExtension.
  *
  * @property ControllerExtension $owner
  */
@@ -15,17 +15,18 @@ class ControllerExtension extends Extension
     public function onBeforeInit()
     {
         $owner = $this->getOwner();
-        if($owner instanceof ContentController) {
-            if(Versioned::get_stage() !== 'Live') {
+        if ($owner instanceof ContentController) {
+            if ('Live' !== Versioned::get_stage()) {
                 return;
             }
-            if(empty($owner->dataRecord) || empty($owner->dataRecord->PublicCacheDurationInSeconds)) {
+            if (empty($owner->dataRecord) || empty($owner->dataRecord->PublicCacheDurationInSeconds)) {
                 return;
             }
             HTTPCacheControlMiddleware::singleton()
                 ->enableCache()
                 ->publicCache(true)
-                ->setMaxAge($owner->dataRecord->PublicCacheDurationInSeconds);
+                ->setMaxAge($owner->dataRecord->PublicCacheDurationInSeconds)
+            ;
         }
     }
 }

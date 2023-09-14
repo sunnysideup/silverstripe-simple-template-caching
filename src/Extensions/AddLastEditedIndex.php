@@ -7,7 +7,7 @@ use SilverStripe\ORM\DataExtension;
 /**
  * Class \Sunnysideup\SimpleTemplateCaching\Extensions\AddLastEditedIndex.
  *
- * @property SiteTree|AddLastEditedIndex $owner
+ * @property AddLastEditedIndex|SiteTree $owner
  */
 class AddLastEditedIndex extends DataExtension
 {
