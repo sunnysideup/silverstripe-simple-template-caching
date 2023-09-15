@@ -10,7 +10,7 @@ use SilverStripe\ORM\DataExtension;
  * Class \Sunnysideup\SimpleTemplateCaching\Extensions\PageExtension.
  *
  * @property PageExtension $owner
- * @property bool          $PublicCacheDurationInSeconds
+ * @property bool $PublicCacheDurationInSeconds
  */
 class PageExtension extends DataExtension
 {
