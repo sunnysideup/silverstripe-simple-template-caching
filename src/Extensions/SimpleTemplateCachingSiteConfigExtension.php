@@ -79,6 +79,16 @@ class SimpleTemplateCachingSiteConfigExtension extends DataExtension
 
     public static function update_cache_key(?string $className = '')
     {
+        // important - avoid endless loop!
+        if(SiteConfig::get()->exists()) {
+            $howOldIsIt = DB::query('SELECT Created FROM SiteConfig LIMIT 1')->value();
+            if ($howOldIsIt && strtotime((string) $howOldIsIt) > strtotime('-5 minutes')) {
+                return;
+            }
+        } else {
+            return;
+        }
+
         $obj = SiteConfig::current_site_config();
         if ($obj->HasCaching) {
             DB::query('
