@@ -108,4 +108,11 @@ class SimpleTemplateCachingSiteConfigExtension extends DataExtension
             DB::query('DELETE FROM ObjectsUpdated WHERE ID < ' . (int) ($recordId - self::MAX_OBJECTS_UPDATED));
         }
     }
+
+    public function requireDefaultRecords()
+    {
+        if((int) SiteConfig::get()->count() > 100) {
+            user_error('You should only have one SiteConfig object. Please delete the others.', E_USER_ERROR);
+        }
+    }
 }
