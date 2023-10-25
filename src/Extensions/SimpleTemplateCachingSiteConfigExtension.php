@@ -112,7 +112,11 @@ class SimpleTemplateCachingSiteConfigExtension extends DataExtension
     public function requireDefaultRecords()
     {
         if((int) SiteConfig::get()->count() > 100) {
-            user_error('You should only have one SiteConfig object. Please delete the others.', E_USER_ERROR);
+            $currentSiteConfig = SiteConfig::current_site_config();
+            if($currentSiteConfig) {
+                DB::alteration_message('Deleting all SiteConfig records except for the current one.', 'deleted');
+                DB::query('DELETE FROM "SiteConfig" WHERE ID <> ' . $currentSiteConfig->ID);
+            }
         }
     }
 }
