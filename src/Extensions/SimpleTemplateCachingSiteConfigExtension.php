@@ -7,6 +7,7 @@ use SilverStripe\Forms\CheckboxField;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\GridField\GridField;
 use SilverStripe\Forms\GridField\GridFieldConfig_RecordViewer;
+use SilverStripe\Forms\NumericField;
 use SilverStripe\Forms\ReadonlyField;
 use SilverStripe\ORM\DataExtension;
 use SilverStripe\ORM\DB;
@@ -29,6 +30,7 @@ class SimpleTemplateCachingSiteConfigExtension extends DataExtension
 
     private static $db = [
         'HasCaching' => 'Boolean(1)',
+        'PublicCacheDurationInSeconds' => 'Int',
         'RecordCacheUpdates' => 'Boolean(0)',
         'CacheKeyLastEdited' => 'DBDatetime',
         'ClassNameLastEdited' => 'Varchar(200)',
@@ -44,6 +46,15 @@ class SimpleTemplateCachingSiteConfigExtension extends DataExtension
             'Root.Caching',
             [
                 CheckboxField::create('HasCaching', 'Use caching'),
+                NumericField::create('PublicCacheDurationInSeconds', 'Cache time for ALL pages')
+                    ->setDescription(
+                        '
+                        Use with care! Value is number of seconds.
+                        This should only be used on pages that should be the same for all users.
+                        For that reason, if you have pages with forms on your site, it would be better
+                        to set it on a page by page basis, or make exception for certain pages
+                        with user specific content.'
+                    ),
                 CheckboxField::create('RecordCacheUpdates', 'Record every change?')
                     ->setDescription('To work out when the cache is being updated, you can track every change. This will slow down all your edits, so it is recommend only to turn this on temporarily - for tuning purposes.'),
                 ReadonlyField::create('CacheKeyLastEdited', 'Content Last Edited')

@@ -1,6 +1,9 @@
 ---
 Name: simple_template_caching
 ---
+Page:
+  extensions:
+    - Sunnysideup\SimpleTemplateCaching\Extensions\PageExtension
 
 PageController:
   extensions:
@@ -20,19 +23,19 @@ SilverStripe\ORM\DataObject:
 
 Sunnysideup\SimpleTemplateCaching\Extensions\DataObjectExtension:
   excluded_classes_for_caching:
-   - SilverStripe\Security\Group
-   - SilverStripe\Security\GroupTag
-   - SilverStripe\Security\LoginAttempt
-   - SilverStripe\Security\Member
-   - SilverStripe\Security\MemberPassword
-   - SilverStripe\Security\Permission
-   - SilverStripe\Security\RememberLoginHash
-   - SilverStripe\UserForms\Model\Submission\SubmittedForm
-   - SilverStripe\UserForms\Model\Submission\SubmittedFormField
-   - SilverStripe\UserForms\Model\Submission\SubmittedFileField
-   - SilverStripe\Versioned\ChangeSet
-   - SilverStripe\Versioned\ChangeSetItem
-   - SilverStripe\SessionManager\Models\LoginSession
+    - SilverStripe\Security\Group
+    - SilverStripe\Security\GroupTag
+    - SilverStripe\Security\LoginAttempt
+    - SilverStripe\Security\Member
+    - SilverStripe\Security\MemberPassword
+    - SilverStripe\Security\Permission
+    - SilverStripe\Security\RememberLoginHash
+    - SilverStripe\UserForms\Model\Submission\SubmittedForm
+    - SilverStripe\UserForms\Model\Submission\SubmittedFormField
+    - SilverStripe\UserForms\Model\Submission\SubmittedFileField
+    - SilverStripe\Versioned\ChangeSet
+    - SilverStripe\Versioned\ChangeSetItem
+    - SilverStripe\SessionManager\Models\LoginSession
 ---
 Name: corecache_extended
 After:
@@ -42,5 +45,5 @@ SilverStripe\Core\Injector\Injector:
   Psr\SimpleCache\CacheInterface.cacheblock:
     factory: SilverStripe\Core\Cache\CacheFactory
     constructor:
-      namespace: "cacheblock"
+      namespace: 'cacheblock'
       defaultLifetime: 864000 # 10 days!

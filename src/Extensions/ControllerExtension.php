@@ -3,6 +3,8 @@
 use SilverStripe\CMS\Controllers\ContentController;
 use SilverStripe\Control\Middleware\HTTPCacheControlMiddleware;
 use SilverStripe\Core\Extension;
+use SilverStripe\Security\Security;
+use SilverStripe\SiteConfig\SiteConfig;
 use SilverStripe\Versioned\Versioned;
 
 /**
@@ -16,17 +18,24 @@ class ControllerExtension extends Extension
     {
         $owner = $this->getOwner();
         if ($owner instanceof ContentController) {
-            if ('Live' !== Versioned::get_stage()) {
+            if (empty($owner->dataRecord)) {
                 return;
             }
-            if (empty($owner->dataRecord) || empty($owner->dataRecord->PublicCacheDurationInSeconds)) {
+            if(Security::getCurrentUser()) {
                 return;
             }
-            HTTPCacheControlMiddleware::singleton()
-                ->enableCache()
-                ->publicCache(true)
-                ->setMaxAge($owner->dataRecord->PublicCacheDurationInSeconds)
-            ;
+            if (Versioned::LIVE !== Versioned::get_stage()) {
+                return;
+            }
+            $sc = SiteConfig::current_site_config();
+            if($sc->HasCaching) {
+                $cacheTime = $sc->PublicCacheDurationInSeconds ?: $owner->dataRecord->PublicCacheDurationInSeconds;
+                HTTPCacheControlMiddleware::singleton()
+                    ->enableCache()
+                    ->publicCache(true)
+                    ->setMaxAge($cacheTime)
+                ;
+            }
         }
     }
 }
