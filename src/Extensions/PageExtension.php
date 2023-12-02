@@ -11,7 +11,8 @@ use SilverStripe\SiteConfig\SiteConfig;
 /**
  * Class \Sunnysideup\SimpleTemplateCaching\Extensions\PageExtension.
  *
- * @property PageExtension $owner
+ * @property Page|PageExtension $owner
+ * @property bool $NeverCachePublicly
  * @property bool $PublicCacheDurationInSeconds
  */
 class PageExtension extends DataExtension

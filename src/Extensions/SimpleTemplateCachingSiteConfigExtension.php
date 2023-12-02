@@ -20,6 +20,7 @@ use Sunnysideup\SimpleTemplateCaching\Model\ObjectsUpdated;
  *
  * @property SiteConfig|SimpleTemplateCachingSiteConfigExtension $owner
  * @property bool $HasCaching
+ * @property int $PublicCacheDurationInSeconds
  * @property bool $RecordCacheUpdates
  * @property string $CacheKeyLastEdited
  * @property string $ClassNameLastEdited
