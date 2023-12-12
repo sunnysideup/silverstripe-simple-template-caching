@@ -16,17 +16,15 @@ class DataObjectExtension extends DataExtension
 {
     public function onAfterWrite()
     {
-        parent::onAfterWrite();
-
         $owner = $this->getOwner();
         $className = $owner->ClassName;
 
         // NB.
         // if the dataobject has the versioned extension then the cache should be invalidated onAfterPublish
         // hasStages function is part of the Versioned class so safe to check here
-        if (! $owner->hasExtension(Versioned::class)) {
+        if (!$owner->hasExtension(Versioned::class)) {
             $this->doUpdateCache($className);
-        } elseif (! $owner->hasStages()) {
+        } elseif (!$owner->hasStages()) {
             $this->doUpdateCache($className);
         }
     }
@@ -98,6 +96,6 @@ class DataObjectExtension extends DataExtension
         }
         $excludedClasses = (array) Config::inst()->get(self::class, 'excluded_classes_for_caching');
 
-        return ! in_array($className, $excludedClasses, true);
+        return !in_array($className, $excludedClasses, true);
     }
 }
