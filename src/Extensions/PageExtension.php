@@ -22,7 +22,7 @@ class PageExtension extends DataExtension
         'PublicCacheDurationInSeconds' => 'Boolean',
     ];
 
-    public function updateCMSFields(FieldList $fields)
+    public function updateSettingsFields(FieldList $fields)
     {
         $fields->addFieldsToTab(
             'Root.Cache',
