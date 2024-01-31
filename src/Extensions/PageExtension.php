@@ -27,20 +27,35 @@ class PageExtension extends DataExtension
         $fields->addFieldsToTab(
             'Root.Cache',
             [
-                CheckboxField::create('NeverCachePublicly', 'Never cache this page publicly (so that all users see the same page)'),
-                NumericField::create(
-                    'PublicCacheDurationInSeconds',
-                    'Number of caching seconds for public users (-1 to force no caching)'
-                )
-                    ->setDescription(
-                        '
-                        Use with care!
-                        This should only be used on pages that should be the same for all users and that should be accessible publicly.
-                        You can also set this value <a href="/admin/settings#Root_Caching">for the whole site</a> .
-                        The current value is ' . SiteConfig::current_site_config()->PublicCacheDurationInSeconds . ' seconds.'
-                    ),
-
+                CheckboxField::create(
+                    'NeverCachePublicly',
+                    '
+                        Never cache this page.
+                        This should be checked if the page can be different for different users.'
+                ),
             ]
         );
+        if((bool) $this->getOwner()->NeverCachePublicly !== true) {
+            $fields->addFieldsToTab(
+                'Root.Cache',
+                [
+                    NumericField::create(
+                        'PublicCacheDurationInSeconds',
+                        'Number of caching for page'
+                    )
+                        ->setDescription(
+                            '
+                        Use with care!<br /><br />
+                        Leave empty or zero to use the default value for the site<br /><br />
+                        This should only be used on pages that should be the same for all users and that should be accessible publicly.<br /><br />
+                        You can also set this value <a href="/admin/settings#Root_Caching">for the whole site</a>.<br /><br />
+                        The current value for the whole site is ' . SiteConfig::current_site_config()->PublicCacheDurationInSeconds . ' seconds.<br /><br />
+                        Caching is ' . (SiteConfig::current_site_config()->HasCaching ? '' : 'NOT') . ' turned on for this site.
+                        '
+                        ),
+
+                ]
+            );
+        }
     }
 }
