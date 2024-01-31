@@ -16,25 +16,40 @@ class ControllerExtension extends Extension
 {
     public function onBeforeInit()
     {
+        if(Security::getCurrentUser()) {
+            return;
+        }
+        if (Versioned::LIVE !== Versioned::get_stage()) {
+            return;
+        }
         $owner = $this->getOwner();
         if ($owner instanceof ContentController) {
-            if (empty($owner->dataRecord)) {
+            $dataRecord = $owner->dataRecord;
+            if (empty($dataRecord)) {
                 return;
             }
-            if(Security::getCurrentUser()) {
+            if($dataRecord->NeverCachePublicly) {
+                HTTPCacheControlMiddleware::singleton()
+                    ->disableCache()
+                ;
                 return;
             }
-            if (Versioned::LIVE !== Versioned::get_stage()) {
+            if($dataRecord->PublicCacheDurationInSeconds === -1 || $dataRecord->PublicCacheDurationInSeconds === 0) {
+                HTTPCacheControlMiddleware::singleton()
+                    ->disableCache()
+                ;
                 return;
             }
             $sc = SiteConfig::current_site_config();
             if($sc->HasCaching) {
-                $cacheTime = $sc->PublicCacheDurationInSeconds ?: $owner->dataRecord->PublicCacheDurationInSeconds;
+                $cacheTime = $dataRecord->PublicCacheDurationInSecond ?: $sc->PublicCacheDurationInSeconds;
                 HTTPCacheControlMiddleware::singleton()
                     ->enableCache()
                     ->publicCache(true)
                     ->setMaxAge($cacheTime)
                 ;
+            } else {
+                return null;
             }
         }
     }

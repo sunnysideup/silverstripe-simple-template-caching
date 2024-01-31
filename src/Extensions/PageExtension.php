@@ -30,7 +30,7 @@ class PageExtension extends DataExtension
                 CheckboxField::create('NeverCachePublicly', 'Never cache this page publicly (so that all users see the same page)'),
                 NumericField::create(
                     'PublicCacheDurationInSeconds',
-                    'Number of caching seconds for public users (0 = no caching)'
+                    'Number of caching seconds for public users (-1 to force no caching)'
                 )
                     ->setDescription(
                         '
