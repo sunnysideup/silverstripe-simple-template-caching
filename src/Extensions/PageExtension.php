@@ -19,7 +19,7 @@ class PageExtension extends DataExtension
 {
     private static $db = [
         'NeverCachePublicly' => 'Boolean',
-        'PublicCacheDurationInSeconds' => 'Boolean',
+        'PublicCacheDurationInSeconds' => 'Int',
     ];
 
     public function updateSettingsFields(FieldList $fields)
