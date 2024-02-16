@@ -95,9 +95,12 @@ class SimpleTemplateCachingSiteConfigExtension extends DataExtension
         } else {
             return;
         }
-
-        $obj = SiteConfig::current_site_config();
-        if ($obj->HasCaching) {
+        try {
+            $obj = SiteConfig::current_site_config();
+        } catch (\Exception $e) {
+            $obj = null;
+        }
+        if ($obj && $obj->HasCaching) {
             DB::query('
                 UPDATE "SiteConfig"
                 SET
@@ -107,7 +110,7 @@ class SimpleTemplateCachingSiteConfigExtension extends DataExtension
                 LIMIT 1
             ;');
         }
-        if ($obj->RecordCacheUpdates) {
+        if ($obj && $obj->RecordCacheUpdates) {
             $recordId = Injector::inst()
                 ->create(ObjectsUpdated::class, ['ClassNameLastEdited' => $className])
                 ->write()
