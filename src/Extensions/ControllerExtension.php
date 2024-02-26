@@ -22,8 +22,28 @@ class ControllerExtension extends Extension
         if (Versioned::LIVE !== Versioned::get_stage()) {
             return;
         }
+        /** PageController|ControllerExtension $owner */
         $owner = $this->getOwner();
         if ($owner instanceof ContentController) {
+            $extend = $owner->extend('updateCacheControl');
+            if($extend) {
+                return;
+            }
+            if($owner->param('Action')) {
+                return;
+            }
+            if($owner->param('ID')) {
+                return;
+            }
+            if($owner->request->isAjax()) {
+                return;
+            }
+            if($owner->request->getVar('flush')) {
+                return;
+            }
+            if($owner->request->requestVars()) {
+                return;
+            }
             $dataRecord = $owner->dataRecord;
             if (empty($dataRecord)) {
                 return;
@@ -48,8 +68,6 @@ class ControllerExtension extends Extension
                     ->publicCache(true)
                     ->setMaxAge($cacheTime)
                 ;
-            } else {
-                return null;
             }
         }
     }
