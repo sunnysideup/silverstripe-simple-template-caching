@@ -1,5 +1,7 @@
 <?php
 
+namespace Sunnysideup\SimpleTemplateCaching\Extensions;
+
 use SilverStripe\CMS\Controllers\ContentController;
 use SilverStripe\Control\Middleware\HTTPCacheControlMiddleware;
 use SilverStripe\Core\Extension;
@@ -29,44 +31,42 @@ class ControllerExtension extends Extension
             if($extend) {
                 return;
             }
-            if($owner->param('Action')) {
+            $sc = SiteConfig::current_site_config();
+            if(! $sc->HasCaching) {
                 return;
             }
-            if($owner->param('ID')) {
+            $request = $owner->getRequest();
+            if($request->param('Action')) {
                 return;
             }
-            if($owner->request->isAjax()) {
+            if($request->param('ID')) {
                 return;
             }
-            if($owner->request->getVar('flush')) {
+            if($request->isAjax()) {
                 return;
             }
-            if($owner->request->requestVars()) {
+            if($request->getVar('flush')) {
                 return;
             }
-            $dataRecord = $owner->dataRecord;
+            if($request->requestVars()) {
+                return;
+            }
+            $dataRecord = $owner->data();
             if (empty($dataRecord)) {
                 return;
             }
             if($dataRecord->NeverCachePublicly) {
                 HTTPCacheControlMiddleware::singleton()
-                    ->disableCache()
+                ->disableCache()
                 ;
                 return;
             }
-            if($dataRecord->PublicCacheDurationInSeconds === -1 || $dataRecord->PublicCacheDurationInSeconds === 0) {
-                HTTPCacheControlMiddleware::singleton()
-                    ->disableCache()
-                ;
-                return;
-            }
-            $sc = SiteConfig::current_site_config();
-            if($sc->HasCaching) {
-                $cacheTime = $dataRecord->PublicCacheDurationInSecond ?: $sc->PublicCacheDurationInSeconds;
-                HTTPCacheControlMiddleware::singleton()
+            $cacheTime = (int) ($dataRecord->PublicCacheDurationInSeconds ?: $sc->PublicCacheDurationInSeconds);
+            if($cacheTime > 0) {
+                return HTTPCacheControlMiddleware::singleton()
                     ->enableCache()
-                    ->publicCache(true)
                     ->setMaxAge($cacheTime)
+                    ->publicCache(true)
                 ;
             }
         }

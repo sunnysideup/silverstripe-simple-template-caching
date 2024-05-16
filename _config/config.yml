@@ -8,6 +8,7 @@ Page:
 PageController:
   extensions:
     - Sunnysideup\SimpleTemplateCaching\Extensions\PageControllerExtension
+    - Sunnysideup\SimpleTemplateCaching\Extensions\ControllerExtension
 
 SilverStripe\CMS\Model\SiteTree:
   extensions:
