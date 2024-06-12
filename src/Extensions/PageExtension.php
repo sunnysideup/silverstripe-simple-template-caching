@@ -34,7 +34,7 @@ class PageExtension extends DataExtension
                 ),
             ]
         );
-        if((bool) $this->getOwner()->NeverCachePublicly !== true) {
+        if (! (bool) $this->getOwner()->NeverCachePublicly) {
             $fields->addFieldsToTab(
                 'Root.Cache',
                 [

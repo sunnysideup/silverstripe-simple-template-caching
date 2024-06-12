@@ -13,8 +13,6 @@ use SilverStripe\ORM\DataObject;
 class ObjectsUpdated extends DataObject
 {
     /**
-     * {@inheritDoc}
-     *
      * @var string
      */
     private static $table_name = 'ObjectsUpdated';
@@ -46,6 +44,7 @@ class ObjectsUpdated extends DataObject
         'Title' => 'Human readable name',
         'ClassNameLastEdited' => 'Code name',
     ];
+
     /**
      * @var array
      */

@@ -78,16 +78,16 @@ class SimpleTemplateCachingSiteConfigExtension extends DataExtension
     {
         $obj = SiteConfig::current_site_config();
         if ($obj->HasCaching) {
-            return (string) 'ts_' . strtotime($obj->CacheKeyLastEdited);
+            return 'ts_' . strtotime($obj->CacheKeyLastEdited);
         }
 
-        return  (string) 'ts_' . time();
+        return 'ts_' . time();
     }
 
     public static function update_cache_key(?string $className = '')
     {
         // important - avoid endless loop!
-        if(SiteConfig::get()->exists()) {
+        if (SiteConfig::get()->exists()) {
             $howOldIsIt = DB::query('SELECT Created FROM SiteConfig LIMIT 1')->value();
             if ($howOldIsIt && strtotime((string) $howOldIsIt) > strtotime('-5 minutes')) {
                 return;
@@ -121,9 +121,9 @@ class SimpleTemplateCachingSiteConfigExtension extends DataExtension
 
     public function requireDefaultRecords()
     {
-        if((int) SiteConfig::get()->count() > 100) {
+        if ((int) SiteConfig::get()->count() > 100) {
             $currentSiteConfig = SiteConfig::current_site_config();
-            if($currentSiteConfig) {
+            if ($currentSiteConfig) {
                 DB::alteration_message('Deleting all SiteConfig records except for the current one.', 'deleted');
                 DB::query('DELETE FROM "SiteConfig" WHERE ID <> ' . $currentSiteConfig->ID);
             }

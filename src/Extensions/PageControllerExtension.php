@@ -33,8 +33,6 @@ class PageControllerExtension extends Extension
      */
     public function HasCacheKeys(): bool
     {
-        /** @var PageController owner */
-        $owner = $this->owner;
         if (null === self::$_can_cache_content) {
             self::$_can_cache_content_string = '';
             if ($this->owner->hasMethod('canCachePage')) {
@@ -58,7 +56,7 @@ class PageControllerExtension extends Extension
             $requestVars = $this->owner->request->requestVars();
             if ($requestVars) {
                 foreach ($this->owner->request->requestVars() as $item) {
-                    self::$_can_cache_content_string .= (string) serialize($item);
+                    self::$_can_cache_content_string .= serialize($item);
                 }
             }
 
@@ -128,7 +126,7 @@ class PageControllerExtension extends Extension
                 $string .= '_ID_' . $this->owner->ID;
             }
         } else {
-            $string = 'NOT_CACHED_' . '_ID_' . $this->owner->ID . time() . '_' . rand(0, 1000000);
+            $string = 'NOT_CACHED__ID_' . $this->owner->ID . time() . '_' . rand(0, 1000000);
         }
 
         return $string;
