@@ -4,23 +4,24 @@ Name: simple_template_caching
 Page:
   extensions:
     - Sunnysideup\SimpleTemplateCaching\Extensions\PageExtension
-
 PageController:
   extensions:
     - Sunnysideup\SimpleTemplateCaching\Extensions\PageControllerExtension
     - Sunnysideup\SimpleTemplateCaching\Extensions\ControllerExtension
 
-SilverStripe\CMS\Model\SiteTree:
-  extensions:
-    - Sunnysideup\SimpleTemplateCaching\Extensions\AddLastEditedIndex
-
 SilverStripe\SiteConfig\SiteConfig:
   extensions:
     - Sunnysideup\SimpleTemplateCaching\Extensions\SimpleTemplateCachingSiteConfigExtension
 
+SilverStripe\CMS\Model\SiteTree:
+  indexes:
+    LastEdited: true
+
 SilverStripe\ORM\DataObject:
   extensions:
     - Sunnysideup\SimpleTemplateCaching\Extensions\DataObjectExtension
+  indexes:
+    LastEdited: true
 
 Sunnysideup\SimpleTemplateCaching\Extensions\DataObjectExtension:
   excluded_classes_for_caching:

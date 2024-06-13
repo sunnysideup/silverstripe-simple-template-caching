@@ -1,0 +1,10 @@
+---
+Name: simple_template_caching_app
+---
+Sunnysideup\SimpleTemplateCaching\Extensions\PageControllerExtension:
+    unique_cache_for_each_member: false
+    unique_cache_for_each_member_group_combo: true
+
+MyDataObject:
+    indexes:
+        LastEdited: true
