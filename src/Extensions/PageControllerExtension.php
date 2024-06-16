@@ -15,13 +15,13 @@ use SilverStripe\Security\Security;
 class PageControllerExtension extends Extension
 {
     private static bool $unique_cache_for_each_member = true;
+
     /**
      * make sure to set unique_cache_for_each_member to false
      * to use this.
-     *
-     * @var boolean
      */
     private static bool $unique_cache_for_each_member_group_combo = false;
+
     /**
      * @var null|string
      */
@@ -36,7 +36,6 @@ class PageControllerExtension extends Extension
      * @var string
      */
     private static $_can_cache_content_string = '';
-
 
     /**
      * does the page have cache keys AKA can it be cached?
@@ -54,38 +53,38 @@ class PageControllerExtension extends Extension
             //action
             $action = $owner->request->param('Action');
             if ($action) {
-                self::$_can_cache_content_string .= 'UA'.$action;
+                self::$_can_cache_content_string .= 'UA' . $action;
             }
 
             // id
             $id = $owner->request->param('ID');
             if ($id) {
-                self::$_can_cache_content_string .= 'UI'.$id;
+                self::$_can_cache_content_string .= 'UI' . $id;
             }
 
             // otherid
             $otherId = $owner->request->param('OtherID');
             if ($otherId) {
-                self::$_can_cache_content_string .= 'UI'.$otherId;
+                self::$_can_cache_content_string .= 'UI' . $otherId;
             }
 
             //request vars
             $requestVars = $owner->request->requestVars();
             if ($requestVars) {
                 foreach ($owner->request->requestVars() as $key => $item) {
-                    self::$_can_cache_content_string .= serialize($key.$item);
+                    self::$_can_cache_content_string .= serialize($key . $item);
                 }
             }
 
             //member
             $member = Security::getCurrentUser();
             if ($member && $member->exists()) {
-                if(Config::inst()->get(self::class, 'unique_cache_for_each_member')) {
-                    self::$_can_cache_content_string .= 'UM'.$member->ID;
-                } elseif(Config::inst()->get(self::class, 'unique_cache_for_each_member_group_combo')) {
+                if (Config::inst()->get(self::class, 'unique_cache_for_each_member')) {
+                    self::$_can_cache_content_string .= 'UM' . $member->ID;
+                } elseif (Config::inst()->get(self::class, 'unique_cache_for_each_member_group_combo')) {
                     $groupIds = $member->Groups()->columnUnique();
                     sort($groupIds, SORT_NUMERIC);
-                    self::$_can_cache_content_string .= 'UG'.implode(',', $groupIds);
+                    self::$_can_cache_content_string .= 'UG' . implode(',', $groupIds);
                 }
             }
             // crucial
@@ -107,7 +106,7 @@ class PageControllerExtension extends Extension
 
     public function HasCacheKeyContent(): bool
     {
-        if($this->getOwner()->NeverCachePublicly) {
+        if ($this->getOwner()->NeverCachePublicly) {
             return false;
         }
         return $this->HasCacheKeys();
@@ -136,7 +135,7 @@ class PageControllerExtension extends Extension
     public function CacheKeyContent(?bool $ignoreHasCacheKeys = false): string
     {
         $owner = $this->getOwner();
-        if($owner->NeverCachePublicly) {
+        if ($owner->NeverCachePublicly) {
             return $this->getRandomKey();
         }
         $cacheKey = $this->CacheKeyGenerator('C');
@@ -157,7 +156,7 @@ class PageControllerExtension extends Extension
                 $string .= '_ID_' . $owner->ID;
             }
         } else {
-            $string = 'NOT_CACHED__ID_' .  $this->getRandomKey();
+            $string = 'NOT_CACHED__ID_' . $this->getRandomKey();
         }
 
         return $string;
