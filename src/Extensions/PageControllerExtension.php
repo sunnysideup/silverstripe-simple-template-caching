@@ -35,7 +35,7 @@ class PageControllerExtension extends Extension
     /**
      * @var string
      */
-    private static $_can_cache_content_string = '';
+    private static string $_can_cache_content_string = '';
 
     /**
      * does the page have cache keys AKA can it be cached?
@@ -72,7 +72,10 @@ class PageControllerExtension extends Extension
             $requestVars = $owner->request->requestVars();
             if ($requestVars) {
                 foreach ($owner->request->requestVars() as $key => $item) {
-                    self::$_can_cache_content_string .= serialize($key . $item);
+                    if(! $item) {
+                        $item = '';
+                    }
+                    self::$_can_cache_content_string .= serialize($key . '_'. serialize($item));
                 }
             }
 
