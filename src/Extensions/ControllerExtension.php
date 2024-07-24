@@ -2,7 +2,9 @@
 
 namespace Sunnysideup\SimpleTemplateCaching\Extensions;
 
+use PhpParser\Node\Scalar\MagicConst\Dir;
 use SilverStripe\CMS\Controllers\ContentController;
+use SilverStripe\Control\Director;
 use SilverStripe\Control\Middleware\HTTPCacheControlMiddleware;
 use SilverStripe\Core\Extension;
 use SilverStripe\Security\Security;
@@ -24,8 +26,12 @@ class ControllerExtension extends Extension
         if (Versioned::LIVE !== Versioned::get_stage()) {
             return null;
         }
-        /** PageController|ControllerExtension $owner */
+        //make sure that caching is always https
         $owner = $this->getOwner();
+        if(Director::isLive()) {
+            $owner->response->addHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+        }
+        /** PageController|ControllerExtension $owner */
         if ($owner instanceof ContentController) {
             $extend = $owner->extend('updateCacheControl');
             if ($extend) {
@@ -70,6 +76,7 @@ class ControllerExtension extends Extension
                 ;
             }
         }
+
         return null;
     }
 }
