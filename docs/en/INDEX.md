@@ -58,7 +58,8 @@ be taken into account when the cache is created.
     <% else %>
         <% include MenuDifferentPerPage %>
     <% end_if %>
-
+    
+    <!-- the first param is if it is unique for every page, the second forces caching even if there are get variables, etc... -->
     <% cached $CacheKeyMenu(false, true) %>
         <!-- cached menu the same for whole site, no matter what! -->
         <% include AlwaysTheSameMenu %>
@@ -91,6 +92,7 @@ be taken into account when the cache is created.
         <% include Footer %>
     <% end_if %>
 
+    <!-- the first param is if it is unique for every page, the second forces caching even if there are get variables, etc... -->
     <% cached $CacheKeyFooter(false, true) %>
         <!-- cached footer, one per site, no matter the request variables, user logged in / whatever! -->
         <% include Footer %>
