@@ -13,7 +13,7 @@ use SilverStripe\SiteConfig\SiteConfig;
  *
  * @property Page|PageExtension $owner
  * @property bool $NeverCachePublicly
- * @property bool $PublicCacheDurationInSeconds
+ * @property int $PublicCacheDurationInSeconds
  */
 class PageExtension extends DataExtension
 {
