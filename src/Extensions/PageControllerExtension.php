@@ -75,7 +75,10 @@ class PageControllerExtension extends Extension
             $requestVars = $owner->request->requestVars();
             if ($requestVars) {
                 foreach ($owner->request->requestVars() as $key => $item) {
+<<<<<<< HEAD
                     $canCache = false;
+=======
+>>>>>>> 5e6d7b8a22bfca77ec46593a5063fa14ef3c3e64
                     if (! $item) {
                         $item = '';
                     }
@@ -131,22 +134,22 @@ class PageControllerExtension extends Extension
         return $this->HasCacheKeys();
     }
 
-    public function CacheKeyHeader(?bool $includePageId = false, ?bool $ignoreHasCacheKeys = false): string
+    public function CacheKeyHeader(?bool $includePageId = false, ?bool $forceCaching = false): string
     {
-        return $this->CacheKeyGenerator('H', $includePageId, $ignoreHasCacheKeys);
+        return $this->CacheKeyGenerator('H', $includePageId, $forceCaching);
     }
 
-    public function CacheKeyMenu(?bool $includePageId = true, ?bool $ignoreHasCacheKeys = false): string
+    public function CacheKeyMenu(?bool $includePageId = true, ?bool $forceCaching = false): string
     {
-        return $this->CacheKeyGenerator('M', $includePageId, $ignoreHasCacheKeys);
+        return $this->CacheKeyGenerator('M', $includePageId, $forceCaching);
     }
 
-    public function CacheKeyFooter(?bool $includePageId = false, ?bool $ignoreHasCacheKeys = false): string
+    public function CacheKeyFooter(?bool $includePageId = false, ?bool $forceCaching = false): string
     {
-        return $this->CacheKeyGenerator('F', $includePageId, $ignoreHasCacheKeys);
+        return $this->CacheKeyGenerator('F', $includePageId, $forceCaching);
     }
 
-    public function CacheKeyContent(?bool $ignoreHasCacheKeys = false): string
+    public function CacheKeyContent(?bool $forceCaching = false): string
     {
         $owner = $this->getOwner();
         if ($owner->NeverCachePublicly) {
@@ -160,10 +163,10 @@ class PageControllerExtension extends Extension
         return $cacheKey;
     }
 
-    public function CacheKeyGenerator(string $letter, ?bool $includePageId = true, ?bool $ignoreHasCacheKeys = false): string
+    public function CacheKeyGenerator(string $letter, ?bool $includePageId = true, ?bool $forceCaching = false): string
     {
         $owner = $this->getOwner();
-        if ($this->HasCacheKeys() || $ignoreHasCacheKeys) {
+        if ($this->HasCacheKeys() || $forceCaching) {
             $string = $letter . '_' . $this->getCanCacheContentString() . '_' . $this->cacheKeyAnyDataObjectChanges();
 
             if ($includePageId) {

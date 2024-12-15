@@ -40,7 +40,7 @@ class SimpleTemplateCachingSiteConfigExtension extends DataExtension
     public function updateCMSFields(FieldList $fields)
     {
         $name = '';
-        if (class_exists($this->getOwner()->ClassNameLastEdited)) {
+        if (class_exists((string) $this->getOwner()->ClassNameLastEdited)) {
             $name = Injector::inst()->get($this->getOwner()->ClassNameLastEdited)->i18n_singular_name();
         }
         $fields->addFieldsToTab(
@@ -78,7 +78,7 @@ class SimpleTemplateCachingSiteConfigExtension extends DataExtension
     {
         $obj = SiteConfig::current_site_config();
         if ($obj->HasCaching) {
-            return 'ts_' . strtotime($obj->CacheKeyLastEdited);
+            return 'ts_' . strtotime((string) $obj->CacheKeyLastEdited);
         }
 
         return 'ts_' . time();
@@ -113,8 +113,7 @@ class SimpleTemplateCachingSiteConfigExtension extends DataExtension
         if ($obj && $obj->RecordCacheUpdates) {
             $recordId = Injector::inst()
                 ->create(ObjectsUpdated::class, ['ClassNameLastEdited' => $className])
-                ->write()
-            ;
+                ->write();
             DB::query('DELETE FROM ObjectsUpdated WHERE ID < ' . (int) ($recordId - self::MAX_OBJECTS_UPDATED));
         }
     }
