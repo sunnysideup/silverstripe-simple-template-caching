@@ -74,11 +74,8 @@ class PageControllerExtension extends Extension
             //request vars
             $requestVars = $owner->request->requestVars();
             if ($requestVars) {
-                foreach ($owner->request->requestVars() as $key => $item) {
-<<<<<<< HEAD
-                    $canCache = false;
-=======
->>>>>>> 5e6d7b8a22bfca77ec46593a5063fa14ef3c3e64
+                $canCache = false;
+                foreach ($requestVars  as $key => $item) {
                     if (! $item) {
                         $item = '';
                     }
@@ -105,10 +102,15 @@ class PageControllerExtension extends Extension
                 }
             }
             // crucial
-            self::$_can_cache_content = $canCache;
+            self::$_can_cache_content = (bool) $canCache;
         }
 
         return self::$_can_cache_content;
+    }
+
+    public function HasCacheKeyMeta(): bool
+    {
+        return $this->HasCacheKeys();
     }
 
     public function HasCacheKeyHeader(): bool
@@ -132,6 +134,11 @@ class PageControllerExtension extends Extension
     public function HasCacheKeyFooter(): bool
     {
         return $this->HasCacheKeys();
+    }
+
+    public function CacheKeyMeta(?bool $includePageId = true, ?bool $forceCaching = false): string
+    {
+        return $this->CacheKeyGenerator('META', true, false);
     }
 
     public function CacheKeyHeader(?bool $includePageId = false, ?bool $forceCaching = false): string
