@@ -30,7 +30,7 @@ class PageExtension extends Extension
                 CheckboxField::create(
                     'NeverCachePublicly',
                     'Never cache this page.
-                    This should be checked if the page can be different for different users.'
+                    This should be checked if this page can show different information for different users or different situations.'
                 ),
             ]
         );
