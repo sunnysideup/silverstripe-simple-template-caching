@@ -6,6 +6,7 @@ use PageController;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Extension;
 use SilverStripe\Security\Security;
+use SilverStripe\Versioned\Versioned;
 
 /**
  * Class \Sunnysideup\SimpleTemplateCaching\Extensions\PageControllerExtension.
@@ -44,10 +45,12 @@ class PageControllerExtension extends Extension
     {
         $owner = $this->getOwner();
         if (null === self::$_can_cache_content) {
+            $canCache = true;
             self::$_can_cache_content_string = '';
             if ($owner->hasMethod('canCachePage')) {
                 // if it can cache the page, then it the cache string will remain empty.
-                self::$_can_cache_content_string .= $owner->canCachePage() ? '' : $this->getRandomKey();
+                $canCache = $owner->canCachePage();
+                self::$_can_cache_content_string .=  $canCache ? '' : $this->getRandomKey();
             }
 
             //action
@@ -72,11 +75,17 @@ class PageControllerExtension extends Extension
             $requestVars = $owner->request->requestVars();
             if ($requestVars) {
                 foreach ($owner->request->requestVars() as $key => $item) {
-                    if(! $item) {
+                    $canCache = false;
+                    if (! $item) {
                         $item = '';
                     }
-                    self::$_can_cache_content_string .= serialize($key . '_'. serialize($item));
+                    self::$_can_cache_content_string .= serialize($key . '_' . serialize($item));
                 }
+            }
+
+            if (Versioned::get_reading_mode() !== 'Stage.Live') {
+                self::$_can_cache_content_string .= 'V' . Versioned::get_reading_mode();
+                $canCache = false;
             }
 
             //member
@@ -88,10 +97,12 @@ class PageControllerExtension extends Extension
                     $groupIds = $member->Groups()->columnUnique();
                     sort($groupIds, SORT_NUMERIC);
                     self::$_can_cache_content_string .= 'UG' . implode(',', $groupIds);
+                } else {
+                    $canCache = false;
                 }
             }
             // crucial
-            self::$_can_cache_content = ('' === trim(self::$_can_cache_content_string));
+            self::$_can_cache_content = $canCache;
         }
 
         return self::$_can_cache_content;
