@@ -50,8 +50,12 @@ class ControllerExtension extends Extension
             }
 
             if ($owner->hasMethod('updateCacheControl')) {
-                $extend = $owner->extend('updateCacheControl');
-                if ($extend) {
+                user_error('Please use canCachePage instead of updateCacheControl', E_USER_ERROR);
+            }
+
+            if ($dataRecord->hasMethod('canCachePage')) {
+                $canCachePage = $dataRecord->canCachePage();
+                if ($canCachePage !== true) {
                     return null;
                 }
             }
@@ -59,8 +63,11 @@ class ControllerExtension extends Extension
             $request = $owner->getRequest();
             if ($owner->hasMethod('cacheControlExcludedActions')) {
                 $excludeActions = $owner->cacheControlExcludedActions();
-                if ($request->param('Action') && in_array($request->param('Action'), $excludeActions)) {
-                    return null;
+                $action = strtolower($request->param('Action'));
+                if ($action) {
+                    if (in_array($action, $excludeActions)) {
+                        return null;
+                    }
                 }
             }
             if ($request->isAjax()) {
