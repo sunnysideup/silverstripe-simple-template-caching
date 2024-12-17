@@ -9,7 +9,7 @@ use SilverStripe\Forms\GridField\GridField;
 use SilverStripe\Forms\GridField\GridFieldConfig_RecordViewer;
 use SilverStripe\Forms\NumericField;
 use SilverStripe\Forms\ReadonlyField;
-use SilverStripe\ORM\DataExtension;
+use SilverStripe\Core\Extension;
 use SilverStripe\ORM\DB;
 use SilverStripe\ORM\FieldType\DBDatetime;
 use SilverStripe\SiteConfig\SiteConfig;
@@ -25,7 +25,7 @@ use Sunnysideup\SimpleTemplateCaching\Model\ObjectsUpdated;
  * @property string $CacheKeyLastEdited
  * @property string $ClassNameLastEdited
  */
-class SimpleTemplateCachingSiteConfigExtension extends DataExtension
+class SimpleTemplateCachingSiteConfigExtension extends Extension
 {
     private const MAX_OBJECTS_UPDATED = 1000;
 

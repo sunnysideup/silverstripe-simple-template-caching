@@ -5,7 +5,7 @@ namespace Sunnysideup\SimpleTemplateCaching\Extensions;
 use SilverStripe\Forms\CheckboxField;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\NumericField;
-use SilverStripe\ORM\DataExtension;
+use SilverStripe\Core\Extension;
 use SilverStripe\SiteConfig\SiteConfig;
 
 /**
@@ -15,7 +15,7 @@ use SilverStripe\SiteConfig\SiteConfig;
  * @property bool $NeverCachePublicly
  * @property int $PublicCacheDurationInSeconds
  */
-class PageExtension extends DataExtension
+class PageExtension extends Extension
 {
     private static $db = [
         'NeverCachePublicly' => 'Boolean',
