@@ -30,7 +30,7 @@ class PageExtension extends Extension
                 CheckboxField::create(
                     'NeverCachePublicly',
                     'Never cache this page.
-                    This should be checked if the page can be different for different users.'
+                    This should be checked if this page can show different information for different users or different situations.'
                 ),
             ]
         );
@@ -43,12 +43,12 @@ class PageExtension extends Extension
                         'In seconds, how long can this be cached for?'
                     )
                         ->setDescription(
-                            'Use with care!<br /><br />
-                            Leave empty or zero to use the default value for the site<br /><br />
-                            This should only be used on pages that should be the same for all users and that should be accessible publicly.<br /><br />
-                            You can also set this value <a href="/admin/settings#Root_Caching">for the whole site</a>.<br /><br />
-                            The current value for the whole site is ' . SiteConfig::current_site_config()->PublicCacheDurationInSeconds . ' seconds.<br /><br />
-                            Caching is ' . (SiteConfig::current_site_config()->HasCaching ? '' : 'NOT') . ' turned on for this site.
+                            'Use with care!<br />
+                            Leave empty or zero to use the default value for the site<br />
+                            This should only be used on pages that should be the same for all users and that should be accessible publicly.<br />
+                            You can also set this value <a href="/admin/settings#Root_Caching">for the whole site</a>.<br />
+                            Caching is ' . (SiteConfig::current_site_config()->HasCaching ? '' : 'NOT') . ' allowed on for this site.<br />
+                            The current value for the whole site is ' . SiteConfig::current_site_config()->PublicCacheDurationInSeconds . ' seconds.<br />
                             '
                         ),
 
