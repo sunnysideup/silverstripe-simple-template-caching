@@ -30,7 +30,6 @@ class DataObjectExtension extends Extension
 
     public function onAfterDelete()
     {
-        parent::onAfterDelete();
         $this->doUpdateCache();
     }
 
