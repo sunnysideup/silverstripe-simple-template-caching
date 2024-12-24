@@ -3,7 +3,7 @@
 namespace Sunnysideup\SimpleTemplateCaching\Extensions;
 
 use SilverStripe\Core\Config\Config;
-use SilverStripe\ORM\DataExtension;
+use SilverStripe\Core\Extension;
 use SilverStripe\Versioned\Versioned;
 use Sunnysideup\SimpleTemplateCaching\Model\ObjectsUpdated;
 
@@ -12,7 +12,7 @@ use Sunnysideup\SimpleTemplateCaching\Model\ObjectsUpdated;
  *
  * @property DataObject|DataObjectExtension $owner
  */
-class DataObjectExtension extends DataExtension
+class DataObjectExtension extends Extension
 {
     public function onAfterWrite()
     {
@@ -30,7 +30,6 @@ class DataObjectExtension extends DataExtension
 
     public function onAfterDelete()
     {
-        parent::onAfterDelete();
         $this->doUpdateCache();
     }
 

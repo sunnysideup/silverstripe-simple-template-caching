@@ -6,6 +6,7 @@ use PageController;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Extension;
 use SilverStripe\Security\Security;
+use SilverStripe\Versioned\Versioned;
 
 /**
  * Class \Sunnysideup\SimpleTemplateCaching\Extensions\PageControllerExtension.
@@ -44,10 +45,12 @@ class PageControllerExtension extends Extension
     {
         $owner = $this->getOwner();
         if (null === self::$_can_cache_content) {
+            $canCache = true;
             self::$_can_cache_content_string = '';
             if ($owner->hasMethod('canCachePage')) {
                 // if it can cache the page, then it the cache string will remain empty.
-                self::$_can_cache_content_string .= $owner->canCachePage() ? '' : $this->getRandomKey();
+                $canCache = $owner->canCachePage();
+                self::$_can_cache_content_string .=  $canCache ? '' : $this->getRandomKey();
             }
 
             //action
@@ -71,12 +74,18 @@ class PageControllerExtension extends Extension
             //request vars
             $requestVars = $owner->request->requestVars();
             if ($requestVars) {
-                foreach ($owner->request->requestVars() as $key => $item) {
-                    if(! $item) {
+                $canCache = false;
+                foreach ($requestVars  as $key => $item) {
+                    if (! $item) {
                         $item = '';
                     }
-                    self::$_can_cache_content_string .= serialize($key . '_'. serialize($item));
+                    self::$_can_cache_content_string .= serialize($key . '_' . serialize($item));
                 }
+            }
+
+            if (Versioned::get_reading_mode() !== 'Stage.Live') {
+                self::$_can_cache_content_string .= 'V' . Versioned::get_reading_mode();
+                $canCache = false;
             }
 
             //member
@@ -88,13 +97,20 @@ class PageControllerExtension extends Extension
                     $groupIds = $member->Groups()->columnUnique();
                     sort($groupIds, SORT_NUMERIC);
                     self::$_can_cache_content_string .= 'UG' . implode(',', $groupIds);
+                } else {
+                    $canCache = false;
                 }
             }
             // crucial
-            self::$_can_cache_content = ('' === trim(self::$_can_cache_content_string));
+            self::$_can_cache_content = (bool) $canCache;
         }
 
         return self::$_can_cache_content;
+    }
+
+    public function HasCacheKeyMeta(): bool
+    {
+        return $this->HasCacheKeys();
     }
 
     public function HasCacheKeyHeader(): bool
@@ -120,22 +136,27 @@ class PageControllerExtension extends Extension
         return $this->HasCacheKeys();
     }
 
-    public function CacheKeyHeader(?bool $includePageId = false, ?bool $ignoreHasCacheKeys = false): string
+    public function CacheKeyMeta(?bool $includePageId = true, ?bool $forceCaching = false): string
     {
-        return $this->CacheKeyGenerator('H', $includePageId, $ignoreHasCacheKeys);
+        return $this->CacheKeyGenerator('META', true, false);
     }
 
-    public function CacheKeyMenu(?bool $includePageId = true, ?bool $ignoreHasCacheKeys = false): string
+    public function CacheKeyHeader(?bool $includePageId = false, ?bool $forceCaching = false): string
     {
-        return $this->CacheKeyGenerator('M', $includePageId, $ignoreHasCacheKeys);
+        return $this->CacheKeyGenerator('H', $includePageId, $forceCaching);
     }
 
-    public function CacheKeyFooter(?bool $includePageId = false, ?bool $ignoreHasCacheKeys = false): string
+    public function CacheKeyMenu(?bool $includePageId = true, ?bool $forceCaching = false): string
     {
-        return $this->CacheKeyGenerator('F', $includePageId, $ignoreHasCacheKeys);
+        return $this->CacheKeyGenerator('M', $includePageId, $forceCaching);
     }
 
-    public function CacheKeyContent(?bool $ignoreHasCacheKeys = false): string
+    public function CacheKeyFooter(?bool $includePageId = false, ?bool $forceCaching = false): string
+    {
+        return $this->CacheKeyGenerator('F', $includePageId, $forceCaching);
+    }
+
+    public function CacheKeyContent(?bool $forceCaching = false): string
     {
         $owner = $this->getOwner();
         if ($owner->NeverCachePublicly) {
@@ -149,10 +170,10 @@ class PageControllerExtension extends Extension
         return $cacheKey;
     }
 
-    public function CacheKeyGenerator(string $letter, ?bool $includePageId = true, ?bool $ignoreHasCacheKeys = false): string
+    public function CacheKeyGenerator(string $letter, ?bool $includePageId = true, ?bool $forceCaching = false): string
     {
         $owner = $this->getOwner();
-        if ($this->HasCacheKeys() || $ignoreHasCacheKeys) {
+        if ($this->HasCacheKeys() || $forceCaching) {
             $string = $letter . '_' . $this->getCanCacheContentString() . '_' . $this->cacheKeyAnyDataObjectChanges();
 
             if ($includePageId) {
