@@ -78,7 +78,7 @@ class SimpleTemplateCachingSiteConfigExtension extends DataExtension
     {
         $obj = SiteConfig::current_site_config();
         if ($obj->HasCaching) {
-            return 'ts_' . strtotime($obj->CacheKeyLastEdited);
+            return 'ts_' . strtotime((string) $obj->CacheKeyLastEdited);
         }
 
         return 'ts_' . time();
