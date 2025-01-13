@@ -54,7 +54,7 @@ class ObjectsUpdated extends DataObject
 
     public function getitle(): string
     {
-        if (class_exists($this->getOwner()->ClassNameLastEdited)) {
+        if (class_exists((string) $this->getOwner()->ClassNameLastEdited)) {
             return Injector::inst()->get($this->getOwner()->ClassNameLastEdited)->i18n_singular_name();
         }
 
