@@ -2,6 +2,8 @@
 
 namespace Sunnysideup\SimpleTemplateCaching\Extensions;
 
+use SilverStripe\Control\Controller;
+use SilverStripe\Control\Director;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Forms\CheckboxField;
 use SilverStripe\Forms\FieldList;
@@ -29,6 +31,12 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
 {
     private const MAX_OBJECTS_UPDATED = 1000;
 
+    private static $image_cache_duration_in_seconds = 3600;
+    private static $image_cache_directive = '<IfModule mod_headers.c> <FilesMatch "\.(jpg|jpeg|png|gif|webp|svg)$"> Header set Cache-Control "public, max-age=[SECONDS]" </FilesMatch> </IfModule>';
+
+    private static $css_and_js_cache_duration_in_seconds = 3600;
+    private static $css_and_js_cache_directive = '<IfModule mod_headers.c> <FilesMatch "\.(js|css|)$"> Header set Cache-Control "public, max-age=[SECONDS]" </FilesMatch> </IfModule>';
+
     private static $db = [
         'HasCaching' => 'Boolean(1)',
         'PublicCacheDurationInSeconds' => 'Int',
@@ -49,7 +57,7 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
                 CheckboxField::create('HasCaching', 'Use caching'),
                 NumericField::create('PublicCacheDurationInSeconds', 'Cache time for ALL pages')
                     ->setDescription(
-                        'This will apply caching to ALL pages on the site.'
+                        'USE WITH CARE - This will apply caching to ALL pages on the site. Time is in seconds (e.g. 600 = 10 minutes).'
                     ),
                 CheckboxField::create('RecordCacheUpdates', 'Record every change?')
                     ->setDescription('To work out when the cache is being updated, you can track every change. This will slow down all your edits, so it is recommend only to turn this on temporarily - for tuning purposes.'),
@@ -127,5 +135,40 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
                 DB::query('DELETE FROM "SiteConfig" WHERE ID <> ' . $currentSiteConfig->ID);
             }
         }
+        $imageCacheDirective = $this->getOwner()->config()->get('image_cache_directive');
+        $cssJsCacheDirective = $this->getOwner()->config()->get('css_and_js_cache_directive');
+        $toDo = [
+            'IMAGE_CACHE_DIRECTIVE' => $imageCacheDirective,
+            'CSS_JS_CACHE_DIRECTIVE' => $cssJsCacheDirective,
+        ];
+        foreach ($toDo as $key => $value) {
+            $this->updateHtaccess($value, $key);
+        }
+    }
+
+    protected function updateHtaccess(string $toAdd, string $code)
+    {
+        $htaccessPath = Controller::join_links(Director::publicFolder(), '.htaccess');
+        $htaccessContent = file_get_contents($htaccessPath);
+
+        // Define start and end comments
+        $startComment = PHP_EOL . "# auto add start " . $code . PHP_EOL;
+        $endComment = PHP_EOL . "# auto add end " . $code . PHP_EOL;
+
+        // Full content to replace or add
+        $toAddFull = $startComment . $toAdd . $endComment;
+
+        // Check if the section already exists
+        $pattern = "/" . preg_quote($startComment, '/') . ".*?" . preg_quote($endComment, '/') . "/s";
+        if (preg_match($pattern, $htaccessContent)) {
+            // Replace existing content between the start and end comments
+            $htaccessContent = preg_replace($pattern, $toAddFull, $htaccessContent);
+        } else {
+            // Append the new content at the end if the section is not found
+            $htaccessContent = $toAddFull . $htaccessContent;
+        }
+
+        // Save the updated .htaccess file
+        file_put_contents($htaccessPath, $htaccessContent);
     }
 }
