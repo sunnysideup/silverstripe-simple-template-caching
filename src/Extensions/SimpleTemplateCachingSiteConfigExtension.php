@@ -135,13 +135,12 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
                 DB::query('DELETE FROM "SiteConfig" WHERE ID <> ' . $currentSiteConfig->ID);
             }
         }
-        $imageCacheDirective = $this->getOwner()->config()->get('image_cache_directive');
-        $cssJsCacheDirective = $this->getOwner()->config()->get('css_and_js_cache_directive');
-        $toDo = [
-            'IMAGE_CACHE_DIRECTIVE' => $imageCacheDirective,
-            'CSS_JS_CACHE_DIRECTIVE' => $cssJsCacheDirective,
-        ];
-        foreach ($toDo as $key => $value) {
+        foreach (
+            [
+                'IMAGE_CACHE_DIRECTIVE' => $this->getOwner()->config()->get('image_cache_directive'),
+                'CSS_JS_CACHE_DIRECTIVE' => $cssJsCacheDirective = $this->getOwner()->config()->get('css_and_js_cache_directive'),
+            ] as $key => $value
+        ) {
             $this->updateHtaccess($value, $key);
         }
     }
