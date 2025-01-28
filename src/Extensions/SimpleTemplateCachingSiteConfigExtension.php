@@ -31,9 +31,21 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
 {
     private const MAX_OBJECTS_UPDATED = 1000;
 
-    private static string $image_cache_directive = '';
+    private static string $image_cache_directive = '
+<IfModule mod_headers.c>
+  <FilesMatch "\.(jpg|jpeg|png|gif|webp|svg|avif)$">
+    Header set Cache-Control "public, max-age=86400"
+  </FilesMatch>
+</IfModule>
+    ';
 
-    private static string $css_and_js_cache_directive = '';
+    private static string $css_and_js_cache_directive = '
+<IfModule mod_headers.c>
+  <FilesMatch "\.(js|css)$">
+    Header set Cache-Control "public, max-age=86400"
+  </FilesMatch>
+</IfModule>
+    ';
 
     private static $db = [
         'HasCaching' => 'Boolean(1)',
