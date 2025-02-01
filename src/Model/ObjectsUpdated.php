@@ -16,9 +16,16 @@ class ObjectsUpdated extends DataObject
 
     public static function classes_edited(): string
     {
-        $query = DB::query('SELECT DISTINCT ClassNameLastEdited FROM ObjectsUpdated ORDER BY ClassNameLastEdited ASC');
+        $query = DB::query('
+            SELECT "ClassNameLastEdited", COUNT(*) AS "Count"
+            FROM "ObjectsUpdated"
+            GROUP BY "ClassNameLastEdited"
+            ORDER BY "ClassNameLastEdited" ASC
+        ');
         foreach ($query as $row) {
-            $array[$row['ClassNameLastEdited']] = Injector::inst()->get($row['ClassNameLastEdited'])->i18n_singular_name();
+            $array[$row['ClassNameLastEdited']] =
+                Injector::inst()->get($row['ClassNameLastEdited'])->i18n_singular_name() .
+                ' (' . $row['Count'] . ')';
         }
         return implode(', ', $array);
     }

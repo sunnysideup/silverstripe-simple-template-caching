@@ -6,6 +6,7 @@ use SilverStripe\Forms\CheckboxField;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\NumericField;
 use SilverStripe\Core\Extension;
+use SilverStripe\Forms\LiteralField;
 use SilverStripe\SiteConfig\SiteConfig;
 
 /**
@@ -24,6 +25,7 @@ class PageExtension extends Extension
 
     public function updateSettingsFields(FieldList $fields)
     {
+        $owner = $this->getOwner();
         $fields->addFieldsToTab(
             'Root.Cache',
             [
@@ -34,7 +36,7 @@ class PageExtension extends Extension
                 ),
             ]
         );
-        if (! (bool) $this->getOwner()->NeverCachePublicly) {
+        if (! (bool) $owner->NeverCachePublicly) {
             $fields->addFieldsToTab(
                 'Root.Cache',
                 [
@@ -55,5 +57,27 @@ class PageExtension extends Extension
                 ]
             );
         }
+    }
+
+    /**
+     * Update Fields
+     * @return FieldList
+     */
+    public function updateCMSFields(FieldList $fields)
+    {
+
+        $owner = $this->getOwner();
+        $sc = SiteConfig::current_site_config();
+        if ($sc->HasCaching || $owner->PublicCacheDurationInSeconds) {
+            if (! $owner->NeverCachePublicly) {
+                $fields->push(
+                    LiteralField::create(
+                        'CacheInfo',
+                        '<p class="message warning">This page can be cached for ' . $this->owner->PublicCacheDurationInSeconds . ' seconds.</p>'
+                    )
+                );
+            }
+        }
+        return $fields;
     }
 }

@@ -103,3 +103,18 @@ be taken into account when the cache is created.
 </html>
 
 ```
+
+
+## Every database change invalidates cache
+
+The cache is invalidated every time the database changes.  
+To avoid this happening too often you can set exceptions:
+
+```yml
+SilverStripe\ORM\DataObject:
+  excluded_classes_for_caching:
+    - MyClass1
+    - MyClass2
+```
+
+By default a whole bunch are being excluded - see: `_config.yml`.

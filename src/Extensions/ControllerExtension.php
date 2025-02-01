@@ -2,6 +2,7 @@
 
 namespace Sunnysideup\SimpleTemplateCaching\Extensions;
 
+use PageController;
 use PhpParser\Node\Scalar\MagicConst\Dir;
 use SilverStripe\CMS\Controllers\ContentController;
 use SilverStripe\Control\Director;
@@ -37,7 +38,7 @@ class ControllerExtension extends Extension
             return null;
         }
         /** PageController|ControllerExtension $owner */
-        if ($owner instanceof ContentController) {
+        if ($owner instanceof PageController) {
             $dataRecord = $owner->data();
             if (empty($dataRecord)) {
                 return null;
