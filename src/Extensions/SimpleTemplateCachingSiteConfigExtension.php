@@ -57,9 +57,10 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
 
     public function updateCMSFields(FieldList $fields)
     {
-        $name = '';
-        if (class_exists((string) $this->getOwner()->ClassNameLastEdited)) {
-            $name = Injector::inst()->get($this->getOwner()->ClassNameLastEdited)->i18n_singular_name();
+        $owner = $this->getOwner();
+        $name = '[none]';
+        if (class_exists((string) $owner->ClassNameLastEdited)) {
+            $name = Injector::inst()->get($owner->ClassNameLastEdited)->i18n_singular_name();
         }
         $fields->addFieldsToTab(
             'Root.Caching',
@@ -67,17 +68,24 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
                 CheckboxField::create('HasCaching', 'Use caching'),
                 NumericField::create('PublicCacheDurationInSeconds', 'Cache time for ALL pages')
                     ->setDescription(
-                        'USE WITH CARE - This will apply caching to ALL pages on the site. Time is in seconds (e.g. 600 = 10 minutes).'
+                        'USE WITH CARE - This will apply caching to ALL pages on the site.
+                        Time is in seconds (e.g. 600 = 10 minutes).'
                     ),
-                CheckboxField::create('RecordCacheUpdates', 'Record every change?')
-                    ->setDescription('To work out when the cache is being updated, you can track every change. This will slow down all your edits, so it is recommend only to turn this on temporarily - for tuning purposes.'),
                 ReadonlyField::create('CacheKeyLastEdited', 'Content Last Edited')
-                    ->setRightTitle('The frontend template cache will be invalidated every time this value changes. It changes every time anything is changed in the database.'),
-                ReadonlyField::create('ClassNameLastEdited', 'Last class updated')
-                    ->setRightTitle('Last object updated. The name of this object is: ' . $name),
+                    ->setDescription(
+                        'The frontend template cache will be invalidated every time this value changes.
+                        It changes every time anything is changed in the database.'
+                    ),
+                ReadonlyField::create('ClassNameLastEditedNice', 'Last class updated', $name)
+                    ->setDescription('Last record updated, invalidating the cache.'),
+                CheckboxField::create('RecordCacheUpdates', 'Record every change?')
+                    ->setDescription(
+                        'To work out when the cache is being updated, you can track every change.
+                        This will slow down all your edits, so it is recommend only to turn this on temporarily - for tuning purposes.'
+                    ),
             ]
         );
-        if ($this->getOwner()->RecordCacheUpdates) {
+        if ($owner->RecordCacheUpdates) {
             $fields->addFieldsToTab(
                 'Root.Caching',
                 [
