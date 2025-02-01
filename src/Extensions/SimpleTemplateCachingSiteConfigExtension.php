@@ -79,18 +79,6 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
                         'You will also need to set up the cache time below for it to be enabled.
                         You can set a default time below, but you can also set the time for individual pages.'
                     ),
-<<<<<<< HEAD
-=======
-                ReadonlyField::create('CacheKeyLastEditedNice', 'Last database change', $owner->dbObject('CacheKeyLastEdited')?->ago())
-                    ->setDescription('The frontend template cache will be invalidated every time this value changes. It changes every time anything is changed in the database.'),
-                ReadonlyField::create('ClassNameLastEditedNice', 'Last record updated', $name)
-                    ->setDescription('The last record to invalidate the cache.'),
-                CheckboxField::create('RecordCacheUpdates', 'Keep a record what is being changed?')
-                    ->setDescription('
-                        To work out when the cache is being cleared,
-                        you can keep a record of the last ' . self::MAX_OBJECTS_UPDATED . ' records changed.
-                        This will slow down all your edits, so it is recommend only to turn this on temporarily - for tuning purposes.'),
->>>>>>> 407d8563d25ec8baec7d629ccb45d1bbb5b9524b
             ]
         );
         if ($owner->HasCaching) {
@@ -206,34 +194,23 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
                     WHERE ID = ' . $obj->ID . '
                     LIMIT 1
                 ;');
-<<<<<<< HEAD
                 if ($obj->RecordCacheUpdates) {
                     $recordId = Injector::inst()
                         ->create(ObjectsUpdated::class, ['ClassNameLastEdited' => $className])
                         ->write();
-                    DB::query('DELETE FROM ObjectsUpdated WHERE ID < ' . (int) ($recordId - self::MAX_OBJECTS_UPDATED));
+                    DB::query('DELETE FROM "ObjectsUpdated" WHERE "ID" < ' . (int) ($recordId - self::MAX_OBJECTS_UPDATED));
                 }
-            } else {
-                DB::query('TRUNCATE TABLE ObjectsUpdated;');
-=======
             } else {
                 DB::query('TRUNCATE "ObjectsUpdated";');
             }
-            if ($obj->RecordCacheUpdates) {
-                $recordId = Injector::inst()
-                    ->create(ObjectsUpdated::class, ['ClassNameLastEdited' => $className])
-                    ->write();
-                DB::query('DELETE FROM "ObjectsUpdated" WHERE "ID" < ' . (int) ($recordId - self::MAX_OBJECTS_UPDATED));
->>>>>>> 407d8563d25ec8baec7d629ccb45d1bbb5b9524b
-            }
         } catch (Exception $e) {
             DB::query('
-            UPDATE "SiteConfig"
-            SET
-                "CacheKeyLastEdited" = \'' . DBDatetime::now()->Rfc2822() . '\',
-                "ClassNameLastEdited" = \'ERROR\'
-            WHERE ID = ' . $obj->ID . '
-            LIMIT 1
+                UPDATE "SiteConfig"
+                SET
+                    "CacheKeyLastEdited" = \'' . DBDatetime::now()->Rfc2822() . '\',
+                    "ClassNameLastEdited" = \'ERROR\'
+                WHERE ID = ' . $obj->ID . '
+                LIMIT 1
         ;');
         }
     }
