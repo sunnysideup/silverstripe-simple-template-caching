@@ -2,6 +2,7 @@
 
 namespace Sunnysideup\SimpleTemplateCaching\Extensions;
 
+use Exception;
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\Director;
 use SilverStripe\Core\Injector\Injector;
@@ -65,27 +66,23 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
         $fields->addFieldsToTab(
             'Root.Caching',
             [
-                CheckboxField::create('HasCaching', 'Use caching'),
+                CheckboxField::create('HasCaching', 'Allow caching at all?'),
                 NumericField::create('PublicCacheDurationInSeconds', 'Cache time for ALL pages')
                     ->setDescription(
-                        'USE WITH CARE - This will apply caching to ALL pages on the site.
-                        Time is in seconds (e.g. 600 = 10 minutes).'
+                        'USE WITH CARE - This will apply caching to ALL pages on the site. Time is in seconds (e.g. 600 = 10 minutes).'
                     ),
-                ReadonlyField::create('CacheKeyLastEdited', 'Content Last Edited')
-                    ->setDescription(
-                        'The frontend template cache will be invalidated every time this value changes.
-                        It changes every time anything is changed in the database.'
-                    ),
-                ReadonlyField::create('ClassNameLastEditedNice', 'Last class updated', $name)
-                    ->setDescription('Last record updated, invalidating the cache.'),
-                CheckboxField::create('RecordCacheUpdates', 'Record every change?')
-                    ->setDescription(
-                        'To work out when the cache is being updated, you can track every change.
-                        This will slow down all your edits, so it is recommend only to turn this on temporarily - for tuning purposes.'
-                    ),
+                ReadonlyField::create('CacheKeyLastEdited', 'Last database change')
+                    ->setDescription('The frontend template cache will be invalidated every time this value changes. It changes every time anything is changed in the database.'),
+                ReadonlyField::create('ClassNameLastEditedNice', 'Last record updated', $name)
+                    ->setDescription('The last record to invalidate the cache.'),
+                CheckboxField::create('RecordCacheUpdates', 'Keep a record what is being changed?')
+                    ->setDescription('
+                        To work out when the cache is being cleared,
+                        you can keep a record of the last ' . self::MAX_OBJECTS_UPDATED . ' records changed.
+                        This will slow down all your edits, so it is recommend only to turn this on temporarily - for tuning purposes.'),
             ]
         );
-        if ($owner->RecordCacheUpdates) {
+        if ($this->getOwner()->RecordCacheUpdates) {
             $fields->addFieldsToTab(
                 'Root.Caching',
                 [
@@ -94,7 +91,13 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
                         'Last ' . self::MAX_OBJECTS_UPDATED . ' objects updated',
                         ObjectsUpdated::get()->limit(self::MAX_OBJECTS_UPDATED),
                         GridFieldConfig_RecordViewer::create()
-                    ),
+                    )
+                        ->setDescription(
+                            '
+                            This is a list of the last ' . self::MAX_OBJECTS_UPDATED . ' objects updated.
+                            It is used to track changes to the database.
+                            It includes: ' . ObjectsUpdated::classes_edited()
+                        ),
                 ]
             );
         }
@@ -123,24 +126,24 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
         }
         try {
             $obj = SiteConfig::current_site_config();
-        } catch (\Exception $e) {
+            if ($obj->HasCaching) {
+                DB::query('
+                    UPDATE "SiteConfig"
+                    SET
+                        "CacheKeyLastEdited" = \'' . DBDatetime::now()->Rfc2822() . '\',
+                        "ClassNameLastEdited" = \'' . addslashes((string) $className) . '\'
+                    WHERE ID = ' . $obj->ID . '
+                    LIMIT 1
+                ;');
+            }
+            if ($obj->RecordCacheUpdates) {
+                $recordId = Injector::inst()
+                    ->create(ObjectsUpdated::class, ['ClassNameLastEdited' => $className])
+                    ->write();
+                DB::query('DELETE FROM ObjectsUpdated WHERE ID < ' . (int) ($recordId - self::MAX_OBJECTS_UPDATED));
+            }
+        } catch (Exception $e) {
             $obj = null;
-        }
-        if ($obj && $obj->HasCaching) {
-            DB::query('
-                UPDATE "SiteConfig"
-                SET
-                    "CacheKeyLastEdited" = \'' . DBDatetime::now()->Rfc2822() . '\',
-                    "ClassNameLastEdited" = \'' . addslashes((string) $className) . '\'
-                WHERE ID = ' . $obj->ID . '
-                LIMIT 1
-            ;');
-        }
-        if ($obj && $obj->RecordCacheUpdates) {
-            $recordId = Injector::inst()
-                ->create(ObjectsUpdated::class, ['ClassNameLastEdited' => $className])
-                ->write();
-            DB::query('DELETE FROM ObjectsUpdated WHERE ID < ' . (int) ($recordId - self::MAX_OBJECTS_UPDATED));
         }
     }
 

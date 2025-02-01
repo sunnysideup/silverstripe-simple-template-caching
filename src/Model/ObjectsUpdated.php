@@ -3,7 +3,9 @@
 namespace Sunnysideup\SimpleTemplateCaching\Model;
 
 use SilverStripe\Core\Injector\Injector;
+use SilverStripe\Forms\ReadonlyField;
 use SilverStripe\ORM\DataObject;
+use SilverStripe\ORM\DB;
 
 /**
  * A blog category for generalising blog posts.
@@ -12,6 +14,23 @@ use SilverStripe\ORM\DataObject;
  */
 class ObjectsUpdated extends DataObject
 {
+
+    public static function classes_edited(): string
+    {
+        $query = DB::query('
+            SELECT "ClassNameLastEdited", COUNT(*) AS "Count"
+            FROM "ObjectsUpdated"
+            GROUP BY "ClassNameLastEdited"
+            ORDER BY "ClassNameLastEdited" ASC
+        ');
+        foreach ($query as $row) {
+            $array[$row['ClassNameLastEdited']] =
+                Injector::inst()->get($row['ClassNameLastEdited'])->i18n_singular_name() .
+                ' (' . $row['Count'] . ')';
+        }
+        return implode(', ', $array);
+    }
+
     /**
      * @var string
      */
@@ -33,7 +52,8 @@ class ObjectsUpdated extends DataObject
      */
     private static $summary_fields = [
         'Created' => 'Updated',
-        'ClassNameTitle' => 'Record name    ',
+        'Title' => 'Record name    ',
+        'LastEdited' => 'Last Edited',
     ];
 
     /**
@@ -42,7 +62,7 @@ class ObjectsUpdated extends DataObject
     private static $field_labels = [
         'Created' => 'Updated',
         'Title' => 'Human readable name',
-        'ClassNameLastEdited' => 'Code name',
+        'LastEdited' => 'Code name',
     ];
 
     /**
@@ -52,12 +72,26 @@ class ObjectsUpdated extends DataObject
         'Title' => 'Varchar',
     ];
 
-    public function getitle(): string
+    public function getTitle(): string
     {
-        if (class_exists((string) $this->getOwner()->ClassNameLastEdited)) {
-            return Injector::inst()->get($this->getOwner()->ClassNameLastEdited)->i18n_singular_name();
+        if (class_exists((string) $this->ClassNameLastEdited)) {
+            return Injector::inst()->get($this->ClassNameLastEdited)->i18n_singular_name();
         }
 
         return 'ERROR: class not found';
+    }
+
+    public function getCMSFields()
+    {
+        $fields = parent::getCMSFields();
+        $fields->removeByName('ClassNameLastEdited');
+        $fields->addFieldsToTab(
+            'Root.Main',
+            [
+                ReadonlyField::create('Title', 'Title', $this->getTitle()),
+                ReadonlyField::create('Created', 'Recorded'),
+            ]
+        );
+        return $fields;
     }
 }
