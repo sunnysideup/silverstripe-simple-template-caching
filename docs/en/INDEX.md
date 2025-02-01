@@ -2,7 +2,7 @@
 
 Caching is a not a simple matter.  You want to cache as much as you can without caching things that should not be cached.
 
-This module looks at four levels of caching:
+This module looks at several caching options:
 
 1. *Simplified Template Caching*.  This is not specific to this module, but it helps you make it easy.
    To use this module, basically check out the template ideas below and then
@@ -15,22 +15,7 @@ This module looks at four levels of caching:
 3. *Resource Caching* 
     Check the `admin/settings` (SiteConfig) for details. Use with care.
 
-# make an exception
-
-add the following to your Page (or Home Page or whatever) Controller:
-
-```php
-function canCachePage() : bool
-{
-     return false;
-}
-function CacheKeyContentCustom() : bool
-{
-     return 'extra-cache-key-goes-here';
-}
-```
-
-# usage
+## simplified template caching
 
 Here is how to use it in the Page.ss file (or similar):
 
@@ -38,7 +23,7 @@ The if statements (e.g. `HasCacheKeyMenu`) you can leave out if you want to cach
 unique things happening on the page e.g. user logged in, request vars, etc...These unique things will
 be taken into account when the cache is created.
 
-## low to high risk caching
+### low to high risk caching
 
 1. add the `HasMyCacheKey...` only cached for simple page requests (e.g. not logged in, no get variables, etc...)
 2. without the `HasMyCacheKey...` you are caching for all requests, including logged in users, get variables, etc...
@@ -117,11 +102,10 @@ be taken into account when the cache is created.
 
 ```
 
-
-## Every database change invalidates cache
+### Every database change invalidates cache
 
 The cache is invalidated every time the database changes.  
-To avoid this happening too often you can set exceptions:
+To avoid this happening too often you can set a list of classes that are not included:
 
 ```yml
 Sunnysideup\SimpleTemplateCaching\Extensions\DataObjectExtension:
@@ -131,3 +115,24 @@ Sunnysideup\SimpleTemplateCaching\Extensions\DataObjectExtension:
 ```
 
 By default a whole bunch are being excluded - see: `_config.yml`.
+
+
+### exclude pages from being cached
+
+Add the following to your Page (or Home Page or whatever) *Controller*:
+
+```php
+function canCachePage() : bool
+{
+     return false;
+}
+``` 
+
+To add a specific key for template caching, you can use:
+
+```php
+function CacheKeyContentCustom() : bool
+{
+     return 'extra-cache-key-goes-here';
+}
+```

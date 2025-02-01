@@ -62,7 +62,12 @@ class ControllerExtension extends Extension
             if ($request->isGET() !== true) {
                 return $this->returnNoCache();
             }
-
+            if ($controller->hasMethod('canCachePage')) {
+                $canCachePage = $controller->canCachePage();
+                if ($canCachePage !== true) {
+                    return $this->returnNoCache();
+                }
+            }
             $cacheTime = $dataRecord->PageCanBeCachedEntirelyDuration();
             if ($cacheTime > 0) {
                 return HTTPCacheControlMiddleware::singleton()
