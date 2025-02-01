@@ -88,13 +88,13 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
                 [
                     GridField::create(
                         'ObjectsUpdated',
-                        'Last ' . self::MAX_OBJECTS_UPDATED . ' objects updated',
+                        'Last ' . self::MAX_OBJECTS_UPDATED . ' records updated',
                         ObjectsUpdated::get()->limit(self::MAX_OBJECTS_UPDATED),
                         GridFieldConfig_RecordViewer::create()
                     )
                         ->setDescription(
                             '
-                            This is a list of the last ' . self::MAX_OBJECTS_UPDATED . ' objects updated.
+                            This is a list of the last ' . self::MAX_OBJECTS_UPDATED . ' records updated.
                             It is used to track changes to the database.
                             It includes: ' . ObjectsUpdated::classes_edited()
                         ),

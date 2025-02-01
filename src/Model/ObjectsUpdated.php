@@ -15,7 +15,7 @@ use SilverStripe\ORM\DB;
 class ObjectsUpdated extends DataObject
 {
 
-    public static function classes_edited(): string
+    public static function classes_edited(?string $myClass = ''): string
     {
         $query = DB::query('
             SELECT "ClassNameLastEdited", COUNT(*) AS "Count"
@@ -26,7 +26,10 @@ class ObjectsUpdated extends DataObject
         foreach ($query as $row) {
             $array[$row['ClassNameLastEdited']] =
                 Injector::inst()->get($row['ClassNameLastEdited'])->i18n_singular_name() .
-                ' (' . $row['Count'] . ')';
+                ' (×' . $row['Count'] . ')';
+            if ($myClass && $myClass === $row['ClassNameLastEdited']) {
+                return $row['Count'];
+            }
         }
         return implode(', ', $array);
     }
@@ -51,9 +54,8 @@ class ObjectsUpdated extends DataObject
      * @var array
      */
     private static $summary_fields = [
-        'Created' => 'Updated',
-        'Title' => 'Record name    ',
-        'LastEdited' => 'Last Edited',
+        'LastEdited.Ago' => 'Updated',
+        'Title' => 'Record name',
     ];
 
     /**
@@ -62,7 +64,6 @@ class ObjectsUpdated extends DataObject
     private static $field_labels = [
         'Created' => 'Updated',
         'Title' => 'Human readable name',
-        'LastEdited' => 'Code name',
     ];
 
     /**
@@ -88,7 +89,8 @@ class ObjectsUpdated extends DataObject
         $fields->addFieldsToTab(
             'Root.Main',
             [
-                ReadonlyField::create('Title', 'Title', $this->getTitle()),
+                ReadonlyField::create('Title', 'Title', $this->getTitle())
+                    ->setDescription('Included ' . self::classes_edited($this->ClassNameLastEdited) . '× in the list.'),
                 ReadonlyField::create('Created', 'Recorded'),
             ]
         );
