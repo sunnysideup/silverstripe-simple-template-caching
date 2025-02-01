@@ -63,7 +63,7 @@ class ControllerExtension extends Extension
             if ($request->requestVars()) {
                 return $this->returnNoCache();
             }
-            if ($request->isPOST()) {
+            if ($request->isGET() !== true) {
                 return $this->returnNoCache();
             }
 
