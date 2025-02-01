@@ -63,7 +63,9 @@ class ControllerExtension extends Extension
             if ($request->requestVars()) {
                 return $this->returnNoCache();
             }
-
+            if ($request->isPOST()) {
+                return $this->returnNoCache();
+            }
 
             $cacheTime = $dataRecord->CacheDurationInSeconds();
             if ($cacheTime > 0) {
