@@ -15,74 +15,57 @@ use SilverStripe\Versioned\Versioned;
 /**
  * Class \ControllerExtension.
  *
- * @property PageController|ControllerExtension $owner
+ * @property PageController|ControllerExtension $controller
  */
 class ControllerExtension extends Extension
 {
     public function onBeforeInit()
     {
         //make sure that caching is always https
-        $owner = $this->getOwner();
+        $controller = $this->getOwner();
         if (Director::isLive()) {
-            $owner->response->addHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+            $controller->response->addHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
         }
-        if (Security::getCurrentUser()) {
-            return null;
-        }
-        if (Versioned::get_reading_mode() !== 'Stage.Live') {
-            return null;
-        }
-
-        $sc = SiteConfig::current_site_config();
-        if (! $sc->HasCaching) {
-            return null;
-        }
-        /** PageController|ControllerExtension $owner */
-        if ($owner instanceof PageController) {
-            $dataRecord = $owner->data();
+        /** PageController|ControllerExtension $controller */
+        if ($controller instanceof PageController) {
+            $dataRecord = $controller->data();
             if (empty($dataRecord)) {
-                return null;
+                return $this->returnNoCache();
             }
-            if ($dataRecord->NeverCachePublicly) {
-                HTTPCacheControlMiddleware::singleton()
-                    ->disableCache()
-                ;
-                return null;
+            if ($dataRecord->PageCanBeCached() !== true) {
+                return $this->returnNoCache();
             }
-
-            if ($owner->hasMethod('updateCacheControl')) {
-                user_error('Please use canCachePage instead of updateCacheControl', E_USER_ERROR);
+            if (Security::getCurrentUser()) {
+                return $this->returnNoCache();
             }
-
-            if ($dataRecord->hasMethod('canCachePage')) {
-                $canCachePage = $dataRecord->canCachePage();
-                if ($canCachePage !== true) {
-                    return null;
-                }
+            if (Versioned::get_reading_mode() !== 'Stage.Live') {
+                return $this->returnNoCache();
             }
 
-            $request = $owner->getRequest();
-            if ($owner->hasMethod('cacheControlExcludedActions')) {
-                $excludeActions = $owner->cacheControlExcludedActions();
+
+            // exclude special situations...
+            $request = $controller->getRequest();
+            if ($controller->hasMethod('cacheControlExcludedActions')) {
+                $excludeActions = $controller->cacheControlExcludedActions();
                 $action = strtolower($request->param('Action'));
                 if ($action) {
                     if (in_array($action, $excludeActions)) {
-                        return null;
+                        return $this->returnNoCache();
                     }
                 }
             }
             if ($request->isAjax()) {
-                return null;
+                return $this->returnNoCache();
             }
             if ($request->getVar('flush')) {
-                return null;
+                return $this->returnNoCache();
             }
             if ($request->requestVars()) {
-                return null;
+                return $this->returnNoCache();
             }
 
 
-            $cacheTime = (int) ($dataRecord->PublicCacheDurationInSeconds ?: $sc->PublicCacheDurationInSeconds);
+            $cacheTime = $dataRecord->CacheDurationInSeconds();
             if ($cacheTime > 0) {
                 return HTTPCacheControlMiddleware::singleton()
                     ->enableCache()
@@ -92,6 +75,14 @@ class ControllerExtension extends Extension
             }
         }
 
+        return null;
+    }
+
+    protected function returnNoCache()
+    {
+        HTTPCacheControlMiddleware::singleton()
+            ->disableCache()
+        ;
         return null;
     }
 }

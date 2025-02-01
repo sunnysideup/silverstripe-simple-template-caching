@@ -65,19 +65,50 @@ class PageExtension extends Extension
      */
     public function updateCMSFields(FieldList $fields)
     {
-
         $owner = $this->getOwner();
         $sc = SiteConfig::current_site_config();
-        if ($sc->HasCaching || $owner->PublicCacheDurationInSeconds) {
-            if (! $owner->NeverCachePublicly) {
-                $fields->push(
-                    LiteralField::create(
-                        'CacheInfo',
-                        '<p class="message warning">This page can be cached for ' . $this->owner->PublicCacheDurationInSeconds . ' seconds.</p>'
-                    )
-                );
-            }
+        if ($owner->PageCanBeCached()) {
+            $fields->push(
+                LiteralField::create(
+                    'CacheInfo',
+                    '<p class="message warning">Careful: this page can be cached publicly for up to ' . $owner->CacheDurationInSeconds() . ' seconds.</p>'
+                )
+            );
         }
         return $fields;
+    }
+
+    public function PageCanBeCached(): bool
+    {
+        $owner = $this->getOwner();
+
+        if ($owner->NeverCachePublicly) {
+            return false;
+        }
+        $sc = SiteConfig::current_site_config();
+        if (!$sc->HasCaching) {
+            return false;
+        }
+        if ($owner->CacheDurationInSeconds() <= 0) {
+            return false;
+        }
+        if ($owner->hasMethod('canCachePage')) {
+            $canCachePage = $owner->canCachePage();
+            if ($canCachePage !== true) {
+                return false;
+            }
+        }
+        if ($owner->hasMethod('updateCacheControl')) {
+            user_error('Please use canCachePage instead of updateCacheControl', E_USER_ERROR);
+        }
+
+        return true;
+    }
+
+    public function CacheDurationInSeconds(): int
+    {
+        $owner = $this->getOwner();
+        $sc = SiteConfig::current_site_config();
+        return (int) ($owner->PublicCacheDurationInSeconds ?: $sc->PublicCacheDurationInSeconds);
     }
 }
