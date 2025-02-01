@@ -29,7 +29,7 @@ class ControllerExtension extends Extension
             if (empty($dataRecord)) {
                 return $this->returnNoCache();
             }
-            if ($dataRecord->PageCanBeCached() !== true) {
+            if ($dataRecord->PageCanBeCachedEntirely() !== true) {
                 return $this->returnNoCache();
             }
             if (Security::getCurrentUser()) {
@@ -63,7 +63,7 @@ class ControllerExtension extends Extension
                 return $this->returnNoCache();
             }
 
-            $cacheTime = $dataRecord->CacheDurationInSeconds();
+            $cacheTime = $dataRecord->PageCanBeCachedEntirelyDuration();
             if ($cacheTime > 0) {
                 return HTTPCacheControlMiddleware::singleton()
                     ->enableCache()

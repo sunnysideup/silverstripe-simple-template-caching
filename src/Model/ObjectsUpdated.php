@@ -31,7 +31,7 @@ class ObjectsUpdated extends DataObject
                 return $row['Count'];
             }
         }
-        return implode(', ', $array);
+        return '<br />' . implode('<br> ', $array);
     }
 
     /**
@@ -89,9 +89,9 @@ class ObjectsUpdated extends DataObject
         $fields->addFieldsToTab(
             'Root.Main',
             [
+                ReadonlyField::create('Created', 'Recorded'),
                 ReadonlyField::create('Title', 'Title', $this->getTitle())
                     ->setDescription('Included ' . self::classes_edited($this->ClassNameLastEdited) . '× in the list.'),
-                ReadonlyField::create('Created', 'Recorded'),
             ]
         );
         return $fields;

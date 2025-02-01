@@ -10,7 +10,7 @@ MyDataObject:
         LastEdited: true
 
 # classes that change all the time and should not influence caching
-SilverStripe\ORM\DataObject:
+Sunnysideup\SimpleTemplateCaching\Extensions\DataObjectExtension:
   excluded_classes_for_caching:
     - MyClass1
     - MyClass2

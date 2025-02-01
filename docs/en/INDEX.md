@@ -1,6 +1,19 @@
-# silverstripe-simple-template-caching
+# tl;dr
 
-Basic Caching Functionality For Page Templates
+Caching is a not a simple matter.  You want to cache as much as you can without caching things that should not be cached.
+
+This module looks at four levels of caching:
+
+1. *Simplified Template Caching*.  This is not specific to this module, but it helps you make it easy.
+   To use this module, basically check out the template ideas below and then
+   review the caching details in the `siteconfig` (SiteConfig) to tune it.
+   You can also add your own caching rules, etc...
+
+2. *Whole Page Caching*.  This can be used in conjunction with a CDN.
+   Check the `admin/settings` (SiteConfig) for details. Use with care.
+
+3. *Resource Caching* 
+    Check the `admin/settings` (SiteConfig) for details. Use with care.
 
 # make an exception
 
@@ -111,7 +124,7 @@ The cache is invalidated every time the database changes.
 To avoid this happening too often you can set exceptions:
 
 ```yml
-SilverStripe\ORM\DataObject:
+Sunnysideup\SimpleTemplateCaching\Extensions\DataObjectExtension:
   excluded_classes_for_caching:
     - MyClass1
     - MyClass2

@@ -67,18 +67,18 @@ class PageExtension extends Extension
     {
         $owner = $this->getOwner();
         $sc = SiteConfig::current_site_config();
-        if ($owner->PageCanBeCached()) {
+        if ($owner->PageCanBeCachedEntirely()) {
             $fields->push(
                 LiteralField::create(
                     'CacheInfo',
-                    '<p class="message warning">Careful: this page can be cached publicly for up to ' . $owner->CacheDurationInSeconds() . ' seconds.</p>'
+                    '<p class="message warning">Careful: this page can be cached publicly for up to ' . $owner->PageCanBeCachedEntirelyDuration() . ' seconds.</p>'
                 )
             );
         }
         return $fields;
     }
 
-    public function PageCanBeCached(): bool
+    public function PageCanBeCachedEntirely(): bool
     {
         $owner = $this->getOwner();
 
@@ -89,7 +89,7 @@ class PageExtension extends Extension
         if (!$sc->HasCaching) {
             return false;
         }
-        if ($owner->CacheDurationInSeconds() <= 0) {
+        if ($owner->PageCanBeCachedEntirelyDuration() <= 0) {
             return false;
         }
         if ($owner->hasMethod('canCachePage')) {
@@ -105,10 +105,10 @@ class PageExtension extends Extension
         return true;
     }
 
-    public function CacheDurationInSeconds(): int
+    public function PageCanBeCachedEntirelyDuration(): int
     {
-        $owner = $this->getOwner();
-        $sc = SiteConfig::current_site_config();
-        return (int) ($owner->PublicCacheDurationInSeconds ?: $sc->PublicCacheDurationInSeconds);
+        return (int) (
+            $this->getOwner()->PublicCacheDurationInSeconds ?:
+            SiteConfig::current_site_config()->PublicCacheDurationInSeconds);
     }
 }
