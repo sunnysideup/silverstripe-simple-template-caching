@@ -71,7 +71,7 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
                     ->setDescription(
                         'USE WITH CARE - This will apply caching to ALL pages on the site. Time is in seconds (e.g. 600 = 10 minutes).'
                     ),
-                ReadonlyField::create('CacheKeyLastEdited', 'Last database change')
+                ReadonlyField::create('CacheKeyLastEditedNice', 'Last database change', $owner->dbObject('CacheKeyLastEdited')?->ago())
                     ->setDescription('The frontend template cache will be invalidated every time this value changes. It changes every time anything is changed in the database.'),
                 ReadonlyField::create('ClassNameLastEditedNice', 'Last record updated', $name)
                     ->setDescription('The last record to invalidate the cache.'),
@@ -135,15 +135,24 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
                     WHERE ID = ' . $obj->ID . '
                     LIMIT 1
                 ;');
+            } else {
+                DB::query('TRUNCATE "ObjectsUpdated";');
             }
             if ($obj->RecordCacheUpdates) {
                 $recordId = Injector::inst()
                     ->create(ObjectsUpdated::class, ['ClassNameLastEdited' => $className])
                     ->write();
-                DB::query('DELETE FROM ObjectsUpdated WHERE ID < ' . (int) ($recordId - self::MAX_OBJECTS_UPDATED));
+                DB::query('DELETE FROM "ObjectsUpdated" WHERE "ID" < ' . (int) ($recordId - self::MAX_OBJECTS_UPDATED));
             }
         } catch (Exception $e) {
-            $obj = null;
+            DB::query('
+            UPDATE "SiteConfig"
+            SET
+                "CacheKeyLastEdited" = \'' . DBDatetime::now()->Rfc2822() . '\',
+                "ClassNameLastEdited" = \'ERROR\'
+            WHERE ID = ' . $obj->ID . '
+            LIMIT 1
+        ;');
         }
     }
 
