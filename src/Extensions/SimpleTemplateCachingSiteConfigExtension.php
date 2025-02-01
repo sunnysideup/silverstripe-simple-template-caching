@@ -71,9 +71,9 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
                         'USE WITH CARE - This will apply caching to ALL pages on the site. Time is in seconds (e.g. 600 = 10 minutes).'
                     ),
                 ReadonlyField::create('CacheKeyLastEdited', 'Last database change')
-                    ->setRightTitle('The frontend template cache will be invalidated every time this value changes. It changes every time anything is changed in the database.'),
-                ReadonlyField::create('ClassNameLastEdited', 'Last class updated')
-                    ->setRightTitle('Last object updated. The name of this object is: ' . $name),
+                    ->setDescription('The frontend template cache will be invalidated every time this value changes. It changes every time anything is changed in the database.'),
+                ReadonlyField::create('ClassNameLastEditedNice', 'Last record updated', $name)
+                    ->setDescription('The last record to invalidate the cache.'),
                 CheckboxField::create('RecordCacheUpdates', 'Keep a record what is being changed?')
                     ->setDescription('
                         To work out when the cache is being cleared,

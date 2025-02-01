@@ -3,6 +3,7 @@
 namespace Sunnysideup\SimpleTemplateCaching\Model;
 
 use SilverStripe\Core\Injector\Injector;
+use SilverStripe\Forms\ReadonlyField;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\DB;
 
@@ -78,5 +79,19 @@ class ObjectsUpdated extends DataObject
         }
 
         return 'ERROR: class not found';
+    }
+
+    public function getCMSFields()
+    {
+        $fields = parent::getCMSFields();
+        $fields->removeByName('ClassNameLastEdited');
+        $fields->addFieldsToTab(
+            'Root.Main',
+            [
+                ReadonlyField::create('Title', 'Title', $this->getTitle()),
+                ReadonlyField::create('Created', 'Recorded'),
+            ]
+        );
+        return $fields;
     }
 }

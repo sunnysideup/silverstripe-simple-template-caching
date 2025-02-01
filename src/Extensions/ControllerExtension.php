@@ -23,9 +23,6 @@ class ControllerExtension extends Extension
     {
         //make sure that caching is always https
         $controller = $this->getOwner();
-        if (Director::isLive()) {
-            $controller->response->addHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
-        }
         /** PageController|ControllerExtension $controller */
         if ($controller instanceof PageController) {
             $dataRecord = $controller->data();
@@ -41,7 +38,6 @@ class ControllerExtension extends Extension
             if (Versioned::get_reading_mode() !== 'Stage.Live') {
                 return $this->returnNoCache();
             }
-
 
             // exclude special situations...
             $request = $controller->getRequest();
