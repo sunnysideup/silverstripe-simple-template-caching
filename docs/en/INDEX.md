@@ -126,7 +126,7 @@ function canCachePage() : bool
 {
      return false;
 }
-``` 
+```
 
 To add a specific key for template caching, you can use:
 
