@@ -15,7 +15,7 @@ use SilverStripe\Versioned\Versioned;
 /**
  * Class \ControllerExtension.
  *
- * @property PageController|ControllerExtension $controller
+ * @property PageController|ControllerExtension $owner
  */
 class ControllerExtension extends Extension
 {
