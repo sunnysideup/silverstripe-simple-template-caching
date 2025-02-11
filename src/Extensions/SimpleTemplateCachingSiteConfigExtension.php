@@ -26,6 +26,8 @@ use Sunnysideup\SimpleTemplateCaching\Model\ObjectsUpdated;
  *
  * @property SiteConfig|SimpleTemplateCachingSiteConfigExtension $owner
  * @property bool $HasCaching
+ * @property bool $HasPartialCaching
+ * @property bool $HasResourceCaching
  * @property int $PublicCacheDurationInSeconds
  * @property bool $RecordCacheUpdates
  * @property string $CacheKeyLastEdited
@@ -37,16 +39,16 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
 
     private static string $image_cache_directive = '
 <IfModule mod_headers.c>
-  <FilesMatch "\.(jpg|jpeg|png|gif|webp|svg|avif)$">
-    Header set Cache-Control "public, max-age=86400"
+  <FilesMatch "^(?:_resources/themes|assets)/.*\.(jpg|jpeg|png|gif|webp|svg|avif)$">
+    Header set Cache-Control "public, max-age=600"
   </FilesMatch>
 </IfModule>
     ';
 
     private static string $css_and_js_cache_directive = '
 <IfModule mod_headers.c>
-  <FilesMatch "\.(js|css)$">
-    Header set Cache-Control "public, max-age=86400"
+  <FilesMatch "^_resources/themes/.*\.(js|css)$">
+    Header set Cache-Control "public, max-age=600"
   </FilesMatch>
 </IfModule>
     ';
@@ -213,6 +215,11 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
                 LIMIT 1
         ;');
         }
+    }
+
+    public function onBeforeWrite()
+    {
+        $this->requireDefaultRecords();
     }
 
     public function requireDefaultRecords()
