@@ -67,7 +67,6 @@ class PageExtension extends Extension
     public function updateCMSFields(FieldList $fields)
     {
         $owner = $this->getOwner();
-        $sc = SiteConfig::current_site_config();
         if ($owner->PageCanBeCachedEntirely()) {
             $fields->push(
                 LiteralField::create(

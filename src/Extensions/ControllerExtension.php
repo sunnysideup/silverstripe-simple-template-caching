@@ -27,13 +27,10 @@ class ControllerExtension extends Extension
         /** PageController|ControllerExtension $controller */
         if ($controller instanceof PageController) {
             $dataRecord = $controller->data();
-            if (empty($dataRecord)) {
+            if (empty($dataRecord) || !$dataRecord instanceof Page) {
                 return $this->returnNoCache();
             }
-            if (!$dataRecord instanceof Page) {
-                return $this->returnNoCache();
-            }
-            if ( $dataRecord->PageCanBeCachedEntirely() !== true) {
+            if ($dataRecord->PageCanBeCachedEntirely() !== true) {
                 return $this->returnNoCache();
             }
             if (Security::getCurrentUser()) {
