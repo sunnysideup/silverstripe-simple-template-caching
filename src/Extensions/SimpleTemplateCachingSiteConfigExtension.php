@@ -53,6 +53,14 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
 </IfModule>
     ';
 
+    private static string $font_cache_directive = '
+    <IfModule mod_headers.c>
+      <FilesMatch "^_resources/themes/.*\.(woff|woff2|ttf|otf|eot)$">
+        Header set Cache-Control "public, max-age=600"
+      </FilesMatch>
+    </IfModule>
+    ';
+
     private static $db = [
         'HasCaching' => 'Boolean(1)',
         'HasPartialCaching' => 'Boolean(1)',
@@ -235,6 +243,7 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
             [
                 'IMAGE_CACHE_DIRECTIVE' => $currentSiteConfig->config()->get('image_cache_directive'),
                 'CSS_JS_CACHE_DIRECTIVE' => $currentSiteConfig->config()->get('css_and_js_cache_directive'),
+                'FONT_CACHE_DIRECTIVE' => $currentSiteConfig->config()->get('font_cache_directive'),
             ] as $key => $value
         ) {
             if (! $currentSiteConfig->HasResourceCaching) {
