@@ -244,6 +244,12 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
         }
     }
 
+    public function DoesNotHaveCaching(): bool
+    {
+        $owner = $this->getOwner();
+        return ! $owner->HasCaching;
+    }
+
     protected function updateHtaccess(string $code, string $toAdd)
     {
         $htaccessPath = Controller::join_links(Director::publicFolder(), '.htaccess');
