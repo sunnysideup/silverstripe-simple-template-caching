@@ -193,6 +193,7 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
         } else {
             return;
         }
+        $obj = null;
         try {
             $obj = SiteConfig::current_site_config();
             if ($obj->HasPartialCaching) {
@@ -214,14 +215,16 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
                 DB::query('TRUNCATE "ObjectsUpdated";');
             }
         } catch (Exception $e) {
-            DB::query('
-                UPDATE "SiteConfig"
-                SET
-                    "CacheKeyLastEdited" = \'' . DBDatetime::now()->Rfc2822() . '\',
-                    "ClassNameLastEdited" = \'ERROR\'
-                WHERE ID = ' . $obj->ID . '
-                LIMIT 1
-        ;');
+            if (isset($obj) && $obj && $obj->ID) {
+                DB::query('
+                    UPDATE "SiteConfig"
+                    SET
+                        "CacheKeyLastEdited" = \'' . DBDatetime::now()->Rfc2822() . '\',
+                        "ClassNameLastEdited" = \'ERROR\'
+                    WHERE ID = ' . $obj->ID . '
+                    LIMIT 1
+                ;');
+            }
         }
     }
 
