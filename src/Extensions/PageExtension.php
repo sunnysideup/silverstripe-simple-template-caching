@@ -108,4 +108,13 @@ class PageExtension extends Extension
             $this->getOwner()->PublicCacheDurationInSeconds ?:
             SiteConfig::current_site_config()->PublicCacheDurationInSeconds);
     }
+
+    public function EditCacheSettingsLink(): string
+    {
+        return str_replace(
+            'admin/pages/edit/show/',
+            'admin/pages/settings/show/',
+            $this->getOwner()->CMSEditLink()
+        ) . '#Root_Cache';
+    }
 }
