@@ -54,11 +54,11 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
     ';
 
     private static string $font_cache_directive = '
-    <IfModule mod_headers.c>
-      <FilesMatch "^_resources/themes/.*\.(woff|woff2|ttf|otf|eot)$">
-        Header set Cache-Control "public, max-age=600"
-      </FilesMatch>
-    </IfModule>
+<IfModule mod_headers.c>
+    <FilesMatch "^_resources/themes/.*\.(woff|woff2|ttf|otf|eot)$">
+    Header set Cache-Control "public, max-age=600"
+    </FilesMatch>
+</IfModule>
     ';
 
     private static $db = [

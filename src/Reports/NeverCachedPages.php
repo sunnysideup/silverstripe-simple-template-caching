@@ -7,6 +7,7 @@ use SilverStripe\CMS\Model\RedirectorPage;
 use SilverStripe\CMS\Model\SiteTree;
 use SilverStripe\ORM\DataList;
 use SilverStripe\Reports\Report;
+use SilverStripe\SiteConfig\SiteConfig;
 
 class NeverCachedPages extends Report
 {
@@ -33,8 +34,15 @@ class NeverCachedPages extends Report
      */
     public function sourceRecords($params = null)
     {
-        return Page::get()
-            ->filter(['NeverCachePublicly' => 1]);
+        $sc = SiteConfig::current_site_config();
+        if (! $sc->HasCaching) {
+            return Page::get();
+        } elseif ($sc->PublicCacheDurationInSeconds > 0) {
+            return Page::get()->filter(['NeverCachePublicly' => true]);
+        } else {
+            return Page::get()
+                ->filterAny(['PublicCacheDurationInSeconds' => 0, 'NeverCachePublicly' => true]);
+        }
     }
 
     public function columns()

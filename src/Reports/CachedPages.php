@@ -7,6 +7,7 @@ use SilverStripe\CMS\Model\RedirectorPage;
 use SilverStripe\CMS\Model\SiteTree;
 use SilverStripe\ORM\DataList;
 use SilverStripe\Reports\Report;
+use SilverStripe\SiteConfig\SiteConfig;
 
 class CachedPages extends Report
 {
@@ -33,8 +34,15 @@ class CachedPages extends Report
      */
     public function sourceRecords($params = null)
     {
-        return Page::get()
-            ->filter(['PublicCacheDurationInSeconds:GreaterThan' => 0, 'NeverCachePublicly' => 0]);
+        $sc = SiteConfig::current_site_config();
+        if (! $sc->HasCaching) {
+            return Page::get()->filter(['ID' => 0]);
+        } elseif ($sc->PublicCacheDurationInSeconds > 0) {
+            return Page::get()->filter(['NeverCachePublicly' => false]);
+        } else {
+            return Page::get()
+                ->filter(['PublicCacheDurationInSeconds:GreaterThan' => 0, 'NeverCachePublicly' => false]);
+        }
     }
 
     public function columns()
