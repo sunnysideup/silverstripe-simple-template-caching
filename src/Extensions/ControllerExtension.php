@@ -39,6 +39,9 @@ class ControllerExtension extends Extension
             if (Versioned::get_reading_mode() !== 'Stage.Live') {
                 return $this->returnNoCache();
             }
+            if (!Director::isLive()) {
+                return $this->returnNoCache();
+            }
 
             // exclude special situations...
             $request = $controller->getRequest();

@@ -68,7 +68,7 @@ class PageControllerExtension extends Extension
             // otherid
             $otherId = $owner->request->param('OtherID');
             if ($otherId) {
-                self::$_can_cache_content_string .= 'UI' . $otherId;
+                self::$_can_cache_content_string .= 'OI' . $otherId;
             }
 
             //request vars
