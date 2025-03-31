@@ -69,6 +69,7 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
         'RecordCacheUpdates' => 'Boolean(0)',
         'CacheKeyLastEdited' => 'DBDatetime',
         'ClassNameLastEdited' => 'Varchar(200)',
+        'ResourceCachingTimeInSeconds' => 'Int',
     ];
 
     public function updateCMSFields(FieldList $fields)
@@ -168,6 +169,11 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
                         'This will add cache control headers to your .htaccess file for images, styles, and scripts.
                         This will help with performance, but once cached, a cache can not be cleared without changing the file name.'
                     ),
+                NumericField::create('ResourceCachingTimeInSeconds', 'Cache time for resources')
+                    ->setDescription(
+                        'Time is in seconds (e.g. 600 = 10 minutes).
+                        This will be used for all resources on the site (fonts, images, styles, and scripts).'
+                    ),
             ]
         );
     }
@@ -235,6 +241,7 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
 
     public function requireDefaultRecords()
     {
+        $owner = $this->getOwner();
         $currentSiteConfig = SiteConfig::current_site_config();
         if ((int) SiteConfig::get()->count() > 100) {
             if ($currentSiteConfig) {
@@ -252,6 +259,10 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
             if (! $currentSiteConfig->HasResourceCaching) {
                 $value = '';
             }
+            if ($owner->ResourceCachingTimeInSeconds) {
+                $value = str_replace('max-age=600', 'max-age=' . $owner->ResourceCachingTimeInSeconds, $value);
+            }
+
             $this->updateHtaccess($key, $value);
         }
     }
