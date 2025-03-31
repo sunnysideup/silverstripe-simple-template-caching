@@ -38,14 +38,15 @@ Sunnysideup\SimpleTemplateCaching\Extensions\DataObjectExtension:
     - SilverStripe\Versioned\ChangeSet
     - SilverStripe\Versioned\ChangeSetItem
     - SilverStripe\SessionManager\Models\LoginSession
+    - Firesphere\CSPHeaders\Models\SRI
 ---
 Name: corecache_extended
 After:
-  - '#corecache'
+  - "#corecache"
 ---
 SilverStripe\Core\Injector\Injector:
   Psr\SimpleCache\CacheInterface.cacheblock:
     factory: SilverStripe\Core\Cache\CacheFactory
     constructor:
-      namespace: 'cacheblock'
+      namespace: "cacheblock"
       defaultLifetime: 864000 # 10 days!
