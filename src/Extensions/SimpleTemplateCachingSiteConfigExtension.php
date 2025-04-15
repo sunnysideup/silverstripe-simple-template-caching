@@ -234,12 +234,17 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
         }
     }
 
-    public function onBeforeWrite()
+    public function onAfterWrite()
     {
-        $this->requireDefaultRecords();
+        $this->updateHtaccess();
     }
 
     public function requireDefaultRecords()
+    {
+        $this->updateHtaccess();
+    }
+
+    protected function updateHtaccess()
     {
         $owner = $this->getOwner();
         $currentSiteConfig = SiteConfig::current_site_config();
@@ -263,7 +268,7 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
                 $value = str_replace('max-age=600', 'max-age=' . $owner->ResourceCachingTimeInSeconds, $value);
             }
 
-            $this->updateHtaccess($key, $value);
+            $this->updateHtaccessForOne($key, $value);
         }
     }
 
@@ -273,7 +278,7 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
         return ! $owner->HasCaching;
     }
 
-    protected function updateHtaccess(string $code, string $toAdd)
+    protected function updateHtaccessForOne(string $code, string $toAdd)
     {
         $htaccessPath = Controller::join_links(Director::publicFolder(), '.htaccess');
         $htaccessContent = file_get_contents($htaccessPath);
