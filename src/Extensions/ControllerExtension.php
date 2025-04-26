@@ -39,7 +39,8 @@ class ControllerExtension extends Extension
             if (Versioned::get_reading_mode() !== 'Stage.Live') {
                 return $this->returnNoCache();
             }
-            if (!Director::isLive()) {
+            // avoid test sites being cached
+            if (!(Director::isLive()|| Director::isDev())) {
                 return $this->returnNoCache();
             }
 
@@ -60,7 +61,7 @@ class ControllerExtension extends Extension
             if ($request->getVar('flush')) {
                 return $this->returnNoCache();
             }
-            if ($request->requestVars()) {
+            if ($request->postVars()) {
                 return $this->returnNoCache();
             }
             if ($request->isGET() !== true) {
