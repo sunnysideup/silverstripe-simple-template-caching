@@ -40,7 +40,7 @@ class ControllerExtension extends Extension
                 return $this->returnNoCache();
             }
             // avoid test sites being cached
-            if (!(Director::isLive() || Director::isDev())) {
+            if (Director::isTest()) {
                 return $this->returnNoCache();
             }
 
