@@ -40,18 +40,21 @@ class ControllerExtension extends Extension
                 return $this->returnNoCache();
             }
             // avoid test sites being cached
-            if (!(Director::isLive()|| Director::isDev())) {
+            if (!(Director::isLive() || Director::isDev())) {
                 return $this->returnNoCache();
             }
 
             // exclude special situations...
             $request = $controller->getRequest();
-            if ($controller->hasMethod('cacheControlExcludedActions')) {
-                $excludeActions = $controller->cacheControlExcludedActions();
-                $action = strtolower($request->param('Action'));
-                if ($action) {
-                    if (in_array($action, $excludeActions)) {
-                        return $this->returnNoCache();
+            $action = (string) $request->param('Action');
+            if ($action) {
+                if ($controller->hasMethod('cacheControlExcludedActions')) {
+                    $excludeActions = (array) $controller->cacheControlExcludedActions();
+                    if (!empty($excludeActions)) {
+                        $action = strtolower($action);
+                        if (in_array($action, $excludeActions)) {
+                            return $this->returnNoCache();
+                        }
                     }
                 }
             }
