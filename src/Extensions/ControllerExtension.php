@@ -51,7 +51,7 @@ class ControllerExtension extends Extension
                 if ($controller->hasMethod('cacheControlExcludedActions')) {
                     $excludeActions = (array) $controller->cacheControlExcludedActions();
                     if (!empty($excludeActions)) {
-                        $action = strtolower($action);
+                        $action = strtolower((string) $action);
                         if (in_array($action, $excludeActions)) {
                             return $this->returnNoCache();
                         }
