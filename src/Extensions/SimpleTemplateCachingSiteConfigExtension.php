@@ -172,7 +172,7 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
                     ),
                 NumericField::create('ResourceCachingTimeInSeconds', 'Cache time for resources')
                     ->setDescription(
-                        'Time is in seconds (e.g. 600 = 10 minutes).
+                        'Time is in seconds (e.g. 600 = 10 minutes, 86400 = 1 day).
                         This will be used for all resources on the site (fonts, images, styles, and scripts).'
                     ),
             ]
@@ -242,16 +242,18 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
 
     public function requireDefaultRecords()
     {
-        $this->updateHtaccess();
+        $this->updateHtaccess(true);
     }
 
-    protected function updateHtaccess()
+    protected function updateHtaccess(?bool $verbose = false)
     {
         $owner = $this->getOwner();
         $currentSiteConfig = SiteConfig::current_site_config();
         if ((int) SiteConfig::get()->count() > 100) {
             if ($currentSiteConfig) {
-                DB::alteration_message('Deleting all SiteConfig records except for the current one.', 'deleted');
+                if ($verbose) {
+                    DB::alteration_message('Deleting all SiteConfig records except for the current one.', 'deleted');
+                }
                 DB::query('DELETE FROM "SiteConfig" WHERE ID <> ' . $currentSiteConfig->ID);
             }
         }
@@ -269,7 +271,7 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
                 $value = str_replace('max-age=600', 'max-age=' . $owner->ResourceCachingTimeInSeconds, $value);
             }
 
-            $this->updateHtaccessForOne($key, $value);
+            $this->updateHtaccessForOne($key, $value, $verbose);
         }
     }
 
@@ -279,7 +281,7 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
         return ! $owner->HasCaching;
     }
 
-    protected function updateHtaccessForOne(string $code, string $toAdd)
+    protected function updateHtaccessForOne(string $code, string $toAdd, ?bool $verbose = false)
     {
         $htaccessPath = Controller::join_links(Director::publicFolder(), '.htaccess');
         $htaccessContent = file_get_contents($htaccessPath);
@@ -303,7 +305,9 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
         }
         if ($originalContent !== $htaccessContent) {
             // Save the updated .htaccess file
-            DB::alteration_message('Updating .htaccess file with ' . $code . ' cache directive', 'created');
+            if ($verbose) {
+                DB::alteration_message('Updating .htaccess file with ' . $code . ' cache directive', 'created');
+            }
             file_put_contents($htaccessPath, $htaccessContent);
         }
     }
