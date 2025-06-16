@@ -308,6 +308,11 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
             if ($verbose) {
                 DB::alteration_message('Updating .htaccess file with ' . $code . ' cache directive', 'created');
             }
+            if (!is_writable($htaccessPath)) {
+                if ($verbose) {
+                    DB::alteration_message('The .htaccess file is not writable: ' . $htaccessPath, 'deleted');
+                }
+            }
             file_put_contents($htaccessPath, $htaccessContent);
         }
     }
