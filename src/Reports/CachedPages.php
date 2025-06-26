@@ -30,7 +30,7 @@ class CachedPages extends Report
      * Gets the source records
      *
      * @param array $params
-     * @return DataList<SiteTree>
+     * @return DataList<Page>
      */
     public function sourceRecords($params = null)
     {

@@ -23,6 +23,7 @@ class ObjectsUpdated extends DataObject
             GROUP BY "ClassNameLastEdited"
             ORDER BY "ClassNameLastEdited" ASC
         ');
+        $array = [];
         foreach ($query as $row) {
             $array[$row['ClassNameLastEdited']] =
                 Injector::inst()->get($row['ClassNameLastEdited'])->i18n_singular_name() .

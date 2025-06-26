@@ -4,6 +4,7 @@ namespace Sunnysideup\SimpleTemplateCaching\Extensions;
 
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Extension;
+use SilverStripe\ORM\DataObject;
 use SilverStripe\Versioned\Versioned;
 use Sunnysideup\SimpleTemplateCaching\Model\ObjectsUpdated;
 
