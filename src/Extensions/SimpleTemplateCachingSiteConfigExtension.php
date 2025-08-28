@@ -38,10 +38,15 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
 {
     private const MAX_OBJECTS_UPDATED = 1000;
 
+    /**
+     * 864000 = ten days
+     *
+     * @var string
+     */
     private static string $image_cache_directive = '
 <IfModule mod_headers.c>
   <FilesMatch "^(?:_resources/themes|assets)/.*\.(jpg|jpeg|png|gif|webp|svg|avif)$">
-    Header set Cache-Control "public, max-age=600"
+    Header set Cache-Control "public, max-age=864000"
   </FilesMatch>
 </IfModule>
     ';
@@ -49,7 +54,7 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
     private static string $css_and_js_cache_directive = '
 <IfModule mod_headers.c>
   <FilesMatch "^_resources/themes/.*\.(js|css)$">
-    Header set Cache-Control "public, max-age=600"
+    Header set Cache-Control "public, max-age=864000"
   </FilesMatch>
 </IfModule>
     ';
@@ -57,7 +62,7 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
     private static string $font_cache_directive = '
 <IfModule mod_headers.c>
     <FilesMatch "^_resources/themes/.*\.(woff|woff2|ttf|otf|eot)$">
-    Header set Cache-Control "public, max-age=600"
+    Header set Cache-Control "public, max-age=864000"
     </FilesMatch>
 </IfModule>
     ';
