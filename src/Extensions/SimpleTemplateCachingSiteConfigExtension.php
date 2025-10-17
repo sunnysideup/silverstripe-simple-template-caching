@@ -30,8 +30,8 @@ use Sunnysideup\SimpleTemplateCaching\Model\ObjectsUpdated;
  * @property bool $HasResourceCaching
  * @property int $PublicCacheDurationInSeconds
  * @property bool $RecordCacheUpdates
- * @property string $CacheKeyLastEdited
- * @property string $ClassNameLastEdited
+ * @property ?string $CacheKeyLastEdited
+ * @property ?string $ClassNameLastEdited
  * @property int $ResourceCachingTimeInSeconds
  */
 class SimpleTemplateCachingSiteConfigExtension extends Extension

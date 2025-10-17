@@ -10,7 +10,14 @@ use SilverStripe\ORM\DB;
 /**
  * A blog category for generalising blog posts.
  *
- * @property string $ClassNameLastEdited
+ * @property ?string $ClassNameLastEdited
+ * @mixin FileLinkTracking
+ * @mixin AssetControlExtension
+ * @mixin SiteTreeLinkTracking
+ * @mixin VersionedStateExtension
+ * @mixin RecursivePublishable
+ * @mixin DataObjectExtension
+ * @mixin FixBooleanSearchAsExtension
  */
 class ObjectsUpdated extends DataObject
 {
