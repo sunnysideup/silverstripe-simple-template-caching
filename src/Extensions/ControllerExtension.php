@@ -81,6 +81,7 @@ class ControllerExtension extends Extension
                 return HTTPCacheControlMiddleware::singleton()
                     ->enableCache()
                     ->setMaxAge($cacheTime)
+                    ->setStateDirective(HTTPCacheControlMiddleware::STATE_PUBLIC, 'must-revalidate', false)
                     ->publicCache(true)
                 ;
             }
