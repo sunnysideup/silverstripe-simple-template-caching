@@ -50,6 +50,13 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
   </FilesMatch>
 </IfModule>
     ';
+    private static string $pdf_cache_directive = '
+<IfModule mod_headers.c>
+  <FilesMatch "^(?:_resources/themes|assets)/.*\.pdf$">
+    Header set Cache-Control "private, no-store, no-cache, must-revalidate"
+  </FilesMatch>
+</IfModule>
+    ';
 
     private static string $css_and_js_cache_directive = '
 <IfModule mod_headers.c>
@@ -265,6 +272,7 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
         foreach (
             [
                 'IMAGE_CACHE_DIRECTIVE' => $currentSiteConfig->config()->get('image_cache_directive'),
+                'PDF_CACHE_DIRECTIVE' => $currentSiteConfig->config()->get('pdf_cache_directive'),
                 'CSS_JS_CACHE_DIRECTIVE' => $currentSiteConfig->config()->get('css_and_js_cache_directive'),
                 'FONT_CACHE_DIRECTIVE' => $currentSiteConfig->config()->get('font_cache_directive'),
             ] as $key => $value
@@ -273,7 +281,7 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
                 $value = '';
             }
             if ($owner->ResourceCachingTimeInSeconds) {
-                $value = str_replace('max-age=600', 'max-age=' . $owner->ResourceCachingTimeInSeconds, $value);
+                $value = preg_replace('/max-age=\d+/', 'max-age=' . $owner->ResourceCachingTimeInSeconds, $value);
             }
 
             $this->updateHtaccessForOne($key, $value, $verbose);
