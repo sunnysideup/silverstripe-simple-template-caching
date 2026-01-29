@@ -48,35 +48,28 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
   <FilesMatch "^(?:_resources/themes|assets)/.*\.(jpg|jpeg|png|gif|webp|svg|avif)$">
     Header set Cache-Control "public, max-age=864000"
   </FilesMatch>
-</IfModule>
+</IfModule>';
 
-';
     private static string $pdf_cache_directive = '
 <IfModule mod_headers.c>
   <FilesMatch "^(?:_resources/themes|assets)/.*\.(pdf|xml)$">
     Header set Cache-Control "private, no-store, no-cache, must-revalidate"
   </FilesMatch>
-</IfModule>
-
-';
+</IfModule>';
 
     private static string $css_and_js_cache_directive = '
 <IfModule mod_headers.c>
   <FilesMatch "^_resources/themes/.*\.(js|css)$">
     Header set Cache-Control "public, max-age=864000"
   </FilesMatch>
-</IfModule>
-
-';
+</IfModule>';
 
     private static string $font_cache_directive = '
 <IfModule mod_headers.c>
     <FilesMatch "^_resources/themes/.*\.(woff|woff2|ttf|otf|eot)$">
     Header set Cache-Control "public, max-age=864000"
     </FilesMatch>
-</IfModule>
-
-';
+</IfModule>';
 
     private static $db = [
         'HasCaching' => 'Boolean(1)',
@@ -305,7 +298,7 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
         $originalContent = $htaccessContent;
 
         // Define start and end comments
-        $startComment = PHP_EOL . "# auto add start " . $code . PHP_EOL;
+        $startComment = PHP_EOL . "# auto add start " . $code;
         $endComment = PHP_EOL . "# auto add end " . $code . PHP_EOL;
 
         // Full content to replace or add
