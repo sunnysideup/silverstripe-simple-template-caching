@@ -49,14 +49,16 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
     Header set Cache-Control "public, max-age=864000"
   </FilesMatch>
 </IfModule>
-    ';
+
+';
     private static string $pdf_cache_directive = '
 <IfModule mod_headers.c>
-  <FilesMatch "^(?:_resources/themes|assets)/.*\.pdf$">
+  <FilesMatch "^(?:_resources/themes|assets)/.*\.(pdf|xml)$">
     Header set Cache-Control "private, no-store, no-cache, must-revalidate"
   </FilesMatch>
 </IfModule>
-    ';
+
+';
 
     private static string $css_and_js_cache_directive = '
 <IfModule mod_headers.c>
@@ -64,7 +66,8 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
     Header set Cache-Control "public, max-age=864000"
   </FilesMatch>
 </IfModule>
-    ';
+
+';
 
     private static string $font_cache_directive = '
 <IfModule mod_headers.c>
@@ -72,7 +75,8 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
     Header set Cache-Control "public, max-age=864000"
     </FilesMatch>
 </IfModule>
-    ';
+
+';
 
     private static $db = [
         'HasCaching' => 'Boolean(1)',
