@@ -28,8 +28,8 @@ class SetResourceCachingInHtaccess implements Flushable
      * @var string
      */
     private static string $image_cache_directive = '
-# Uploaded assets (filenames may change less predictably) - cache lighter
-Header always set Cache-Control "public, max-age=604800" "expr=%{REQUEST_URI} =~ m#^/assets/.*\.(?:png|jpe?g|gif|webp|svg|avif)$#"';
+# Uploaded assets (filenames may change less predictably) - cache lighter - one day
+Header always set Cache-Control "public, max-age=86400" "expr=%{REQUEST_URI} =~ m#^/assets/.*\.(?:png|jpe?g|gif|webp|svg|avif)$#"';
 
     private static string $pdf_cache_directive = '
 # PDFs/XML - don\'t cache
@@ -37,7 +37,7 @@ Header always set Cache-Control "no-store, no-cache, must-revalidate" "expr=%{RE
 
     private static string $css_and_js_cache_directive = '
 # Theme-built assets (usually cache-busted) - cache hard
-Header always set Cache-Control "public, max-age=31536000, immutable" expr=%{REQUEST_URI} =~ m#^/_resources/themes/.*\.(?:css|js)$#"';
+Header always set Cache-Control "public, max-age=31536000, immutable" "expr=%{REQUEST_URI} =~ m#^/_resources/themes/.*\.(?:css|js)$#"';
 
     private static string $font_cache_directive = '
 # Font - just cache hard
