@@ -4,9 +4,6 @@ namespace Sunnysideup\SimpleTemplateCaching\Extensions;
 
 use Exception;
 use Page;
-use SilverStripe\CMS\Model\SiteTree;
-use SilverStripe\Control\Controller;
-use SilverStripe\Control\Director;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Forms\CheckboxField;
 use SilverStripe\Forms\FieldList;
@@ -37,39 +34,6 @@ use Sunnysideup\SimpleTemplateCaching\Model\ObjectsUpdated;
 class SimpleTemplateCachingSiteConfigExtension extends Extension
 {
     private const MAX_OBJECTS_UPDATED = 1000;
-
-    /**
-     * 864000 = ten days
-     *
-     * @var string
-     */
-    private static string $image_cache_directive = '
-<IfModule mod_headers.c>
-  <FilesMatch "^(?:_resources/themes|assets)/.*\.(jpg|jpeg|png|gif|webp|svg|avif)$">
-    Header set Cache-Control "public, max-age=864000"
-  </FilesMatch>
-</IfModule>';
-
-    private static string $pdf_cache_directive = '
-<IfModule mod_headers.c>
-  <FilesMatch "^(?:_resources/themes|assets)/.*\.(pdf|xml)$">
-    Header set Cache-Control "private, no-store, no-cache, must-revalidate"
-  </FilesMatch>
-</IfModule>';
-
-    private static string $css_and_js_cache_directive = '
-<IfModule mod_headers.c>
-  <FilesMatch "^_resources/themes/.*\.(js|css)$">
-    Header set Cache-Control "public, max-age=864000"
-  </FilesMatch>
-</IfModule>';
-
-    private static string $font_cache_directive = '
-<IfModule mod_headers.c>
-    <FilesMatch "^_resources/themes/.*\.(woff|woff2|ttf|otf|eot)$">
-    Header set Cache-Control "public, max-age=864000"
-    </FilesMatch>
-</IfModule>';
 
     private static $db = [
         'HasCaching' => 'Boolean(1)',
@@ -179,11 +143,6 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
                         'This will add cache control headers to your .htaccess file for images, styles, and scripts.
                         This will help with performance, but once cached, a cache can not be cleared without changing the file name.'
                     ),
-                NumericField::create('ResourceCachingTimeInSeconds', 'Cache time for resources')
-                    ->setDescription(
-                        'Time is in seconds (e.g. 600 = 10 minutes, 86400 = 1 day).
-                        This will be used for all resources on the site (fonts, images, styles, and scripts).'
-                    ),
             ]
         );
     }
@@ -244,86 +203,10 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
         }
     }
 
-    public function onAfterWrite()
-    {
-        $this->updateHtaccess();
-    }
-
-    public function requireDefaultRecords()
-    {
-        $this->updateHtaccess(true);
-    }
-
-    protected function updateHtaccess(?bool $verbose = false)
-    {
-        $owner = $this->getOwner();
-        $currentSiteConfig = SiteConfig::current_site_config();
-        if ((int) SiteConfig::get()->count() > 100) {
-            if ($currentSiteConfig) {
-                if ($verbose) {
-                    DB::alteration_message('Deleting all SiteConfig records except for the current one.', 'deleted');
-                }
-                DB::query('DELETE FROM "SiteConfig" WHERE ID <> ' . $currentSiteConfig->ID);
-            }
-        }
-        foreach (
-            [
-                'IMAGE_CACHE_DIRECTIVE' => $currentSiteConfig->config()->get('image_cache_directive'),
-                'PDF_CACHE_DIRECTIVE' => $currentSiteConfig->config()->get('pdf_cache_directive'),
-                'CSS_JS_CACHE_DIRECTIVE' => $currentSiteConfig->config()->get('css_and_js_cache_directive'),
-                'FONT_CACHE_DIRECTIVE' => $currentSiteConfig->config()->get('font_cache_directive'),
-            ] as $key => $value
-        ) {
-            if (! $currentSiteConfig->HasResourceCaching) {
-                $value = '';
-            }
-            if ($owner->ResourceCachingTimeInSeconds) {
-                $value = preg_replace('/max-age=\d+/', 'max-age=' . $owner->ResourceCachingTimeInSeconds, $value);
-            }
-
-            $this->updateHtaccessForOne($key, $value, $verbose);
-        }
-    }
 
     public function DoesNotHaveCaching(): bool
     {
         $owner = $this->getOwner();
         return ! $owner->HasCaching;
-    }
-
-    protected function updateHtaccessForOne(string $code, string $toAdd, ?bool $verbose = false)
-    {
-        $htaccessPath = Controller::join_links(Director::publicFolder(), '.htaccess');
-        $htaccessContent = file_get_contents($htaccessPath);
-        $originalContent = $htaccessContent;
-
-        // Define start and end comments
-        $startComment = PHP_EOL . "# auto add start " . $code;
-        $endComment = PHP_EOL . "# auto add end " . $code . PHP_EOL;
-
-        // Full content to replace or add
-        $toAddFull = $startComment . $toAdd . $endComment;
-
-        // Check if the section already exists
-        $pattern = "/" . preg_quote($startComment, '/') . ".*?" . preg_quote($endComment, '/') . "/s";
-        if (preg_match($pattern, $htaccessContent)) {
-            // Replace existing content between the start and end comments
-            $htaccessContent = preg_replace($pattern, $toAddFull, $htaccessContent);
-        } else {
-            // Prepend the new content if not found
-            $htaccessContent = $toAddFull . $htaccessContent;
-        }
-        if ($originalContent !== $htaccessContent) {
-            // Save the updated .htaccess file
-            if ($verbose) {
-                DB::alteration_message('Updating .htaccess file with ' . $code . ' cache directive', 'created');
-            }
-            if (!is_writable($htaccessPath)) {
-                if ($verbose) {
-                    DB::alteration_message('The .htaccess file is not writable: ' . $htaccessPath, 'deleted');
-                }
-            }
-            file_put_contents($htaccessPath, $htaccessContent);
-        }
     }
 }
