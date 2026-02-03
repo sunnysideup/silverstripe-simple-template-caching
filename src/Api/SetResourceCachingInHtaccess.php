@@ -8,6 +8,7 @@ use SilverStripe\Core\Config\Configurable;
 use SilverStripe\Core\Flushable;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\ORM\DB;
+use SilverStripe\Security\Security;
 use SilverStripe\SiteConfig\SiteConfig;
 
 class SetResourceCachingInHtaccess implements Flushable
@@ -18,8 +19,12 @@ class SetResourceCachingInHtaccess implements Flushable
 
     public static function flush()
     {
-        $instance = Injector::inst()->get(self::class);
-        $instance->updateHtaccess(true);
+        if (Director::isDev()) {
+            if (Security::database_is_ready()) {
+                Injector::inst()->get(self::class)
+                    ->updateHtaccess(true);
+            }
+        }
     }
 
     /**
@@ -55,10 +60,6 @@ Header always set Cache-Control "public, max-age=31536000, immutable" "expr=%{RE
                 'FONT_CACHE_DIRECTIVE' => $this->config()->get('font_cache_directive'),
             ] as $key => $value
         ) {
-            if (! $currentSiteConfig->HasResourceCaching) {
-                $value = '';
-            }
-
             $this->updateHtaccessForOne($key, $value, $verbose);
         }
     }

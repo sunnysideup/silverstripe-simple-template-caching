@@ -24,12 +24,10 @@ use Sunnysideup\SimpleTemplateCaching\Model\ObjectsUpdated;
  * @property SiteConfig|SimpleTemplateCachingSiteConfigExtension $owner
  * @property bool $HasCaching
  * @property bool $HasPartialCaching
- * @property bool $HasResourceCaching
  * @property int $PublicCacheDurationInSeconds
  * @property bool $RecordCacheUpdates
  * @property ?string $CacheKeyLastEdited
  * @property ?string $ClassNameLastEdited
- * @property int $ResourceCachingTimeInSeconds
  */
 class SimpleTemplateCachingSiteConfigExtension extends Extension
 {
@@ -38,12 +36,10 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
     private static $db = [
         'HasCaching' => 'Boolean(1)',
         'HasPartialCaching' => 'Boolean(1)',
-        'HasResourceCaching' => 'Boolean(1)',
         'PublicCacheDurationInSeconds' => 'Int',
         'RecordCacheUpdates' => 'Boolean(0)',
         'CacheKeyLastEdited' => 'DBDatetime',
         'ClassNameLastEdited' => 'Varchar(200)',
-        'ResourceCachingTimeInSeconds' => 'Int',
     ];
 
     public function updateCMSFields(FieldList $fields)
@@ -133,18 +129,6 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
                 );
             }
         }
-        // resource caching
-        $fields->addFieldsToTab(
-            'Root.Caching',
-            [
-                HeaderField::create('ResourceCachingHeader', 'Resource Caching'),
-                CheckboxField::create('HasResourceCaching', 'Allow caching of resources (e.g. images, styles, etc.). ')
-                    ->setDescription(
-                        'This will add cache control headers to your .htaccess file for images, styles, and scripts.
-                        This will help with performance, but once cached, a cache can not be cleared without changing the file name.'
-                    ),
-            ]
-        );
     }
 
     public static function site_cache_key(): string
