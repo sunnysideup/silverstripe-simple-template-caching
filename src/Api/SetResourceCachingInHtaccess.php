@@ -19,18 +19,14 @@ class SetResourceCachingInHtaccess implements Flushable
 
     public static function flush()
     {
-        if (Director::isDev()) {
-            if (Security::database_is_ready()) {
-                Injector::inst()->get(self::class)
-                    ->updateHtaccess(true);
-            }
+        if (Director::isDev() && Security::database_is_ready()) {
+            Injector::inst()->get(self::class)
+                ->updateHtaccess(true);
         }
     }
 
     /**
      * 864000 = ten days
-     *
-     * @var string
      */
     private static string $image_cache_directive = '
 # Uploaded assets (filenames may change less predictably) - cache lighter - one day
@@ -51,7 +47,7 @@ Header always set Cache-Control "public, max-age=31536000, immutable" "expr=%{RE
 
     public function updateHtaccess(?bool $verbose = false)
     {
-        $currentSiteConfig = SiteConfig::current_site_config();
+        SiteConfig::current_site_config();
         foreach (
             [
                 'IMAGE_CACHE_DIRECTIVE' => $this->config()->get('image_cache_directive'),
@@ -92,10 +88,8 @@ Header always set Cache-Control "public, max-age=31536000, immutable" "expr=%{RE
             if ($verbose) {
                 DB::alteration_message('Updating .htaccess file with ' . $code . ' cache directive', 'created');
             }
-            if (!is_writable($htaccessPath)) {
-                if ($verbose) {
-                    DB::alteration_message('The .htaccess file is not writable: ' . $htaccessPath, 'deleted');
-                }
+            if (!is_writable($htaccessPath) && $verbose) {
+                DB::alteration_message('The .htaccess file is not writable: ' . $htaccessPath, 'deleted');
             }
             file_put_contents($htaccessPath, $htaccessContent);
         }

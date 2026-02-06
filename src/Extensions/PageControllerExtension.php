@@ -33,9 +33,6 @@ class PageControllerExtension extends Extension
      */
     private static $_can_cache_content;
 
-    /**
-     * @var string
-     */
     private static string $_can_cache_content_string = '';
 
     /**

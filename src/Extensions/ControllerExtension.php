@@ -47,14 +47,12 @@ class ControllerExtension extends Extension
             // exclude special situations...
             $request = $controller->getRequest();
             $action = (string) $request->param('Action');
-            if ($action) {
-                if ($controller->hasMethod('cacheControlExcludedActions')) {
-                    $excludeActions = (array) $controller->cacheControlExcludedActions();
-                    if (!empty($excludeActions)) {
-                        $action = strtolower((string) $action);
-                        if (in_array($action, $excludeActions)) {
-                            return $this->returnNoCache();
-                        }
+            if ($action !== '' && $action !== '0' && $controller->hasMethod('cacheControlExcludedActions')) {
+                $excludeActions = (array) $controller->cacheControlExcludedActions();
+                if ($excludeActions !== []) {
+                    $action = strtolower($action);
+                    if (in_array($action, $excludeActions)) {
+                        return $this->returnNoCache();
                     }
                 }
             }
