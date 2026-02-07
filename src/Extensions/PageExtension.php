@@ -2,11 +2,11 @@
 
 namespace Sunnysideup\SimpleTemplateCaching\Extensions;
 
+use SilverStripe\Core\Extension;
 use SilverStripe\Forms\CheckboxField;
 use SilverStripe\Forms\FieldList;
-use SilverStripe\Forms\NumericField;
-use SilverStripe\Core\Extension;
 use SilverStripe\Forms\LiteralField;
+use SilverStripe\Forms\NumericField;
 use SilverStripe\SiteConfig\SiteConfig;
 
 /**
@@ -86,7 +86,7 @@ class PageExtension extends Extension
             return false;
         }
         $sc = SiteConfig::current_site_config();
-        if (!$sc->HasCaching) {
+        if (! $sc->HasCaching) {
             return false;
         }
         if ($owner->PageCanBeCachedEntirelyDuration() <= 0) {
@@ -106,7 +106,8 @@ class PageExtension extends Extension
     {
         return (int) (
             $this->getOwner()->PublicCacheDurationInSeconds ?:
-            SiteConfig::current_site_config()->PublicCacheDurationInSeconds);
+            SiteConfig::current_site_config()->PublicCacheDurationInSeconds
+        );
     }
 
     public function EditCacheSettingsLink(): string

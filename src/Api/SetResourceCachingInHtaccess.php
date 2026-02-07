@@ -13,9 +13,7 @@ use SilverStripe\SiteConfig\SiteConfig;
 
 class SetResourceCachingInHtaccess implements Flushable
 {
-
     use Configurable;
-
 
     public static function flush()
     {
@@ -44,7 +42,6 @@ Header always set Cache-Control "public, max-age=31536000, immutable" "expr=%{RE
 # Font - just cache hard
 Header always set Cache-Control "public, max-age=31536000, immutable" "expr=%{REQUEST_URI} =~ m#^/_resources/themes/.*\.(?:woff2?|ttf|otf|eot)$#"';
 
-
     public function updateHtaccess(?bool $verbose = false)
     {
         SiteConfig::current_site_config();
@@ -60,7 +57,6 @@ Header always set Cache-Control "public, max-age=31536000, immutable" "expr=%{RE
         }
     }
 
-
     protected function updateHtaccessForOne(string $code, string $toAdd, ?bool $verbose = false)
     {
         $htaccessPath = Controller::join_links(Director::publicFolder(), '.htaccess');
@@ -68,14 +64,14 @@ Header always set Cache-Control "public, max-age=31536000, immutable" "expr=%{RE
         $originalContent = $htaccessContent;
 
         // Define start and end comments
-        $startComment = PHP_EOL . "# auto add start " . $code;
-        $endComment = PHP_EOL . "# auto add end " . $code . PHP_EOL . PHP_EOL;
+        $startComment = PHP_EOL . '# auto add start ' . $code;
+        $endComment = PHP_EOL . '# auto add end ' . $code . PHP_EOL . PHP_EOL;
 
         // Full content to replace or add
         $toAddFull = $startComment . $toAdd . $endComment;
 
         // Check if the section already exists
-        $pattern = "/" . preg_quote($startComment, '/') . ".*?" . preg_quote($endComment, '/') . "/s";
+        $pattern = '/' . preg_quote($startComment, '/') . '.*?' . preg_quote($endComment, '/') . '/s';
         if (preg_match($pattern, $htaccessContent)) {
             // Replace existing content between the start and end comments
             $htaccessContent = preg_replace($pattern, $toAddFull, $htaccessContent);
@@ -88,7 +84,7 @@ Header always set Cache-Control "public, max-age=31536000, immutable" "expr=%{RE
             if ($verbose) {
                 DB::alteration_message('Updating .htaccess file with ' . $code . ' cache directive', 'created');
             }
-            if (!is_writable($htaccessPath) && $verbose) {
+            if (! is_writable($htaccessPath) && $verbose) {
                 DB::alteration_message('The .htaccess file is not writable: ' . $htaccessPath, 'deleted');
             }
             file_put_contents($htaccessPath, $htaccessContent);

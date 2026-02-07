@@ -4,13 +4,10 @@ namespace Sunnysideup\SimpleTemplateCaching\Extensions;
 
 use Page;
 use PageController;
-use PhpParser\Node\Scalar\MagicConst\Dir;
-use SilverStripe\CMS\Controllers\ContentController;
 use SilverStripe\Control\Director;
 use SilverStripe\Control\Middleware\HTTPCacheControlMiddleware;
 use SilverStripe\Core\Extension;
 use SilverStripe\Security\Security;
-use SilverStripe\SiteConfig\SiteConfig;
 use SilverStripe\Versioned\Versioned;
 
 /**
@@ -27,7 +24,7 @@ class ControllerExtension extends Extension
         /** PageController|ControllerExtension $controller */
         if ($controller instanceof PageController) {
             $dataRecord = $controller->data();
-            if (empty($dataRecord) || !$dataRecord instanceof Page) {
+            if (empty($dataRecord) || ! $dataRecord instanceof Page) {
                 return $this->returnNoCache();
             }
             if ($dataRecord->PageCanBeCachedEntirely() !== true) {

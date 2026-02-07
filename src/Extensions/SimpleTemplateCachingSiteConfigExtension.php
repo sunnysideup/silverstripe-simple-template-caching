@@ -4,15 +4,15 @@ namespace Sunnysideup\SimpleTemplateCaching\Extensions;
 
 use Exception;
 use Page;
+use SilverStripe\Core\Extension;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Forms\CheckboxField;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\GridField\GridField;
 use SilverStripe\Forms\GridField\GridFieldConfig_RecordViewer;
+use SilverStripe\Forms\HeaderField;
 use SilverStripe\Forms\NumericField;
 use SilverStripe\Forms\ReadonlyField;
-use SilverStripe\Core\Extension;
-use SilverStripe\Forms\HeaderField;
 use SilverStripe\ORM\DB;
 use SilverStripe\ORM\FieldType\DBDatetime;
 use SilverStripe\SiteConfig\SiteConfig;
@@ -186,7 +186,6 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
             }
         }
     }
-
 
     public function DoesNotHaveCaching(): bool
     {

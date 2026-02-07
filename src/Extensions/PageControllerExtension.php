@@ -47,7 +47,7 @@ class PageControllerExtension extends Extension
             if ($owner->hasMethod('canCachePage')) {
                 // if it can cache the page, then it the cache string will remain empty.
                 $canCache = $owner->canCachePage();
-                self::$_can_cache_content_string .=  $canCache ? '' : $this->getRandomKey();
+                self::$_can_cache_content_string .= $canCache ? '' : $this->getRandomKey();
             }
 
             //action
@@ -72,7 +72,7 @@ class PageControllerExtension extends Extension
             $requestVars = $owner->request->requestVars();
             if ($requestVars) {
                 $canCache = false;
-                foreach ($requestVars  as $key => $item) {
+                foreach ($requestVars as $key => $item) {
                     if (! $item) {
                         $item = '';
                     }

@@ -21,7 +21,6 @@ use SilverStripe\ORM\DB;
  */
 class ObjectsUpdated extends DataObject
 {
-
     public static function classes_edited(?string $myClass = ''): string
     {
         $query = DB::query('

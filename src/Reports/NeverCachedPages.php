@@ -3,8 +3,6 @@
 namespace Sunnysideup\SimpleTemplateCaching\Reports;
 
 use Page;
-use SilverStripe\CMS\Model\RedirectorPage;
-use SilverStripe\CMS\Model\SiteTree;
 use SilverStripe\ORM\DataList;
 use SilverStripe\Reports\Report;
 use SilverStripe\SiteConfig\SiteConfig;
@@ -18,7 +16,7 @@ class NeverCachedPages extends Report
 
     public function group()
     {
-        return _t(__CLASS__ . '.ContentGroupTitle', "Content reports");
+        return _t(__CLASS__ . '.ContentGroupTitle', 'Content reports');
     }
 
     public function sort()
@@ -48,9 +46,9 @@ class NeverCachedPages extends Report
     public function columns()
     {
         return [
-            "Title" => [
-                "title" => "Title",
-                "link" => true,
+            'Title' => [
+                'title' => 'Title',
+                'link' => true,
             ],
             'ShowInSearch' => [
                 'title' => 'Edit Cache Settings',
