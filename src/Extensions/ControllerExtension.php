@@ -27,7 +27,7 @@ class ControllerExtension extends Extension
             if (empty($dataRecord) || ! $dataRecord instanceof Page) {
                 return $this->returnNoCache();
             }
-            if ($dataRecord->PageCanBeCachedEntirely() !== true) {
+            if (! $dataRecord->PageCanBeCachedEntirely()) {
                 return $this->returnNoCache();
             }
             if (Security::getCurrentUser()) {
@@ -67,7 +67,7 @@ class ControllerExtension extends Extension
             }
             if ($controller->hasMethod('canCachePage')) {
                 $canCachePage = $controller->canCachePage();
-                if ($canCachePage !== true) {
+                if (! $canCachePage) {
                     return $this->returnNoCache();
                 }
             }
