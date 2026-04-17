@@ -28,19 +28,19 @@ class SetResourceCachingInHtaccess implements Flushable
      */
     private static string $image_cache_directive = '
 # Uploaded assets (filenames may change less predictably) - cache lighter - one day
-Header set Cache-Control "public, max-age=86400" "expr=%{REQUEST_URI} =~ m#^/assets/.*\.(?:png|jpe?g|gif|webp|svg|avif)$#"';
+Header set Cache-Control "public, max-age=86400" "expr=%{REQUEST_URI} =~ m#^/(?:assets|_resources)/.*\.(?:png|jpe?g|gif|webp|svg|avif|ico)$#"';
 
     private static string $pdf_cache_directive = '
 # PDFs/XML - don\'t cache
-Header set Cache-Control "no-store, no-cache, must-revalidate" "expr=%{REQUEST_URI} =~ m#^/(?:assets|_resources/themes)/.*\.(?:pdf|xml)$#"';
+Header set Cache-Control "private, max-age=0, must-revalidate" "expr=%{REQUEST_URI} =~ m#^/(?:assets|_resources)/.*\.(?:pdf|xml)$#"';
 
     private static string $css_and_js_cache_directive = '
 # Theme-built assets (usually cache-busted) - cache hard
-Header set Cache-Control "public, max-age=31536000, immutable" "expr=%{REQUEST_URI} =~ m#^/_resources/themes/.*\.(?:css|js)$#"';
+Header set Cache-Control "public, max-age=31536000, immutable" "expr=%{REQUEST_URI} =~ m#^/_resources/.*\.(?:css|js)$#"';
 
     private static string $font_cache_directive = '
 # Font - just cache hard
-Header set Cache-Control "public, max-age=31536000, immutable" "expr=%{REQUEST_URI} =~ m#^/_resources/themes/.*\.(?:woff2?|ttf|otf|eot)$#"';
+Header set Cache-Control "public, max-age=31536000, immutable" "expr=%{REQUEST_URI} =~ m#^/_resources/.*\.(?:woff2?|ttf|otf|eot)$#"';
 
     public function updateHtaccess(?bool $verbose = false)
     {
