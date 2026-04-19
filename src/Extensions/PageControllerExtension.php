@@ -76,6 +76,7 @@ class PageControllerExtension extends Extension
                     if (! $item) {
                         $item = '';
                     }
+
                     self::$_can_cache_content_string .= serialize($key . '_' . serialize($item));
                 }
             }
@@ -98,6 +99,7 @@ class PageControllerExtension extends Extension
                     $canCache = false;
                 }
             }
+
             // crucial
             self::$_can_cache_content = (bool) $canCache;
         }
@@ -125,6 +127,7 @@ class PageControllerExtension extends Extension
         if ($this->getOwner()->NeverCachePublicly) {
             return false;
         }
+
         return $this->HasCacheKeys();
     }
 
@@ -159,6 +162,7 @@ class PageControllerExtension extends Extension
         if ($owner->NeverCachePublicly) {
             return $this->getRandomKey();
         }
+
         $cacheKey = $this->CacheKeyGenerator('C');
         if ($owner->hasMethod('CacheKeyContentCustom')) {
             $cacheKey .= '_' . $owner->CacheKeyContentCustom();

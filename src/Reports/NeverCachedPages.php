@@ -2,6 +2,7 @@
 
 namespace Sunnysideup\SimpleTemplateCaching\Reports;
 
+use Override;
 use Page;
 use SilverStripe\ORM\DataList;
 use SilverStripe\Reports\Report;
@@ -9,6 +10,7 @@ use SilverStripe\SiteConfig\SiteConfig;
 
 class NeverCachedPages extends Report
 {
+    #[Override]
     public function title()
     {
         return 'Pages that are never cached';
@@ -16,7 +18,7 @@ class NeverCachedPages extends Report
 
     public function group()
     {
-        return _t(__CLASS__ . '.ContentGroupTitle', 'Content reports');
+        return _t(self::class . '.ContentGroupTitle', 'Content reports');
     }
 
     public function sort()
@@ -43,6 +45,7 @@ class NeverCachedPages extends Report
         }
     }
 
+    #[Override]
     public function columns()
     {
         return [
@@ -52,9 +55,7 @@ class NeverCachedPages extends Report
             ],
             'ShowInSearch' => [
                 'title' => 'Edit Cache Settings',
-                'formatting' => function ($value, $item) {
-                    return '<a href="' . $item->EditCacheSettingsLink() . '" target="_blank">Edit Settings</a>';
-                },
+                'formatting' => fn($value, $item) => '<a href="' . $item->EditCacheSettingsLink() . '" target="_blank">Edit Settings</a>',
             ],
         ];
     }

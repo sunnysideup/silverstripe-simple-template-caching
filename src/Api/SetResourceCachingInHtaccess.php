@@ -17,7 +17,7 @@ class SetResourceCachingInHtaccess implements Flushable
 
     public static function flush()
     {
-        if (Director::isDev() && Security::database_is_ready()) {
+        if (Director::isDev() && Security::database_is_ready() && Director::is_cli()) {
             Injector::inst()->get(self::class)
                 ->updateHtaccess(true);
         }
@@ -79,14 +79,17 @@ Header set Cache-Control "public, max-age=31536000, immutable" "expr=%{REQUEST_U
             // Prepend the new content if not found
             $htaccessContent = $toAddFull . $htaccessContent;
         }
+
         if ($originalContent !== $htaccessContent) {
             // Save the updated .htaccess file
             if ($verbose) {
                 DB::alteration_message('Updating .htaccess file with ' . $code . ' cache directive', 'created');
             }
+
             if (! is_writable($htaccessPath) && $verbose) {
                 DB::alteration_message('The .htaccess file is not writable: ' . $htaccessPath, 'deleted');
             }
+
             file_put_contents($htaccessPath, $htaccessContent);
         }
     }
