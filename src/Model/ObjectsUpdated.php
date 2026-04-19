@@ -2,6 +2,7 @@
 
 namespace Sunnysideup\SimpleTemplateCaching\Model;
 
+use Override;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Forms\ReadonlyField;
 use SilverStripe\ORM\DataObject;
@@ -38,6 +39,7 @@ class ObjectsUpdated extends DataObject
                 return $row['Count'];
             }
         }
+
         return '<br />' . implode('<br> ', $array);
     }
 
@@ -80,6 +82,7 @@ class ObjectsUpdated extends DataObject
         'Title' => 'Varchar',
     ];
 
+    #[Override]
     public function getTitle(): string
     {
         if (class_exists((string) $this->ClassNameLastEdited)) {
@@ -89,6 +92,7 @@ class ObjectsUpdated extends DataObject
         return 'ERROR: class not found';
     }
 
+    #[Override]
     public function getCMSFields()
     {
         $fields = parent::getCMSFields();
