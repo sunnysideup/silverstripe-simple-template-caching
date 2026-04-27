@@ -27,15 +27,19 @@ class ControllerExtension extends Extension
             if (empty($dataRecord) || ! $dataRecord instanceof Page) {
                 return $this->returnNoCache();
             }
+
             if (! $dataRecord->PageCanBeCachedEntirely()) {
                 return $this->returnNoCache();
             }
+
             if (Security::getCurrentUser()) {
                 return $this->returnNoCache();
             }
+
             if (Versioned::get_reading_mode() !== 'Stage.Live') {
                 return $this->returnNoCache();
             }
+
             // avoid test sites being cached
             if (Director::isTest()) {
                 return $this->returnNoCache();
@@ -53,24 +57,30 @@ class ControllerExtension extends Extension
                     }
                 }
             }
+
             if ($request->isAjax()) {
                 return $this->returnNoCache();
             }
+
             if ($request->getVar('flush')) {
                 return $this->returnNoCache();
             }
+
             if ($request->postVars()) {
                 return $this->returnNoCache();
             }
+
             if ($request->isGET() !== true) {
                 return $this->returnNoCache();
             }
+
             if ($controller->hasMethod('canCachePage')) {
                 $canCachePage = $controller->canCachePage();
                 if (! $canCachePage) {
                     return $this->returnNoCache();
                 }
             }
+
             $cacheTime = $dataRecord->PageCanBeCachedEntirelyDuration();
             if ($cacheTime > 0) {
                 return HTTPCacheControlMiddleware::singleton()

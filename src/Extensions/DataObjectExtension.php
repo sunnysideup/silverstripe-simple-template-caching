@@ -93,6 +93,7 @@ class DataObjectExtension extends Extension
         if (ObjectsUpdated::class === $className) {
             return false;
         }
+
         $excludedClasses = (array) Config::inst()->get(DataObjectExtension::class, 'excluded_classes_for_caching');
 
         return ! in_array($className, $excludedClasses, true);

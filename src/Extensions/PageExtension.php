@@ -75,6 +75,7 @@ class PageExtension extends Extension
                 )
             );
         }
+
         return $fields;
     }
 
@@ -85,16 +86,20 @@ class PageExtension extends Extension
         if ($owner->NeverCachePublicly) {
             return false;
         }
+
         $sc = SiteConfig::current_site_config();
         if (! $sc->HasCaching) {
             return false;
         }
+
         if ($owner->PageCanBeCachedEntirelyDuration() <= 0) {
             return false;
         }
+
         if ($owner->hasMethod('updateCacheControl')) {
             user_error('Please use canCachePage instead of updateCacheControl', E_USER_ERROR);
         }
+
         if ($owner->hasMethod('canCachePage')) {
             user_error('Please add the canCachePage method to your controller', E_USER_ERROR);
         }

@@ -31,7 +31,7 @@ use Sunnysideup\SimpleTemplateCaching\Model\ObjectsUpdated;
  */
 class SimpleTemplateCachingSiteConfigExtension extends Extension
 {
-    private const MAX_OBJECTS_UPDATED = 1000;
+    private const int MAX_OBJECTS_UPDATED = 1000;
 
     private static $db = [
         'HasCaching' => 'Boolean(1)',
@@ -152,6 +152,7 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
         } else {
             return;
         }
+
         $obj = null;
         try {
             $obj = SiteConfig::current_site_config();
@@ -173,7 +174,7 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
             } else {
                 DB::query('TRUNCATE "ObjectsUpdated";');
             }
-        } catch (Exception $e) {
+        } catch (Exception) {
             if (isset($obj) && $obj && $obj->ID) {
                 DB::query('
                     UPDATE "SiteConfig"
