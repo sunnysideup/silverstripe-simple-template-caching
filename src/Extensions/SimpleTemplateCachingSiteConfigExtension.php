@@ -71,7 +71,7 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
                             'USE WITH CARE - This will apply caching to ALL pages on the site.
                             Time is in seconds (e.g. 600 = 10 minutes).
                             Cache time on individual pages will override this value set here.
-                            The total number of pages on the site with an individual caching time is: ' . Page::get()->filter('PublicCacheDurationInSeconds:GreaterThan', 0)->count()
+                            The total number of pages on the site with an individual caching time is: ' . Page::get()->filter(['PublicCacheDurationInSeconds:GreaterThan' => 0])->count()
                         ),
                 ]
             );
