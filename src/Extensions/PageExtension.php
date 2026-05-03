@@ -23,6 +23,13 @@ class PageExtension extends Extension
         'PublicCacheDurationInSeconds' => 'Int',
     ];
 
+    private static array $scaffold_cms_fields_settings = [
+        'ignoreFields' => [
+            'NeverCachePublicly',
+            'PublicCacheDurationInSeconds',
+        ],
+    ];
+
     public function updateSettingsFields(FieldList $fields)
     {
         $owner = $this->getOwner();
