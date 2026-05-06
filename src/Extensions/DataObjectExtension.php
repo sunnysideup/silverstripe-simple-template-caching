@@ -15,6 +15,7 @@ use Sunnysideup\SimpleTemplateCaching\Model\ObjectsUpdated;
  */
 class DataObjectExtension extends Extension
 {
+    private static array $excluded_classes_for_caching = [];
     public function onAfterWrite()
     {
         $owner = $this->getOwner();
