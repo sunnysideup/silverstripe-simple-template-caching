@@ -19,6 +19,7 @@ use SilverStripe\SiteConfig\SiteConfig;
 class PageExtension extends Extension
 {
     private static $db = [
+        'NoCachingAtAll' => 'Boolean',
         'NeverCachePublicly' => 'Boolean',
         'PublicCacheDurationInSeconds' => 'Int',
     ];
@@ -29,6 +30,11 @@ class PageExtension extends Extension
         $fields->addFieldsToTab(
             'Root.Cache',
             [
+                CheckboxField::create(
+                    'NoCachingAtAll',
+                    'No caching at all.
+                    This remove partial template caching. This is not recommended as it can cause performance issues and it is not needed in most cases. '
+                ),
                 CheckboxField::create(
                     'NeverCachePublicly',
                     'Never cache this page.

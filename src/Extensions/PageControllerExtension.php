@@ -122,9 +122,6 @@ class PageControllerExtension extends Extension
 
     public function HasCacheKeyContent(): bool
     {
-        if ($this->getOwner()->NeverCachePublicly) {
-            return false;
-        }
         return $this->HasCacheKeys();
     }
 
