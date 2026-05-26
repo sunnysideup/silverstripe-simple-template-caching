@@ -10,6 +10,8 @@ use SilverStripe\Core\Injector\Injector;
 use SilverStripe\ORM\DB;
 use SilverStripe\Security\Security;
 use SilverStripe\SiteConfig\SiteConfig;
+use Exception;
+use Throwable;
 
 class SetResourceCachingInHtaccess implements Flushable
 {
@@ -17,9 +19,20 @@ class SetResourceCachingInHtaccess implements Flushable
 
     public static function flush()
     {
-        if (Director::isDev() && Security::database_is_ready() && Director::is_cli()) {
-            Injector::inst()->get(self::class)
-                ->updateHtaccess(true);
+        if (Director::isDev() && Director::is_cli() && Security::database_is_ready()) {
+            try {
+                Injector::inst()->get(self::class)->updateHtaccess(true);
+            } catch (Throwable $e) {
+                DB::alteration_message(
+                    sprintf(
+                        'Error updating .htaccess: %s (in %s:%d)',
+                        $e->getMessage(),
+                        $e->getFile(),
+                        $e->getLine()
+                    ),
+                    'deleted'
+                );
+            }
         }
     }
 
