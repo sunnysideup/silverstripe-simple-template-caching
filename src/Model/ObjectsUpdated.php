@@ -11,13 +11,13 @@ use SilverStripe\ORM\DB;
  * A blog category for generalising blog posts.
  *
  * @property ?string $ClassNameLastEdited
- * @mixin FileLinkTracking
  * @mixin AssetControlExtension
- * @mixin SiteTreeLinkTracking
- * @mixin RecursivePublishable
- * @mixin VersionedStateExtension
  * @mixin DataObjectExtension
+ * @mixin FileLinkTracking
  * @mixin FixBooleanSearchAsExtension
+ * @mixin RecursivePublishable
+ * @mixin SiteTreeLinkTracking
+ * @mixin VersionedStateExtension
  */
 class ObjectsUpdated extends DataObject
 {

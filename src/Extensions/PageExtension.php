@@ -13,6 +13,7 @@ use SilverStripe\SiteConfig\SiteConfig;
  * Class \Sunnysideup\SimpleTemplateCaching\Extensions\PageExtension.
  *
  * @property Page|PageExtension $owner
+ * @property bool $NoCachingAtAll
  * @property bool $NeverCachePublicly
  * @property int $PublicCacheDurationInSeconds
  */
