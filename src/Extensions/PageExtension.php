@@ -2,6 +2,8 @@
 
 namespace Sunnysideup\SimpleTemplateCaching\Extensions;
 
+use LogicException;
+use RuntimeException;
 use SilverStripe\Core\Extension;
 use SilverStripe\Forms\CheckboxField;
 use SilverStripe\Forms\FieldList;
@@ -104,11 +106,11 @@ class PageExtension extends Extension
         }
 
         if ($owner->hasMethod('updateCacheControl')) {
-            user_error('Please use canCachePage instead of updateCacheControl', E_USER_ERROR);
+            throw new RuntimeException('Please use canCachePage instead of updateCacheControl');
         }
 
         if ($owner->hasMethod('canCachePage')) {
-            user_error('Please add the canCachePage method to your controller', E_USER_ERROR);
+            throw new RuntimeException('Please add the canCachePage method to your controller');
         }
 
         return true;
