@@ -18,8 +18,10 @@ class SetResourceCachingInHtaccess implements Flushable
     public static function flush()
     {
         if (Director::isDev() && Security::database_is_ready() && Director::is_cli()) {
-            Injector::inst()->get(self::class)
-                ->updateHtaccess(true);
+            // Defer the actual execution until the very end of the PHP script
+            register_shutdown_function(function () {
+                Injector::inst()->get(self::class)->updateHtaccess(true);
+            });
         }
     }
 
