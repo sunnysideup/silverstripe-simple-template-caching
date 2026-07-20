@@ -15,6 +15,7 @@ use SilverStripe\Forms\NumericField;
 use SilverStripe\Forms\ReadonlyField;
 use SilverStripe\ORM\DB;
 use SilverStripe\ORM\FieldType\DBDatetime;
+use SilverStripe\SiteConfig\SiteConfig;
 use Sunnysideup\SimpleTemplateCaching\Api\FasterSiteConfig;
 use Sunnysideup\SimpleTemplateCaching\Model\ObjectsUpdated;
 
