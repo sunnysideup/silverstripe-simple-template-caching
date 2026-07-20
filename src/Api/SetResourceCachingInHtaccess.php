@@ -9,7 +9,7 @@ use SilverStripe\Core\Flushable;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\ORM\DB;
 use SilverStripe\Security\Security;
-use SilverStripe\SiteConfig\SiteConfig;
+use Sunnysideup\SimpleTemplateCaching\Api\FasterSiteConfig;
 use Exception;
 use Throwable;
 
@@ -57,7 +57,7 @@ Header set Cache-Control "public, max-age=31536000, immutable" "expr=%{REQUEST_U
 
     public function updateHtaccess(?bool $verbose = false)
     {
-        SiteConfig::current_site_config();
+        FasterSiteConfig::current_site_config();
         foreach (
             [
                 'IMAGE_CACHE_DIRECTIVE' => $this->config()->get('image_cache_directive'),

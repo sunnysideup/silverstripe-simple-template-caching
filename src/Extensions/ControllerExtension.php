@@ -17,72 +17,101 @@ use SilverStripe\Versioned\Versioned;
  */
 class ControllerExtension extends Extension
 {
+   private static array $hasMethodCache = [];
+
     public function onBeforeInit()
     {
-        //make sure that caching is always https
         $controller = $this->getOwner();
-        /** PageController|ControllerExtension $controller */
-        if ($controller instanceof PageController) {
-            $dataRecord = $controller->data();
-            if (empty($dataRecord) || ! $dataRecord instanceof Page) {
-                return $this->returnNoCache();
-            }
-            if (! $dataRecord->PageCanBeCachedEntirely()) {
-                return $this->returnNoCache();
-            }
-            if (Security::getCurrentUser()) {
-                return $this->returnNoCache();
-            }
-            if (Versioned::get_reading_mode() !== 'Stage.Live') {
-                return $this->returnNoCache();
-            }
-            // avoid test sites being cached
-            if (Director::isTest()) {
-                return $this->returnNoCache();
-            }
+        if (! $controller instanceof PageController) {
+            return null;
+        }
+        // 1. static / env checks - cheapest
+        if (Director::isTest()) {
+            return $this->returnNoCache();
+        }
 
-            // exclude special situations...
-            $request = $controller->getRequest();
-            $action = (string) $request->param('Action');
-            if ($action !== '' && $action !== '0' && $controller->hasMethod('cacheControlExcludedActions')) {
-                $excludeActions = (array) $controller->cacheControlExcludedActions();
-                if ($excludeActions !== []) {
-                    $action = strtolower($action);
-                    if (in_array($action, $excludeActions)) {
-                        return $this->returnNoCache();
-                    }
-                }
-            }
-            if ($request->isAjax()) {
+        if (Versioned::get_reading_mode() !== 'Stage.Live') {
+            return $this->returnNoCache();
+        }
+
+        // 2. security checks - logged-in users should not cache page
+        if (Security::getCurrentUser()) {
+            return $this->returnNoCache();
+        }
+
+        // 3. check the page
+        if ($this->controllerHas($controller, 'canCachePage') && ! $controller->canCachePage()) {
+            return $this->returnNoCache();
+        }
+
+
+        // . request checks - no DB, no session
+        $request = $controller->getRequest();
+        if (! $request->isGET()) {
+            return $this->returnNoCache();
+        }
+
+        $getVars = $request->getVars();
+        $hasGetVars = $getVars !== [];
+        if ($hasGetVars && ! isset($getVars['flush'])) {
+            return $this->returnNoCache();
+        }
+
+        $action = strtolower((string) $request->param('Action'));
+        if ($action !== '' && $action !== '0' && $this->controllerHas($controller, 'cacheControlExcludedActions')) {
+            $excludeActions = array_map('strtolower', (array) $controller->cacheControlExcludedActions());
+            if (in_array($action, $excludeActions, true)) {
                 return $this->returnNoCache();
-            }
-            if ($request->getVar('flush')) {
-                return $this->returnNoCache();
-            }
-            if ($request->postVars()) {
-                return $this->returnNoCache();
-            }
-            if ($request->isGET() !== true) {
-                return $this->returnNoCache();
-            }
-            if ($controller->hasMethod('canCachePage')) {
-                $canCachePage = $controller->canCachePage();
-                if (! $canCachePage) {
-                    return $this->returnNoCache();
-                }
-            }
-            $cacheTime = $dataRecord->PageCanBeCachedEntirelyDuration();
-            if ($cacheTime > 0) {
-                return HTTPCacheControlMiddleware::singleton()
-                    ->enableCache()
-                    ->setMaxAge($cacheTime)
-                    ->setStateDirective(HTTPCacheControlMiddleware::STATE_PUBLIC, 'must-revalidate', false)
-                    ->publicCache(true)
-                ;
             }
         }
 
-        return null;
+        if ($request->isAjax()) {
+            if (! $this->controllerHas($controller, 'cacheControlExcludedAjax')) {
+                return $this->returnNoCache();
+            }
+            if (! $controller->cacheControlExcludedAjax()) {
+                return $this->returnNoCache();
+            }
+        }
+
+        if ($hasGetVars) {
+            if (! $this->controllerHas($controller, 'cacheControlExcludedGetVars')) {
+                return $this->returnNoCache();
+            }
+            foreach ((array) $controller->cacheControlExcludedGetVars() as $key) {
+                if (isset($getVars[$key])) {
+                    return $this->returnNoCache();
+                }
+            }
+        }
+
+
+        // 5. data record - potentially the most expensive
+        $dataRecord = $controller->data();
+        if (! $dataRecord instanceof Page) {
+            return $this->returnNoCache();
+        }
+        if (! $dataRecord->PageCanBeCachedEntirely()) {
+            return $this->returnNoCache();
+        }
+
+        $cacheTime = (int) $dataRecord->PageCanBeCachedEntirelyDuration();
+        if ($cacheTime <= 0) {
+            return $this->returnNoCache();
+        }
+
+        return HTTPCacheControlMiddleware::singleton()
+            ->enableCache()
+            ->setMaxAge($cacheTime)
+            ->setStateDirective(HTTPCacheControlMiddleware::STATE_PUBLIC, 'must-revalidate', false)
+            ->publicCache(true);
+    }
+
+    private function controllerHas(object $controller, string $method): bool
+    {
+        $key = $controller::class . '::' . $method;
+
+        return self::$hasMethodCache[$key] ??= $controller->hasMethod($method);
     }
 
     protected function returnNoCache()

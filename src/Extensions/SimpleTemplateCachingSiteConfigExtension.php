@@ -15,7 +15,7 @@ use SilverStripe\Forms\NumericField;
 use SilverStripe\Forms\ReadonlyField;
 use SilverStripe\ORM\DB;
 use SilverStripe\ORM\FieldType\DBDatetime;
-use SilverStripe\SiteConfig\SiteConfig;
+use Sunnysideup\SimpleTemplateCaching\Api\FasterSiteConfig;
 use Sunnysideup\SimpleTemplateCaching\Model\ObjectsUpdated;
 
 /**
@@ -133,7 +133,7 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
 
     public static function site_cache_key(): string
     {
-        $obj = SiteConfig::current_site_config();
+        $obj = FasterSiteConfig::current_site_config();
         if ($obj->HasPartialCaching) {
             return 'ts_' . strtotime((string) $obj->CacheKeyLastEdited);
         }
@@ -154,7 +154,7 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
         }
         $obj = null;
         try {
-            $obj = SiteConfig::current_site_config();
+            $obj = FasterSiteConfig::current_site_config();
             if ($obj->HasPartialCaching) {
                 DB::query('
                     UPDATE "SiteConfig"

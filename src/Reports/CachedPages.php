@@ -5,7 +5,7 @@ namespace Sunnysideup\SimpleTemplateCaching\Reports;
 use Page;
 use SilverStripe\ORM\DataList;
 use SilverStripe\Reports\Report;
-use SilverStripe\SiteConfig\SiteConfig;
+use Sunnysideup\SimpleTemplateCaching\Api\FasterSiteConfig;
 
 class CachedPages extends Report
 {
@@ -32,7 +32,7 @@ class CachedPages extends Report
      */
     public function sourceRecords($params = null)
     {
-        $sc = SiteConfig::current_site_config();
+        $sc = FasterSiteConfig::current_site_config();
         if (! $sc->HasCaching) {
             return Page::get()->filter(['ID' => 0]);
         } elseif ($sc->PublicCacheDurationInSeconds > 0) {

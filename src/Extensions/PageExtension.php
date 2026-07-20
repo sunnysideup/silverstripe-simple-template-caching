@@ -2,12 +2,13 @@
 
 namespace Sunnysideup\SimpleTemplateCaching\Extensions;
 
+use SilverStripe\Control\Director;
 use SilverStripe\Core\Extension;
 use SilverStripe\Forms\CheckboxField;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\LiteralField;
 use SilverStripe\Forms\NumericField;
-use SilverStripe\SiteConfig\SiteConfig;
+use Sunnysideup\SimpleTemplateCaching\Api\FasterSiteConfig;
 
 /**
  * Class \Sunnysideup\SimpleTemplateCaching\Extensions\PageExtension.
@@ -57,8 +58,8 @@ class PageExtension extends Extension
                             Leave empty or zero to use the default value for the site<br />
                             This should only be used on pages that should be the same for all users and that should be accessible publicly.<br />
                             You can also set this value <a href="/admin/settings#Root_Caching">for the whole site</a>.<br />
-                            Caching is ' . (SiteConfig::current_site_config()->HasCaching ? '' : 'NOT') . ' allowed on for this site.<br />
-                            The current value for the whole site is ' . SiteConfig::current_site_config()->PublicCacheDurationInSeconds . ' seconds.<br />
+                            Caching is ' . (FasterSiteConfig::current_site_config()->HasCaching ? '' : 'NOT') . ' allowed on for this site.<br />
+                            The current value for the whole site is ' . FasterSiteConfig::current_site_config()->PublicCacheDurationInSeconds . ' seconds.<br />
                             '
                         ),
 
@@ -92,18 +93,17 @@ class PageExtension extends Extension
         if ($owner->NeverCachePublicly) {
             return false;
         }
-        $sc = SiteConfig::current_site_config();
+        $sc = FasterSiteConfig::current_site_config();
         if (! $sc->HasCaching) {
             return false;
         }
-        if ($owner->PageCanBeCachedEntirelyDuration() <= 0) {
-            return false;
-        }
-        if ($owner->hasMethod('updateCacheControl')) {
-            user_error('Please use canCachePage instead of updateCacheControl', E_USER_ERROR);
-        }
-        if ($owner->hasMethod('canCachePage')) {
-            user_error('Please add the canCachePage method to your controller', E_USER_ERROR);
+        if (! Director::isLive()) {
+            if ($owner->hasMethod('updateCacheControl')) {
+                user_error('The updateCacheControl has been deprecated', E_USER_ERROR);
+            }
+            if ($owner->hasMethod('canCachePage')) {
+                user_error('Please add the canCachePage method to your controller, not your page.', E_USER_ERROR);
+            }
         }
 
         return true;
@@ -113,7 +113,7 @@ class PageExtension extends Extension
     {
         return (int) (
             $this->getOwner()->PublicCacheDurationInSeconds ?:
-            SiteConfig::current_site_config()->PublicCacheDurationInSeconds
+            FasterSiteConfig::current_site_config()->PublicCacheDurationInSeconds
         );
     }
 
