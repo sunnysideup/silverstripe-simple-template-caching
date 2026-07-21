@@ -2,6 +2,7 @@
 
 namespace Sunnysideup\SimpleTemplateCaching\Extensions;
 
+use SilverStripe\Core\ClassInfo;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Extension;
 use SilverStripe\ORM\DataObject;
@@ -17,7 +18,7 @@ class DataObjectExtension extends Extension
 {
 
     private static array $excluded_classes_for_caching = [
-            ObjectsUpdated::class,
+        ObjectsUpdated::class,
     ];
 
     private static $included_classes_for_caching = [
@@ -95,32 +96,32 @@ class DataObjectExtension extends Extension
         }
     }
 
-    private function canUpdateCache($className): bool
+    /**
+     * @var array<string, bool>
+     */
+    protected static array $canUpdateCache = [];
+
+    protected function canUpdateCache(string $className): bool
     {
-        // we want to always avoid this to avoid a loop.
-        if (ObjectsUpdated::class === $className) {
-            return false;
-        }
-        $includedClasses = (array) Config::inst()->get(self::class, 'included_classes_for_caching');
-        if (!empty($includedClasses)) {
-            return $this->matchesAnyForCacheCheck($className, $includedClasses);
+        if (isset(self::$canUpdateCache[$className])) {
+            return self::$canUpdateCache[$className];
         }
 
-        $excludedClasses = (array) Config::inst()->get(self::class, 'excluded_classes_for_caching');
+        $included = (array) Config::inst()->get(self::class, 'included_classes_for_caching');
 
-        return ! $this->matchesAnyForCacheCheck($className, $excludedClasses);
+        if (!empty($included)) {
+            return self::$canUpdateCache[$className] = $this->matchesAny($className, $included);
+        }
+
+        $excluded = (array) Config::inst()->get(self::class, 'excluded_classes_for_caching');
+
+        return self::$canUpdateCache[$className] = ! $this->matchesAny($className, $excluded);
     }
 
-    /**
-     * Returns true if $className is, extends, or implements any of $classes.
-     *
-     * @param class-string   $className
-     * @param array<string>  $classes
-     */
-    protected function matchesAnyForCacheCheck(string $className, array $classes): bool
+    private function matchesAny(string $className, array $classes): bool
     {
         foreach ($classes as $class) {
-            if (is_a($className, $class, true)) {
+            if (ClassInfo::exists($className) && is_a($className, $class, true)) {
                 return true;
             }
         }
