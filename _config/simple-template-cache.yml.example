@@ -14,4 +14,7 @@ Sunnysideup\SimpleTemplateCaching\Extensions\DataObjectExtension:
   excluded_classes_for_caching:
     - MyClass1
     - MyClass2
+  included_classes_for_caching:
+    - MyClass1
+    - MyClass2
 

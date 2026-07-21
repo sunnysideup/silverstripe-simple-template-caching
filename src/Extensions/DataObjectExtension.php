@@ -21,8 +21,9 @@ class DataObjectExtension extends Extension
         ObjectsUpdated::class,
     ];
 
-    private static $included_classes_for_caching = [
+    private static array $included_classes_for_caching = [
     ];
+    private static bool $update_cache_on_dataobject_change = true;
 
     public function onAfterWrite()
     {
@@ -90,6 +91,9 @@ class DataObjectExtension extends Extension
 
     private function doUpdateCache()
     {
+        if (! Config::inst()->get(self::class, 'update_cache_on_dataobject_change')) {
+            return;
+        }
         $className = (string) $this->getOwner()->ClassName;
         if ($className && $this->canUpdateCache($className)) {
             SimpleTemplateCachingSiteConfigExtension::update_cache_key($className);

@@ -124,6 +124,12 @@ Sunnysideup\SimpleTemplateCaching\Extensions\DataObjectExtension:
 
 By default a whole bunch are being excluded - see: `_config.yml`.
 
+You can also turn this feature off altogether:
+
+```yml
+Sunnysideup\SimpleTemplateCaching\Extensions\DataObjectExtension:
+  update_cache_on_dataobject_change: false
+```
 
 ### exclude pages from being cached
 
