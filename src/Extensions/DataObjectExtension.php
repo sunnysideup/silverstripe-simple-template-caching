@@ -15,6 +15,14 @@ use Sunnysideup\SimpleTemplateCaching\Model\ObjectsUpdated;
  */
 class DataObjectExtension extends Extension
 {
+
+    private static array $excluded_classes_for_caching = [
+            ObjectsUpdated::class,
+    ];
+
+    private static $included_classes_for_caching = [
+    ];
+
     public function onAfterWrite()
     {
         $owner = $this->getOwner();
@@ -93,8 +101,30 @@ class DataObjectExtension extends Extension
         if (ObjectsUpdated::class === $className) {
             return false;
         }
-        $excludedClasses = (array) Config::inst()->get(DataObjectExtension::class, 'excluded_classes_for_caching');
+        $includedClasses = (array) Config::inst()->get(self::class, 'included_classes_for_caching');
+        if (!empty($includedClasses)) {
+            return $this->matchesAnyForCacheCheck($className, $includedClasses);
+        }
 
-        return ! in_array($className, $excludedClasses, true);
+        $excludedClasses = (array) Config::inst()->get(self::class, 'excluded_classes_for_caching');
+
+        return ! $this->matchesAnyForCacheCheck($className, $excludedClasses);
+    }
+
+    /**
+     * Returns true if $className is, extends, or implements any of $classes.
+     *
+     * @param class-string   $className
+     * @param array<string>  $classes
+     */
+    protected function matchesAnyForCacheCheck(string $className, array $classes): bool
+    {
+        foreach ($classes as $class) {
+            if (is_a($className, $class, true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

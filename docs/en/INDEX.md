@@ -105,8 +105,16 @@ be taken into account when the cache is created.
 ### Every database change invalidates cache
 
 The cache is invalidated every time the database changes.  
-To avoid this happening too often you can set a list of classes that are not included:
+To avoid this happening too often you can set a list of classes that are excluded:
 
+```yml
+Sunnysideup\SimpleTemplateCaching\Extensions\DataObjectExtension:
+  included_classes_for_caching:
+    - MyClass1
+    - MyClass2
+```
+
+You can also approach it the other way around and list all the classes that should cause an update:
 ```yml
 Sunnysideup\SimpleTemplateCaching\Extensions\DataObjectExtension:
   excluded_classes_for_caching:

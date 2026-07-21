@@ -38,6 +38,7 @@ Sunnysideup\SimpleTemplateCaching\Extensions\DataObjectExtension:
     - SilverStripe\Versioned\ChangeSet
     - SilverStripe\Versioned\ChangeSetItem
     - SilverStripe\SessionManager\Models\LoginSession
+    - SilverStripe\HybridSessions\HybridSessionDataObject
     - Firesphere\CSPHeaders\Models\SRI
 ---
 Name: corecache_extended
