@@ -53,7 +53,7 @@ class ControllerExtension extends Extension
 
         $getVars = $request->getVars();
         $hasGetVars = $getVars !== [];
-        if ($hasGetVars && ! isset($getVars['flush'])) {
+        if ($hasGetVars && isset($getVars['flush'])) {
             return $this->returnNoCache();
         }
 
@@ -65,21 +65,21 @@ class ControllerExtension extends Extension
             }
         }
 
+        // AJAX requests are not cached by default unless the controller has cacheControlCanCacheAjax that returns true
         if ($request->isAjax()) {
-            if (! $this->controllerHas($controller, 'cacheControlExcludedAjax')) {
+            if (! $this->controllerHas($controller, 'cacheControlCanCacheAjax')) {
                 return $this->returnNoCache();
             }
-            if (! $controller->cacheControlExcludedAjax()) {
+            if (! $controller->cacheControlCanCacheAjax()) {
                 return $this->returnNoCache();
             }
         }
 
+        // Opt-in for caching based on GET vars
+        // If the controller has cacheControlCanCacheGetVars, let it make the decision
         if ($hasGetVars) {
-            if (! $this->controllerHas($controller, 'cacheControlExcludedGetVars')) {
-                return $this->returnNoCache();
-            }
-            foreach ((array) $controller->cacheControlExcludedGetVars() as $key) {
-                if (isset($getVars[$key])) {
+            if ($this->controllerHas($controller, 'cacheControlCanCacheGetVars')) {
+                if (!$controller->cacheControlCanCacheGetVars($getVars)) {
                     return $this->returnNoCache();
                 }
             }
