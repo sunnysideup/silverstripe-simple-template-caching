@@ -27,7 +27,7 @@ class PageControllerExtension extends Extension
     /**
      * @var null|string
      */
-    protected static ?string $_cache_key_any_data_object_changes;
+    protected static ?string $_cache_key_any_data_object_changes = null;
 
     /**
      * @var bool
