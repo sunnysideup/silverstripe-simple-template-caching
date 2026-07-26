@@ -37,48 +37,19 @@ class PageControllerExtension extends Extension
 
     /**
      * does the page have cache keys AKA can it be cached?
+     * Here we also set a basic cache key string that is used to generate the cache keys.
+     * `self::$_can_cache_content_string` is set with stuff you can't see (logged-in, etc...)
      */
     public function HasCacheKeys(): bool
     {
         $owner = $this->getOwner();
         if (null === self::$_can_cache_content) {
             $canCache = true;
-            self::$_can_cache_content_string = '';
+            self::$_can_cache_content_string = $this->cacheSafeDomainId();
             if ($owner->hasMethod('canCachePage')) {
                 // if it can cache the page, then it the cache string will remain empty.
                 $canCache = $owner->canCachePage();
                 self::$_can_cache_content_string .= $canCache ? '' : $this->getRandomKey();
-            }
-
-            //action
-            $action = $owner->request->param('Action');
-            if ($action) {
-                self::$_can_cache_content_string .= 'UA' . $action;
-            }
-
-            // id
-            $id = $owner->request->param('ID');
-            if ($id) {
-                self::$_can_cache_content_string .= 'UI' . $id;
-            }
-
-            // otherid
-            $otherId = $owner->request->param('OtherID');
-            if ($otherId) {
-                self::$_can_cache_content_string .= 'OI' . $otherId;
-            }
-
-            //request vars
-            $requestVars = $owner->request->requestVars();
-            if ($requestVars) {
-                $canCache = false;
-                foreach ($requestVars as $key => $item) {
-                    if (! $item) {
-                        $item = '';
-                    }
-
-                    self::$_can_cache_content_string .= serialize($key . '_' . serialize($item));
-                }
             }
 
             if (Versioned::get_reading_mode() !== 'Stage.Live') {
@@ -103,7 +74,6 @@ class PageControllerExtension extends Extension
             // crucial
             self::$_can_cache_content = (bool) $canCache;
         }
-
         return self::$_can_cache_content;
     }
 
@@ -138,7 +108,7 @@ class PageControllerExtension extends Extension
 
     public function CacheKeyMeta(?bool $includePageId = true, ?bool $forceCaching = false): string
     {
-        return $this->CacheKeyGenerator('META', true, false);
+        return $this->CacheKeyGenerator('META', $includePageId, $forceCaching);
     }
 
     public function CacheKeyHeader(?bool $includePageId = false, ?bool $forceCaching = false): string
@@ -179,6 +149,7 @@ class PageControllerExtension extends Extension
 
             if ($includePageId) {
                 $string .= '_ID_' . $owner->ID;
+                $string .= $this->cacheSafeUrlId();
             }
         } else {
             $string = 'NOT_CACHED__ID_' . $this->getRandomKey();
@@ -220,5 +191,24 @@ class PageControllerExtension extends Extension
         }
 
         return self::$_cache_key_any_data_object_changes;
+    }
+
+    public function cacheSafeUrlId()
+    {
+        $uri = $_SERVER['REQUEST_URI'] ?? '/';
+
+        // 2. Hash it to generate a safe, unique, a-z/0-9 string
+        return md5($uri);
+    }
+
+    public function cacheSafeDomainId()
+    {
+        // 1. Safely extract the pieces of the current URL
+        // Fallbacks are included just in case the script is run from a command line
+        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
+        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+
+        // 2. Hash it to generate a safe, unique, a-z/0-9 string
+        return md5($protocol . $host);
     }
 }
