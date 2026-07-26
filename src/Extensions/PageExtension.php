@@ -76,12 +76,15 @@ class PageExtension extends Extension
     {
         $owner = $this->getOwner();
         if ($owner->PageCanBeCachedEntirely()) {
-            $fields->push(
-                LiteralField::create(
-                    'CacheInfo',
-                    '<p class="message warning">Careful: this page can be cached publicly for up to ' . $owner->PageCanBeCachedEntirelyDuration() . ' seconds.</p>'
-                )
-            );
+            $time = $owner->PageCanBeCachedEntirelyDuration();
+            if ($time > 0) {
+                $fields->push(
+                    LiteralField::create(
+                        'CacheInfo',
+                        '<p class="message warning">Careful: this page can be cached publicly for up to ' . $time . ' seconds.</p>'
+                    )
+                );
+            }
         }
         return $fields;
     }
