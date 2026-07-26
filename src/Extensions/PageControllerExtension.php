@@ -82,8 +82,6 @@ class PageControllerExtension extends Extension
                 }
             }
 
-            self::$_can_cache_content_string .= $canCache ? '' : $this->getRandomKey();
-
             // crucial
             self::$_can_cache_content = (bool) $canCache;
         }
