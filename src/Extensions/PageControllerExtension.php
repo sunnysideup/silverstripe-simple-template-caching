@@ -44,14 +44,25 @@ class PageControllerExtension extends Extension
     {
         $owner = $this->getOwner();
         if (null === self::$_can_cache_content) {
+
+            // we assume we can cache
             $canCache = true;
+
+            $request = $owner->getRequest();
+            if ($request->IsGet() && $request->getVar('flush')) {
+                $canCache = false;
+            }
+
+            // set basics
             self::$_can_cache_content_string = $this->cacheSafeDomainId();
+
+            // override
             if ($owner->hasMethod('canCachePage')) {
                 // if it can cache the page, then it the cache string will remain empty.
                 $canCache = $owner->canCachePage();
-                self::$_can_cache_content_string .= $canCache ? '' : $this->getRandomKey();
             }
 
+            // stage!
             if (Versioned::get_reading_mode() !== 'Stage.Live') {
                 self::$_can_cache_content_string .= 'V' . Versioned::get_reading_mode();
                 $canCache = false;
@@ -70,6 +81,8 @@ class PageControllerExtension extends Extension
                     $canCache = false;
                 }
             }
+
+            self::$_can_cache_content_string .= $canCache ? '' : $this->getRandomKey();
 
             // crucial
             self::$_can_cache_content = (bool) $canCache;
@@ -195,6 +208,7 @@ class PageControllerExtension extends Extension
 
     public function cacheSafeUrlId()
     {
+        // note that
         $uri = $_SERVER['REQUEST_URI'] ?? '/';
 
         // 2. Hash it to generate a safe, unique, a-z/0-9 string
