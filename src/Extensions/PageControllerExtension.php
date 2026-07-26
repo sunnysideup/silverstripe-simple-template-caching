@@ -3,6 +3,7 @@
 namespace Sunnysideup\SimpleTemplateCaching\Extensions;
 
 use PageController;
+use SilverStripe\Control\Director;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Extension;
 use SilverStripe\Security\Security;
@@ -26,14 +27,38 @@ class PageControllerExtension extends Extension
     /**
      * @var null|string
      */
-    protected static $_cache_key_any_data_object_changes;
+    protected static ?string $_cache_key_any_data_object_changes;
 
     /**
-     * @var null|bool
+     * @var bool
      */
-    private static $_can_cache_content;
+    protected static ?bool $_can_cache_content = null;
 
-    private static string $_can_cache_content_string = '';
+    protected static string $_can_cache_content_string = '';
+
+    private static array $cache_key_ignore_params = [
+        // Google (Ads + Analytics)
+        'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content',
+        'utm_id', 'utm_name', 'utm_cid', 'utm_reader', 'utm_referrer',
+        'gclid', 'gclsrc', 'dclid', 'gbraid', 'wbraid', '_ga', '_gl',
+        // Microsoft / Bing
+        'msclkid',
+        // Meta / Instagram / TikTok / X / LinkedIn / Yandex
+        'fbclid', 'igshid', 'ttclid', 'twclid', 'li_fat_id', 'yclid', '_openstat',
+        // Email platforms
+        'mc_cid', 'mc_eid',                                  // Mailchimp
+        'mkt_tok',                                           // Marketo
+        'vero_id', 'vero_conv',                              // Vero
+        // HubSpot
+        '_hsenc', '_hsmi', '__hstc', '__hssc', '__hsfp', 'hsCtaTracking',
+        'hsa_acc', 'hsa_cam', 'hsa_grp', 'hsa_ad', 'hsa_src',
+        'hsa_tgt', 'hsa_kw', 'hsa_mt', 'hsa_net', 'hsa_ver',
+        // Matomo / Piwik
+        'pk_campaign', 'pk_kwd', 'pk_source', 'pk_medium', 'pk_content',
+        'mtm_campaign', 'mtm_kwd', 'mtm_source', 'mtm_medium', 'mtm_content',
+        // Adobe
+        's_kwcid', 'ef_id',
+    ];
 
     /**
      * does the page have cache keys AKA can it be cached?
@@ -42,14 +67,14 @@ class PageControllerExtension extends Extension
      */
     public function HasCacheKeys(): bool
     {
-        $owner = $this->getOwner();
         if (null === self::$_can_cache_content) {
 
             // we assume we can cache
             $canCache = true;
 
+            $owner = $this->getOwner();
             $request = $owner->getRequest();
-            if ($request->IsGet() && $request->getVar('flush')) {
+            if (!$request || $request->IsGet() !== true || $request->getVar('flush')) {
                 $canCache = false;
             }
 
@@ -58,8 +83,9 @@ class PageControllerExtension extends Extension
 
             // override
             if ($owner->hasMethod('canCachePage')) {
-                // if it can cache the page, then it the cache string will remain empty.
-                $canCache = $owner->canCachePage();
+                if (!$owner->canCachePage()) {
+                    $canCache = false;
+                }
             }
 
             // stage!
@@ -117,29 +143,30 @@ class PageControllerExtension extends Extension
         return $this->HasCacheKeys();
     }
 
-    public function CacheKeyMeta(?bool $includePageId = true, ?bool $forceCaching = false): string
+    public function CacheKeyMeta(?bool $includePageId = true): string
     {
-        return $this->CacheKeyGenerator('META', $includePageId, $forceCaching);
+        return $this->CacheKeyGenerator('META', $includePageId);
     }
 
-    public function CacheKeyHeader(?bool $includePageId = false, ?bool $forceCaching = false): string
+    public function CacheKeyHeader(?bool $includePageId = false): string
     {
-        return $this->CacheKeyGenerator('H', $includePageId, $forceCaching);
+        return $this->CacheKeyGenerator('H', $includePageId);
     }
 
-    public function CacheKeyMenu(?bool $includePageId = true, ?bool $forceCaching = false): string
+    public function CacheKeyMenu(?bool $includePageId = true): string
     {
-        return $this->CacheKeyGenerator('M', $includePageId, $forceCaching);
+        return $this->CacheKeyGenerator('M', $includePageId);
     }
 
-    public function CacheKeyFooter(?bool $includePageId = false, ?bool $forceCaching = false): string
+    public function CacheKeyFooter(?bool $includePageId = false): string
     {
-        return $this->CacheKeyGenerator('F', $includePageId, $forceCaching);
+        return $this->CacheKeyGenerator('F', $includePageId);
     }
 
-    public function CacheKeyContent(?bool $forceCaching = false): string
+    public function CacheKeyContent(): string
     {
         $owner = $this->getOwner();
+
         if ($owner->NeverCachePublicly) {
             return $this->getRandomKey();
         }
@@ -152,10 +179,10 @@ class PageControllerExtension extends Extension
         return $cacheKey;
     }
 
-    public function CacheKeyGenerator(string $letter, ?bool $includePageId = true, ?bool $forceCaching = false): string
+    public function CacheKeyGenerator(string $letter, ?bool $includePageId = true): string
     {
         $owner = $this->getOwner();
-        if ($this->HasCacheKeys() || $forceCaching) {
+        if ($this->HasCacheKeys()) {
             $string = $letter . '_' . $this->getCanCacheContentString() . '_' . $this->cacheKeyAnyDataObjectChanges();
 
             if ($includePageId) {
@@ -169,17 +196,7 @@ class PageControllerExtension extends Extension
         return $string;
     }
 
-    /**
-     * if the cache string is NOT empty then we cannot cache
-     * as there are specific caching values that indicate the page can not be cached.
-     */
-    protected function canCacheCheck(): bool
-    {
-        // back to source
-        return $this->HasCacheKeys();
-    }
-
-    protected function getRandomKey()
+    protected function getRandomKey(): string
     {
         $uniqueId = uniqid('', true);
 
@@ -204,21 +221,32 @@ class PageControllerExtension extends Extension
         return self::$_cache_key_any_data_object_changes;
     }
 
-    public function cacheSafeUrlId()
+    public function cacheSafeUrlId(): string
     {
-        // note that
         $uri = $_SERVER['REQUEST_URI'] ?? '/';
 
-        // 2. Hash it to generate a safe, unique, a-z/0-9 string
-        return md5($uri);
+        // split path and query out of the raw URI
+        $path = parse_url($uri, PHP_URL_PATH) ?: '/';
+        parse_str((string) parse_url($uri, PHP_URL_QUERY), $vars);
+
+        // drop only the tracking params — keep everything else that changes output
+        $ignore = array_flip(Config::inst()->get(self::class, 'cache_key_ignore_params'));
+        $vars   = array_diff_key($vars, $ignore);
+
+        // stable order so ?a=1&b=2 and ?b=2&a=1 hit the same key
+        ksort($vars);
+
+        $query = $vars ? '?' . http_build_query($vars) : '';
+
+        return md5($path . $query);
     }
 
-    public function cacheSafeDomainId()
+    public function cacheSafeDomainId(): string
     {
         // 1. Safely extract the pieces of the current URL
         // Fallbacks are included just in case the script is run from a command line
         $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
-        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+        $host = Director::host();
 
         // 2. Hash it to generate a safe, unique, a-z/0-9 string
         return md5($protocol . $host);
