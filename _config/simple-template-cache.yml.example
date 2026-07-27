@@ -11,6 +11,7 @@ MyDataObject:
 
 # classes that change all the time and should not influence caching
 Sunnysideup\SimpleTemplateCaching\Extensions\DataObjectExtension:
+  update_cache_on_dataobject_change: false
   excluded_classes_for_caching:
     - MyClass1
     - MyClass2
