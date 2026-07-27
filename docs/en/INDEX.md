@@ -150,3 +150,23 @@ function CacheKeyContentCustom() : bool
      return 'extra-cache-key-goes-here';
 }
 ```
+
+### To cache any AJAX request
+
+```php
+function cacheControlCanCacheAjax() : bool
+{
+    return true;
+}
+```
+
+### To cache a request based on its HTTP GET parameters
+```php
+function cacheControlCanCacheGetVars(array $getVars) : bool
+{
+    // cache all requests regardless of GET parameters
+    return true;
+    // cache only request contains a specific GET parameter e.g. /somePage?kia=ora
+    return isset($getVars['kia']) && $getVars['kia'] === 'ora';
+}
+```
