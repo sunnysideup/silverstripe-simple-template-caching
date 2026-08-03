@@ -170,3 +170,14 @@ function cacheControlCanCacheGetVars(array $getVars) : bool
     return isset($getVars['kia']) && $getVars['kia'] === 'ora';
 }
 ```
+
+## Note for CDN
+
+If a server is proxied through CDN such as Cloudflare, it is possible to configure the CDN to cache a page longer than it is to be cached on a client side.
+
+For example, if:
+- You set up Cloudflare to proxy your website through it
+- You set the _Cache time_ to `86400` (1 day) on CMS
+- You create a custom cache response rule to modify the `max-age` to `900` (15 min) in the `cache-control` header on Cloudflare
+
+Then Cloudflare will cache the page for 1 day while a web browser will cache it for only 15 minutes.
