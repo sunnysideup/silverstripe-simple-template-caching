@@ -100,6 +100,7 @@ class PageExtension extends Extension
         if (! $sc->HasCaching) {
             return false;
         }
+        // set deprecated methods to error, but not in live!
         if (! Director::isLive()) {
             if ($owner->hasMethod('updateCacheControl')) {
                 user_error('The updateCacheControl has been deprecated', E_USER_ERROR);
