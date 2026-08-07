@@ -51,3 +51,6 @@ SilverStripe\Core\Injector\Injector:
     constructor:
       namespace: "cacheblock"
       defaultLifetime: 864000 # 10 days!
+
+  SilverStripe\Control\Middleware\HTTPCacheControlMiddleware:
+    class: Sunnysideup\SimpleTemplateCaching\Middleware\CustomHTTPCacheControlMiddleware

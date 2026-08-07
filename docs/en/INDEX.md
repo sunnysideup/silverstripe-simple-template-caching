@@ -171,13 +171,19 @@ function cacheControlCanCacheGetVars(array $getVars) : bool
 }
 ```
 
-## Note for CDN
+## Note for Cloudflare
 
-If a server is proxied through CDN such as Cloudflare, it is possible to configure the CDN to cache a page longer than it is to be cached on a client side.
+It is possible to set the different cache times between a browser and Cloudflare.
 
 For example, if:
-- You set up Cloudflare to proxy your website through it
-- You set the _Cache time_ to `86400` (1 day) on CMS
-- You create a custom cache response rule to modify the `max-age` to `900` (15 min) in the `cache-control` header on Cloudflare
+- You set the _Cache time_ to `900` (15 minutes)
+- You set the _Cache time for Cloudflare CDN_ to `86400` (1 day)
+- A page is allowed to be cached
 
-Then Cloudflare will cache the page for 1 day while a web browser will cache it for only 15 minutes.
+Then the page will response:
+```
+Cache-Control: private, max-age=900
+Cloudflare-CDN-Cache-Control: max-age=86400
+```
+
+For more information about CDN-specific cache control, refer to the [official document](https://developers.cloudflare.com/cache/concepts/cdn-cache-control/) on Cloudflare.

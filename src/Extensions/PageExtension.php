@@ -17,6 +17,7 @@ use Sunnysideup\SimpleTemplateCaching\Api\FasterSiteConfig;
  * @property bool $NoCachingAtAll
  * @property bool $NeverCachePublicly
  * @property int $PublicCacheDurationInSeconds
+ * @property int $CloudflareCacheDurationInSeconds
  */
 class PageExtension extends Extension
 {
@@ -24,6 +25,7 @@ class PageExtension extends Extension
         'NoCachingAtAll' => 'Boolean',
         'NeverCachePublicly' => 'Boolean',
         'PublicCacheDurationInSeconds' => 'Int',
+        'CloudflareCacheDurationInSeconds' => 'Int', // set Cloudflare-CDN-Cache-Control
     ];
 
     public function updateSettingsFields(FieldList $fields)
@@ -65,6 +67,26 @@ class PageExtension extends Extension
 
                 ]
             );
+
+            $fields->addFieldsToTab(
+                'Root.Cache',
+                [
+                    NumericField::create(
+                        'CloudflareCacheDurationInSeconds',
+                        'In seconds, how long can this be cached for on Cloudflare CDN?'
+                    )
+                        ->setDescription(
+                            'Use with care! Only use when Cloudflare CDN is enabled.<br />
+                            Leave empty or zero to use the default value for the site<br />
+                            This should only be used on pages that should be the same for all users and that should be accessible publicly.<br />
+                            You can also set this value <a href="/admin/settings#Root_Caching">for the whole site</a>.<br />
+                            Caching is ' . (FasterSiteConfig::current_site_config()->HasCaching ? '' : 'NOT') . ' allowed on for this site.<br />
+                            The current value for the whole site is ' . FasterSiteConfig::current_site_config()->CloudflareCacheDurationInSeconds . ' seconds.<br />
+                            '
+                        ),
+
+                ]
+            );
         }
     }
 
@@ -82,6 +104,15 @@ class PageExtension extends Extension
                     LiteralField::create(
                         'CacheInfo',
                         '<p class="message warning">Careful: this page can be cached publicly for up to ' . $time . ' seconds.</p>'
+                    )
+                );
+            }
+            $time = $owner->CloudflareCachedEntirelyDuration();
+            if ($time > 0) {
+                $fields->push(
+                    LiteralField::create(
+                        'CacheInfo',
+                        '<p class="message warning">Careful: this page can be cached on Cloudflare CDN for up to ' . $time . ' seconds.</p>'
                     )
                 );
             }
@@ -118,6 +149,14 @@ class PageExtension extends Extension
         return (int) (
             $this->getOwner()->PublicCacheDurationInSeconds ?:
             FasterSiteConfig::current_site_config()->PublicCacheDurationInSeconds
+        );
+    }
+
+    public function CloudflareCachedEntirelyDuration(): int
+    {
+        return (int) (
+            $this->getOwner()->CloudflareCacheDurationInSeconds ?:
+            FasterSiteConfig::current_site_config()->CloudflareCacheDurationInSeconds
         );
     }
 

@@ -26,6 +26,7 @@ use Sunnysideup\SimpleTemplateCaching\Model\ObjectsUpdated;
  * @property bool $HasCaching
  * @property bool $HasPartialCaching
  * @property int $PublicCacheDurationInSeconds
+ * @property int $CloudflareCacheDurationInSeconds
  * @property bool $RecordCacheUpdates
  * @property ?string $CacheKeyLastEdited
  * @property ?string $ClassNameLastEdited
@@ -38,6 +39,7 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
         'HasCaching' => 'Boolean(1)',
         'HasPartialCaching' => 'Boolean(1)',
         'PublicCacheDurationInSeconds' => 'Int',
+        'CloudflareCacheDurationInSeconds' => 'Int',
         'RecordCacheUpdates' => 'Boolean(0)',
         'CacheKeyLastEdited' => 'DBDatetime',
         'ClassNameLastEdited' => 'Varchar(200)',
@@ -71,8 +73,21 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
                         ->setDescription(
                             'USE WITH CARE - This will apply caching to ALL pages on the site.
                             Time is in seconds (e.g. 600 = 10 minutes).
-                            Cache time on individual pages will override this value set here.
+                            Cache time on individual pages will override this value set here.<br />
                             The total number of pages on the site with an individual caching time is: ' . Page::get()->filter('PublicCacheDurationInSeconds:GreaterThan', 0)->count()
+                        ),
+                ]
+            );
+            $fields->addFieldsToTab(
+                'Root.Caching',
+                [
+                    NumericField::create('CloudflareCacheDurationInSeconds', 'Cache time for Cloudflare CDN')
+                        ->setDescription(
+                            'USE WITH CARE - Only use when Cloudflare CDN is enabled.<br />
+                            This will apply caching to ALL pages on the site.
+                            Time is in seconds (e.g. 600 = 10 minutes).
+                            Cache time on individual pages will override this value set here.<br />
+                            The total number of pages on the site with an individual caching time is: ' . Page::get()->filter('CloudflareCacheDurationInSeconds:GreaterThan', 0)->count()
                         ),
                 ]
             );

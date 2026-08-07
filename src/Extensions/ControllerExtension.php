@@ -9,6 +9,7 @@ use SilverStripe\Control\Middleware\HTTPCacheControlMiddleware;
 use SilverStripe\Core\Extension;
 use SilverStripe\Security\Security;
 use SilverStripe\Versioned\Versioned;
+use Sunnysideup\SimpleTemplateCaching\Middleware\CustomHTTPCacheControlMiddleware;
 
 /**
  * Class \ControllerExtension.
@@ -100,11 +101,18 @@ class ControllerExtension extends Extension
             return $this->returnNoCache();
         }
 
-        return HTTPCacheControlMiddleware::singleton()
-            ->enableCache()
+        /** @var CustomHTTPCacheControlMiddleware $middleware */
+        $middleware = HTTPCacheControlMiddleware::singleton()
+            ->privateCache(true)
             ->setMaxAge($cacheTime)
-            ->setStateDirective(HTTPCacheControlMiddleware::STATE_PUBLIC, 'must-revalidate', false)
-            ->publicCache(true);
+            ->setMustRevalidate(false);
+
+        $cloudflareCacheTime = (int) $dataRecord->CloudflareCachedEntirelyDuration();
+        if ($cloudflareCacheTime > 0) {
+            $middleware->setCloudflareCacheControlMaxAge($cloudflareCacheTime);
+        }
+
+        return $middleware;
     }
 
     private function controllerHas(object $controller, string $method): bool
