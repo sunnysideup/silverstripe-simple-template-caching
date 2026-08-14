@@ -7,20 +7,20 @@ use SilverStripe\ORM\DataList;
 use SilverStripe\Reports\Report;
 use SilverStripe\SiteConfig\SiteConfig;
 
-class NeverCachedPages extends BaseCachedReport
+class CloudflareCachedPages extends BaseCachedReport
 {
     public function title()
     {
-        return 'Pages that are never cached by browser';
+        return 'Pages with caching time for Cloudflare cache';
     }
 
     protected function extraSourceRecords(SiteConfig $sc, $params = null): DataList
     {
-        if ($sc->PublicCacheDurationInSeconds > 0) {
-            return Page::get()->filter(['NeverCachePublicly' => true]);
+        if ($sc->CloudflareCacheDurationInSeconds > 0) {
+            return Page::get()->filter(['NeverCachePublicly' => false]);
         } else {
             return Page::get()
-                ->filterAny(['PublicCacheDurationInSeconds' => 0, 'NeverCachePublicly' => true]);
+                ->filter(['CloudflareCacheDurationInSeconds:GreaterThan' => 0, 'NeverCachePublicly' => false]);
         }
     }
 }
