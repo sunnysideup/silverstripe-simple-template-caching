@@ -82,17 +82,11 @@ class PageControllerExtension extends Extension
             self::$_can_cache_content_string = $this->cacheSafeDomainId();
 
             // override
-            if ($owner->hasMethod('canCachePage')) {
-                if (!$owner->canCachePage()) {
-                    $canCache = false;
-                }
-            }
-
-            // stage!
-            if (Versioned::get_reading_mode() !== 'Stage.Live') {
-                self::$_can_cache_content_string .= 'V' . Versioned::get_reading_mode();
+            if (!$owner->simpleCachingShouldThisPageBeCachedAtAll($owner, $owner->data())) {
+                self::$_can_cache_content_string .= 'NC'.rand(0, 99999999999); // Not Cacheable
                 $canCache = false;
             }
+
 
             //member
             $member = Security::getCurrentUser();
