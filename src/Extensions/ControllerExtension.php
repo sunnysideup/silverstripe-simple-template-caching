@@ -8,6 +8,7 @@ use SilverStripe\CMS\Controllers\ContentController;
 use SilverStripe\Control\Director;
 use SilverStripe\Control\Middleware\HTTPCacheControlMiddleware;
 use SilverStripe\Core\Extension;
+use SilverStripe\ORM\DataObject;
 use SilverStripe\Security\Security;
 use SilverStripe\Versioned\Versioned;
 
@@ -24,7 +25,7 @@ class ControllerExtension extends Extension
         /** PageController|ControllerExtension $controller */
         if ($controller instanceof PageController) {
             $dataRecord = $controller->data();
-            if ($dataRecord && $dataRecord->exists()) {
+            if ($dataRecord && $dataRecord->exists() && $dataRecord instanceof DataObject) {
                 if ($this->simpleCachingShouldThisPageBeCachedInFull($controller, $dataRecord)) {
                     return $this->simpleCachingReturnCache($dataRecord);
                 }
@@ -34,7 +35,7 @@ class ControllerExtension extends Extension
         return $this->simpleCachingReturnNoCache();
     }
 
-    protected function simpleCachingReturnCache(Page $dataRecord)
+    protected function simpleCachingReturnCache(DataObject $dataRecord)
     {
         $cacheTime = $dataRecord->PageCanBeCachedEntirelyDuration();
         if ($cacheTime > 0) {
@@ -57,7 +58,7 @@ class ControllerExtension extends Extension
 
     protected static $simpleCachingCanBeCachedAtAllCache = null;
 
-    public function simpleCachingShouldThisPageBeCachedAtAll(ContentController $controller, Page $dataRecord): bool
+    public function simpleCachingShouldThisPageBeCachedAtAll(ContentController $controller, DataObject $dataRecord): bool
     {
         if (self::$simpleCachingCanBeCachedAtAllCache !== null) {
             return self::$simpleCachingCanBeCachedAtAllCache;
@@ -122,7 +123,7 @@ class ControllerExtension extends Extension
 
     }
 
-    public function simpleCachingShouldThisPageBeCachedInFull(ContentController$controller, Page $dataRecord): bool
+    public function simpleCachingShouldThisPageBeCachedInFull(ContentController $controller, DataObject $dataRecord): bool
     {
         //make sure that caching is always https
 

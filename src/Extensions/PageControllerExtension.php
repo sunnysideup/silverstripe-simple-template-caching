@@ -82,9 +82,18 @@ class PageControllerExtension extends Extension
             self::$_can_cache_content_string = $this->cacheSafeDomainId();
 
             // override
-            if (!$owner->simpleCachingShouldThisPageBeCachedAtAll($owner, $owner->data())) {
+            if (! $owner instanceof PageController) {
                 self::$_can_cache_content_string .= 'NC'.rand(0, 99999999999); // Not Cacheable
                 $canCache = false;
+            } else {
+                $data = $owner->data();
+                if (! $data || ! $data instanceof DataObject) {
+                    self::$_can_cache_content_string .= 'NC'.rand(0, 99999999999); // Not Cacheable
+                    $canCache = false;
+                } elseif (!$owner->simpleCachingShouldThisPageBeCachedAtAll($owner, $owner->data())) {
+                    self::$_can_cache_content_string .= 'NC'.rand(0, 99999999999); // Not Cacheable
+                    $canCache = false;
+                }
             }
 
 
