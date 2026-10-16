@@ -5,6 +5,7 @@ namespace Sunnysideup\SimpleTemplateCaching\Extensions;
 use Page;
 use PageController;
 use SilverStripe\CMS\Controllers\ContentController;
+use SilverStripe\CMS\Model\SiteTree;
 use SilverStripe\Control\Director;
 use SilverStripe\Control\Middleware\HTTPCacheControlMiddleware;
 use SilverStripe\Core\Extension;
@@ -127,7 +128,11 @@ class ControllerExtension extends Extension
     {
         //make sure that caching is always https
 
-        if (! $dataRecord->PageCanBeCachedEntirely()) {
+        if ($dataRecord instanceof SiteTree) {
+            if (! $dataRecord->PageCanBeCachedEntirely()) {
+                return false;
+            }
+        } else {
             return false;
         }
 
