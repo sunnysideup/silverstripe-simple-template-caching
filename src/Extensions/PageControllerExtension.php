@@ -61,6 +61,19 @@ class PageControllerExtension extends Extension
     ];
 
     /**
+     * Only these query parameters are part of the cache key (e.g. 'start', 'searchfilter').
+     * Empty = the query string is ignored entirely, so that ?x=random can not create unlimited cache entries.
+     *
+     * @var array<int, string>
+     */
+    private static array $cache_relevant_query_vars = [];
+
+    /**
+     * the longest value of a relevant query parameter that is used in the cache key.
+     */
+    private static int $cache_relevant_query_var_max_length = 100;
+
+    /**
      * does the page have cache keys AKA can it be cached?
      * Here we also set a basic cache key string that is used to generate the cache keys.
      * `self::$_can_cache_content_string` is set with stuff you can't see (logged-in, etc...)
@@ -226,12 +239,16 @@ class PageControllerExtension extends Extension
         $uri = $_SERVER['REQUEST_URI'] ?? '/';
 
         // split path and query out of the raw URI
-        $path = parse_url($uri, PHP_URL_PATH) ?: '/';
+        $path = substr((string) (parse_url($uri, PHP_URL_PATH) ?: '/'), 0, 500);
         parse_str((string) parse_url($uri, PHP_URL_QUERY), $vars);
 
-        // drop only the tracking params — keep everything else that changes output
-        $ignore = array_flip(Config::inst()->get(self::class, 'cache_key_ignore_params'));
-        $vars   = array_diff_key($vars, $ignore);
+        // only use an allow-list of query parameters, anything else is ignored
+        $relevant = array_flip((array) Config::inst()->get(self::class, 'cache_relevant_query_vars'));
+        $vars = array_intersect_key($vars, $relevant);
+        $maxLength = max(1, (int) Config::inst()->get(self::class, 'cache_relevant_query_var_max_length'));
+        foreach ($vars as $key => $value) {
+            $vars[$key] = is_scalar($value) ? substr((string) $value, 0, $maxLength) : '';
+        }
 
         // stable order so ?a=1&b=2 and ?b=2&a=1 hit the same key
         ksort($vars);

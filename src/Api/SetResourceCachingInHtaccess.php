@@ -41,7 +41,8 @@ class SetResourceCachingInHtaccess implements Flushable
      */
     private static string $image_cache_directive = '
 # Uploaded assets (filenames may change less predictably) - cache lighter - one day
-Header set Cache-Control "public, max-age=86400" "expr=%{REQUEST_URI} =~ m#^/(?:assets|_resources)/.*\.(?:png|jpe?g|gif|webp|svg|avif|ico)$#"';
+# setifempty: do not override the Cache-Control header of files that are served by PHP (e.g. protected files)
+Header setifempty Cache-Control "public, max-age=86400" "expr=%{REQUEST_URI} =~ m#^/(?:assets|_resources)/.*\.(?:png|jpe?g|gif|webp|svg|avif|ico)$#"';
 
     private static string $pdf_cache_directive = '
 # PDFs/XML - don\'t cache
