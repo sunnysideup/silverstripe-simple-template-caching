@@ -172,14 +172,17 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
         try {
             $obj = FasterSiteConfig::current_site_config();
             if ($obj->HasPartialCaching) {
-                DB::query('
+                DB::prepared_query(
+                    '
                     UPDATE "SiteConfig"
                     SET
-                        "CacheKeyLastEdited" = \'' . DBDatetime::now()->Rfc2822() . '\',
-                        "ClassNameLastEdited" = \'' . addslashes((string) $className) . '\'
-                    WHERE ID = ' . $obj->ID . '
+                        "CacheKeyLastEdited" = ?,
+                        "ClassNameLastEdited" = ?
+                    WHERE ID = ?
                     LIMIT 1
-                ;');
+                ;',
+                    [DBDatetime::now()->Rfc2822(), (string) $className, (int) $obj->ID]
+                );
                 if ($obj->RecordCacheUpdates) {
                     $recordId = Injector::inst()
                         ->create(ObjectsUpdated::class, ['ClassNameLastEdited' => $className])
