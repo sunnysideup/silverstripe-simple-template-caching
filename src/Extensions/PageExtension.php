@@ -2,33 +2,42 @@
 
 namespace Sunnysideup\SimpleTemplateCaching\Extensions;
 
-use LogicException;
 use RuntimeException;
+use SilverStripe\Control\Director;
 use SilverStripe\Core\Extension;
 use SilverStripe\Forms\CheckboxField;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\LiteralField;
 use SilverStripe\Forms\NumericField;
-use SilverStripe\SiteConfig\SiteConfig;
+use Sunnysideup\SimpleTemplateCaching\Api\FasterSiteConfig;
 
 /**
  * Class \Sunnysideup\SimpleTemplateCaching\Extensions\PageExtension.
  *
  * @property Page|PageExtension $owner
+ * @property bool $NoCachingAtAll
  * @property bool $NeverCachePublicly
  * @property int $PublicCacheDurationInSeconds
+ * @property int $CloudflareCacheDurationInSeconds
  */
 class PageExtension extends Extension
 {
     private static $db = [
+        'NoCachingAtAll' => 'Boolean',
         'NeverCachePublicly' => 'Boolean',
         'PublicCacheDurationInSeconds' => 'Int',
+        'CloudflareCacheDurationInSeconds' => 'Int', // set Cloudflare-CDN-Cache-Control
     ];
 
+    /**
+     * these fields are added to the settings tab (Cache) so should not be scaffolded in the main tab.
+     */
     private static array $scaffold_cms_fields_settings = [
         'ignoreFields' => [
+            'NoCachingAtAll',
             'NeverCachePublicly',
             'PublicCacheDurationInSeconds',
+            'CloudflareCacheDurationInSeconds',
         ],
     ];
 
@@ -38,6 +47,11 @@ class PageExtension extends Extension
         $fields->addFieldsToTab(
             'Root.Cache',
             [
+                CheckboxField::create(
+                    'NoCachingAtAll',
+                    'No caching at all.
+                    This remove partial template caching. This is not recommended as it can cause performance issues and it is not needed in most cases. '
+                ),
                 CheckboxField::create(
                     'NeverCachePublicly',
                     'Never cache this page.
@@ -59,8 +73,28 @@ class PageExtension extends Extension
                             Leave empty or zero to use the default value for the site<br />
                             This should only be used on pages that should be the same for all users and that should be accessible publicly.<br />
                             You can also set this value <a href="/admin/settings#Root_Caching">for the whole site</a>.<br />
-                            Caching is ' . (SiteConfig::current_site_config()->HasCaching ? '' : 'NOT') . ' allowed on for this site.<br />
-                            The current value for the whole site is ' . SiteConfig::current_site_config()->PublicCacheDurationInSeconds . ' seconds.<br />
+                            Caching is ' . (FasterSiteConfig::current_site_config()->HasCaching ? '' : 'NOT') . ' allowed on for this site.<br />
+                            The current value for the whole site is ' . FasterSiteConfig::current_site_config()->PublicCacheDurationInSeconds . ' seconds.<br />
+                            '
+                        ),
+
+                ]
+            );
+
+            $fields->addFieldsToTab(
+                'Root.Cache',
+                [
+                    NumericField::create(
+                        'CloudflareCacheDurationInSeconds',
+                        'In seconds, how long can this be cached for on Cloudflare CDN?'
+                    )
+                        ->setDescription(
+                            'Use with care! Only use when Cloudflare CDN is enabled.<br />
+                            Leave empty or zero to use the default value for the site<br />
+                            This should only be used on pages that should be the same for all users and that should be accessible publicly.<br />
+                            You can also set this value <a href="/admin/settings#Root_Caching">for the whole site</a>.<br />
+                            Caching is ' . (FasterSiteConfig::current_site_config()->HasCaching ? '' : 'NOT') . ' allowed on for this site.<br />
+                            The current value for the whole site is ' . FasterSiteConfig::current_site_config()->CloudflareCacheDurationInSeconds . ' seconds.<br />
                             '
                         ),
 
@@ -77,12 +111,24 @@ class PageExtension extends Extension
     {
         $owner = $this->getOwner();
         if ($owner->PageCanBeCachedEntirely()) {
-            $fields->push(
-                LiteralField::create(
-                    'CacheInfo',
-                    '<p class="message warning">Careful: this page can be cached publicly for up to ' . $owner->PageCanBeCachedEntirelyDuration() . ' seconds.</p>'
-                )
-            );
+            $time = $owner->PageCanBeCachedEntirelyDuration();
+            if ($time > 0) {
+                $fields->push(
+                    LiteralField::create(
+                        'CacheInfo',
+                        '<p class="message warning">Careful: this page can be cached publicly for up to ' . $time . ' seconds.</p>'
+                    )
+                );
+            }
+            $time = $owner->CloudflareCachedEntirelyDuration();
+            if ($time > 0) {
+                $fields->push(
+                    LiteralField::create(
+                        'CacheInfo',
+                        '<p class="message warning">Careful: this page can be cached on Cloudflare CDN for up to ' . $time . ' seconds.</p>'
+                    )
+                );
+            }
         }
 
         return $fields;
@@ -96,21 +142,19 @@ class PageExtension extends Extension
             return false;
         }
 
-        $sc = SiteConfig::current_site_config();
+        $sc = FasterSiteConfig::current_site_config();
         if (! $sc->HasCaching) {
             return false;
         }
 
-        if ($owner->PageCanBeCachedEntirelyDuration() <= 0) {
-            return false;
-        }
-
-        if ($owner->hasMethod('updateCacheControl')) {
-            throw new RuntimeException('Please use canCachePage instead of updateCacheControl');
-        }
-
-        if ($owner->hasMethod('canCachePage')) {
-            throw new RuntimeException('Please add the canCachePage method to your controller');
+        // set deprecated methods to error, but not in live!
+        if (! Director::isLive()) {
+            if ($owner->hasMethod('updateCacheControl')) {
+                throw new RuntimeException('The updateCacheControl has been deprecated');
+            }
+            if ($owner->hasMethod('canCachePage')) {
+                throw new RuntimeException('Please add the canCachePage method to your controller, not your page.');
+            }
         }
 
         return true;
@@ -120,7 +164,15 @@ class PageExtension extends Extension
     {
         return (int) (
             $this->getOwner()->PublicCacheDurationInSeconds ?:
-            SiteConfig::current_site_config()->PublicCacheDurationInSeconds
+            FasterSiteConfig::current_site_config()->PublicCacheDurationInSeconds
+        );
+    }
+
+    public function CloudflareCachedEntirelyDuration(): int
+    {
+        return (int) (
+            $this->getOwner()->CloudflareCacheDurationInSeconds ?:
+            FasterSiteConfig::current_site_config()->CloudflareCacheDurationInSeconds
         );
     }
 

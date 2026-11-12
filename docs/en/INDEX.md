@@ -105,8 +105,16 @@ be taken into account when the cache is created.
 ### Every database change invalidates cache
 
 The cache is invalidated every time the database changes.  
-To avoid this happening too often you can set a list of classes that are not included:
+To avoid this happening too often you can set a list of classes that are excluded:
 
+```yml
+Sunnysideup\SimpleTemplateCaching\Extensions\DataObjectExtension:
+  included_classes_for_caching:
+    - MyClass1
+    - MyClass2
+```
+
+You can also approach it the other way around and list all the classes that should cause an update:
 ```yml
 Sunnysideup\SimpleTemplateCaching\Extensions\DataObjectExtension:
   excluded_classes_for_caching:
@@ -116,6 +124,12 @@ Sunnysideup\SimpleTemplateCaching\Extensions\DataObjectExtension:
 
 By default a whole bunch are being excluded - see: `_config.yml`.
 
+You can also turn this feature off altogether:
+
+```yml
+Sunnysideup\SimpleTemplateCaching\Extensions\DataObjectExtension:
+  update_cache_on_dataobject_change: false
+```
 
 ### exclude pages from being cached
 
@@ -137,13 +151,39 @@ function CacheKeyContentCustom() : bool
 }
 ```
 
-## Note for CDN
+### To cache any AJAX request
 
-If a server is proxied through CDN such as Cloudflare, it is possible to configure the CDN to cache a page longer than it is to be cached on a client side.
+```php
+function cacheControlCanCacheAjax() : bool
+{
+    return true;
+}
+```
+
+### To cache a request based on its HTTP GET parameters
+```php
+function cacheControlCanCacheGetVars(array $getVars) : bool
+{
+    // cache all requests regardless of GET parameters
+    return true;
+    // cache only request contains a specific GET parameter e.g. /somePage?kia=ora
+    return isset($getVars['kia']) && $getVars['kia'] === 'ora';
+}
+```
+
+## Note for Cloudflare
+
+It is possible to set the different cache times between a browser and Cloudflare.
 
 For example, if:
-- You set up Cloudflare to proxy your website through it
-- You set the _Cache time_ to `86400` (1 day) on CMS
-- You create a custom cache response rule to modify the `max-age` to `900` (15 min) in the `cache-control` header on Cloudflare
+- You set the _Cache time_ to `900` (15 minutes)
+- You set the _Cache time for Cloudflare CDN_ to `86400` (1 day)
+- A page is allowed to be cached
 
-Then Cloudflare will cache the page for 1 day while a web browser will cache it for only 15 minutes.
+Then the page will response:
+```
+Cache-Control: private, max-age=900
+Cloudflare-CDN-Cache-Control: max-age=86400
+```
+
+For more information about CDN-specific cache control, refer to the [official document](https://developers.cloudflare.com/cache/concepts/cdn-cache-control/) on Cloudflare.

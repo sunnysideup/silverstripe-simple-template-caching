@@ -2,6 +2,7 @@
 
 namespace Sunnysideup\SimpleTemplateCaching\Extensions;
 
+use SilverStripe\Core\ClassInfo;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Extension;
 use SilverStripe\ORM\DataObject;
@@ -15,7 +16,15 @@ use Sunnysideup\SimpleTemplateCaching\Model\ObjectsUpdated;
  */
 class DataObjectExtension extends Extension
 {
-    private static array $excluded_classes_for_caching = [];
+    private static array $excluded_classes_for_caching = [
+        ObjectsUpdated::class,
+    ];
+
+    private static array $included_classes_for_caching = [
+    ];
+
+    private static bool $update_cache_on_dataobject_change = true;
+
     public function onAfterWrite()
     {
         $owner = $this->getOwner();
@@ -82,21 +91,50 @@ class DataObjectExtension extends Extension
 
     private function doUpdateCache()
     {
+        if (! Config::inst()->get(self::class, 'update_cache_on_dataobject_change')) {
+            return;
+        }
         $className = (string) $this->getOwner()->ClassName;
         if ($className && $this->canUpdateCache($className)) {
             SimpleTemplateCachingSiteConfigExtension::update_cache_key($className);
         }
     }
 
-    private function canUpdateCache($className): bool
+    /**
+     * @var array<string, bool>
+     */
+    protected static array $canUpdateCache = [];
+
+    protected function canUpdateCache(string $className): bool
     {
         // we want to always avoid this to avoid a loop.
         if (ObjectsUpdated::class === $className) {
             return false;
         }
 
-        $excludedClasses = (array) Config::inst()->get(DataObjectExtension::class, 'excluded_classes_for_caching');
+        if (isset(self::$canUpdateCache[$className])) {
+            return self::$canUpdateCache[$className];
+        }
 
-        return ! in_array($className, $excludedClasses, true);
+        $included = (array) Config::inst()->get(self::class, 'included_classes_for_caching');
+
+        if (!empty($included)) {
+            return self::$canUpdateCache[$className] = $this->matchesAny($className, $included);
+        }
+
+        $excluded = (array) Config::inst()->get(self::class, 'excluded_classes_for_caching');
+
+        return self::$canUpdateCache[$className] = ! $this->matchesAny($className, $excluded);
+    }
+
+    private function matchesAny(string $className, array $classes): bool
+    {
+        foreach ($classes as $class) {
+            if (ClassInfo::exists($className) && is_a($className, $class, true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

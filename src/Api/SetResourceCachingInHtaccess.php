@@ -9,7 +9,7 @@ use SilverStripe\Core\Flushable;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\ORM\DB;
 use SilverStripe\Security\Security;
-use SilverStripe\SiteConfig\SiteConfig;
+use Throwable;
 
 class SetResourceCachingInHtaccess implements Flushable
 {
@@ -17,10 +17,22 @@ class SetResourceCachingInHtaccess implements Flushable
 
     public static function flush()
     {
-        if (Director::isDev() && Security::database_is_ready() && Director::is_cli()) {
+        if (Director::isDev() && Director::is_cli() && Security::database_is_ready()) {
             // Defer the actual execution until the very end of the PHP script
             register_shutdown_function(function () {
-                Injector::inst()->get(self::class)->updateHtaccess(true);
+                try {
+                    Injector::inst()->get(self::class)->updateHtaccess(true);
+                } catch (Throwable $e) {
+                    DB::alteration_message(
+                        sprintf(
+                            'Error updating .htaccess: %s (in %s:%d)',
+                            $e->getMessage(),
+                            $e->getFile(),
+                            $e->getLine()
+                        ),
+                        'deleted'
+                    );
+                }
             });
         }
     }
@@ -30,7 +42,8 @@ class SetResourceCachingInHtaccess implements Flushable
      */
     private static string $image_cache_directive = '
 # Uploaded assets (filenames may change less predictably) - cache lighter - one day
-Header set Cache-Control "public, max-age=86400" "expr=%{REQUEST_URI} =~ m#^/(?:assets|_resources)/.*\.(?:png|jpe?g|gif|webp|svg|avif|ico)$#"';
+# setifempty: do not override the Cache-Control header of files that are served by PHP (e.g. protected files)
+Header setifempty Cache-Control "public, max-age=86400" "expr=%{REQUEST_URI} =~ m#^/(?:assets|_resources)/.*\.(?:png|jpe?g|gif|webp|svg|avif|ico)$#"';
 
     private static string $pdf_cache_directive = '
 # PDFs/XML - don\'t cache
@@ -46,7 +59,7 @@ Header set Cache-Control "public, max-age=31536000, immutable" "expr=%{REQUEST_U
 
     public function updateHtaccess(?bool $verbose = false)
     {
-        SiteConfig::current_site_config();
+        FasterSiteConfig::current_site_config();
         foreach (
             [
                 'IMAGE_CACHE_DIRECTIVE' => $this->config()->get('image_cache_directive'),
@@ -81,17 +94,14 @@ Header set Cache-Control "public, max-age=31536000, immutable" "expr=%{REQUEST_U
             // Prepend the new content if not found
             $htaccessContent = $toAddFull . $htaccessContent;
         }
-
         if ($originalContent !== $htaccessContent) {
             // Save the updated .htaccess file
             if ($verbose) {
                 DB::alteration_message('Updating .htaccess file with ' . $code . ' cache directive', 'created');
             }
-
             if (! is_writable($htaccessPath) && $verbose) {
                 DB::alteration_message('The .htaccess file is not writable: ' . $htaccessPath, 'deleted');
             }
-
             file_put_contents($htaccessPath, $htaccessContent);
         }
     }

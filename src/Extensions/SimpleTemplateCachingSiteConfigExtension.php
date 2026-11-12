@@ -3,6 +3,7 @@
 namespace Sunnysideup\SimpleTemplateCaching\Extensions;
 
 use Exception;
+use Override;
 use Page;
 use SilverStripe\Core\Extension;
 use SilverStripe\Core\Injector\Injector;
@@ -16,6 +17,7 @@ use SilverStripe\Forms\ReadonlyField;
 use SilverStripe\ORM\DB;
 use SilverStripe\ORM\FieldType\DBDatetime;
 use SilverStripe\SiteConfig\SiteConfig;
+use Sunnysideup\SimpleTemplateCaching\Api\FasterSiteConfig;
 use Sunnysideup\SimpleTemplateCaching\Model\ObjectsUpdated;
 
 /**
@@ -25,6 +27,7 @@ use Sunnysideup\SimpleTemplateCaching\Model\ObjectsUpdated;
  * @property bool $HasCaching
  * @property bool $HasPartialCaching
  * @property int $PublicCacheDurationInSeconds
+ * @property int $CloudflareCacheDurationInSeconds
  * @property bool $RecordCacheUpdates
  * @property ?string $CacheKeyLastEdited
  * @property ?string $ClassNameLastEdited
@@ -37,6 +40,7 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
         'HasCaching' => 'Boolean(1)',
         'HasPartialCaching' => 'Boolean(1)',
         'PublicCacheDurationInSeconds' => 'Int',
+        'CloudflareCacheDurationInSeconds' => 'Int',
         'RecordCacheUpdates' => 'Boolean(0)',
         'CacheKeyLastEdited' => 'DBDatetime',
         'ClassNameLastEdited' => 'Varchar(200)',
@@ -70,8 +74,21 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
                         ->setDescription(
                             'USE WITH CARE - This will apply caching to ALL pages on the site.
                             Time is in seconds (e.g. 600 = 10 minutes).
-                            Cache time on individual pages will override this value set here.
+                            Cache time on individual pages will override this value set here.<br />
                             The total number of pages on the site with an individual caching time is: ' . Page::get()->filter(['PublicCacheDurationInSeconds:GreaterThan' => 0])->count()
+                        ),
+                ]
+            );
+            $fields->addFieldsToTab(
+                'Root.Caching',
+                [
+                    NumericField::create('CloudflareCacheDurationInSeconds', 'Cache time for Cloudflare CDN')
+                        ->setDescription(
+                            'USE WITH CARE - Only use when Cloudflare CDN is enabled.<br />
+                            This will apply caching to ALL pages on the site.
+                            Time is in seconds (e.g. 600 = 10 minutes).
+                            Cache time on individual pages will override this value set here.<br />
+                            The total number of pages on the site with an individual caching time is: ' . Page::get()->filter(['CloudflareCacheDurationInSeconds:GreaterThan' => 0])->count()
                         ),
                 ]
             );
@@ -133,7 +150,7 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
 
     public static function site_cache_key(): string
     {
-        $obj = SiteConfig::current_site_config();
+        $obj = FasterSiteConfig::current_site_config();
         if ($obj->HasPartialCaching) {
             return 'ts_' . strtotime((string) $obj->CacheKeyLastEdited);
         }
@@ -155,16 +172,19 @@ class SimpleTemplateCachingSiteConfigExtension extends Extension
 
         $obj = null;
         try {
-            $obj = SiteConfig::current_site_config();
+            $obj = FasterSiteConfig::current_site_config();
             if ($obj->HasPartialCaching) {
-                DB::query('
+                DB::prepared_query(
+                    '
                     UPDATE "SiteConfig"
                     SET
-                        "CacheKeyLastEdited" = \'' . DBDatetime::now()->Rfc2822() . '\',
-                        "ClassNameLastEdited" = \'' . addslashes((string) $className) . '\'
-                    WHERE ID = ' . $obj->ID . '
+                        "CacheKeyLastEdited" = ?,
+                        "ClassNameLastEdited" = ?
+                    WHERE ID = ?
                     LIMIT 1
-                ;');
+                ;',
+                    [DBDatetime::now()->Rfc2822(), (string) $className, (int) $obj->ID]
+                );
                 if ($obj->RecordCacheUpdates) {
                     $recordId = Injector::inst()
                         ->create(ObjectsUpdated::class, ['ClassNameLastEdited' => $className])

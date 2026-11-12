@@ -38,6 +38,7 @@ Sunnysideup\SimpleTemplateCaching\Extensions\DataObjectExtension:
     - SilverStripe\Versioned\ChangeSet
     - SilverStripe\Versioned\ChangeSetItem
     - SilverStripe\SessionManager\Models\LoginSession
+    - SilverStripe\HybridSessions\HybridSessionDataObject
     - Firesphere\CSPHeaders\Models\SRI
 ---
 Name: corecache_extended
@@ -50,3 +51,6 @@ SilverStripe\Core\Injector\Injector:
     constructor:
       namespace: "cacheblock"
       defaultLifetime: 864000 # 10 days!
+
+  SilverStripe\Control\Middleware\HTTPCacheControlMiddleware:
+    class: Sunnysideup\SimpleTemplateCaching\Middleware\CustomHTTPCacheControlMiddleware
