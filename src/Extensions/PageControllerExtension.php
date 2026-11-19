@@ -61,8 +61,12 @@ class PageControllerExtension extends Extension
     ];
 
     /**
-     * Only these query parameters are part of the cache key (e.g. 'start', 'searchfilter').
-     * Empty = the query string is ignored entirely, so that ?x=random can not create unlimited cache entries.
+     * Which query parameters are part of the cache key (e.g. 'start', 'searchfilter').
+     *
+     * - Empty (default): the whole query string is part of the cache key, except for the
+     *   tracking parameters listed in `cache_key_ignore_params`.
+     * - Not empty: ONLY the parameters listed here are part of the cache key,
+     *   everything else is ignored (so ?x=random can not create unlimited cache entries).
      *
      * @var array<int, string>
      */
@@ -242,20 +246,44 @@ class PageControllerExtension extends Extension
         $path = substr((string) (parse_url($uri, PHP_URL_PATH) ?: '/'), 0, 500);
         parse_str((string) parse_url($uri, PHP_URL_QUERY), $vars);
 
-        // only use an allow-list of query parameters, anything else is ignored
-        $relevant = array_flip((array) Config::inst()->get(self::class, 'cache_relevant_query_vars'));
-        $vars = array_intersect_key($vars, $relevant);
-        $maxLength = max(1, (int) Config::inst()->get(self::class, 'cache_relevant_query_var_max_length'));
-        foreach ($vars as $key => $value) {
-            $vars[$key] = is_scalar($value) ? substr((string) $value, 0, $maxLength) : '';
+        $relevant = (array) Config::inst()->get(self::class, 'cache_relevant_query_vars');
+        if ($relevant !== []) {
+            // an allow-list is defined: only use those query parameters, anything else is ignored
+            $vars = array_intersect_key($vars, array_flip($relevant));
+        } else {
+            // no allow-list: use the whole query string, except for tracking parameters
+            $ignore = (array) Config::inst()->get(self::class, 'cache_key_ignore_params');
+            $vars = array_diff_key($vars, array_flip($ignore));
         }
 
-        // stable order so ?a=1&b=2 and ?b=2&a=1 hit the same key
-        ksort($vars);
+        $maxLength = max(1, (int) Config::inst()->get(self::class, 'cache_relevant_query_var_max_length'));
+        $vars = $this->normaliseQueryVars($vars, $maxLength);
 
         $query = $vars ? '?' . http_build_query($vars) : '';
 
         return md5($path . $query);
+    }
+
+    /**
+     * Truncates values and sorts keys (recursively) so that
+     * ?a=1&b=2 and ?b=2&a=1 hit the same key.
+     *
+     * @param array<string|int, mixed> $vars
+     * @return array<string|int, mixed>
+     */
+    protected function normaliseQueryVars(array $vars, int $maxLength): array
+    {
+        foreach ($vars as $key => $value) {
+            if (is_array($value)) {
+                $vars[$key] = $this->normaliseQueryVars($value, $maxLength);
+            } else {
+                $vars[$key] = is_scalar($value) ? substr((string) $value, 0, $maxLength) : '';
+            }
+        }
+
+        ksort($vars);
+
+        return $vars;
     }
 
     public function cacheSafeDomainId(): string
