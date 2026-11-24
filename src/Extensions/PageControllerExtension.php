@@ -265,8 +265,12 @@ class PageControllerExtension extends Extension
     }
 
     /**
-     * Truncates values and sorts keys (recursively) so that
+     * Keeps keys short and sorts them (recursively) so that
      * ?a=1&b=2 and ?b=2&a=1 hit the same key.
+     *
+     * Values longer than $maxLength are shortened BUT a hash of the full value is added.
+     * Otherwise two different long values with the same first characters would share
+     * one cache entry, and one visitor would be served the other visitor's page.
      *
      * @param array<string|int, mixed> $vars
      * @return array<string|int, mixed>
@@ -276,8 +280,13 @@ class PageControllerExtension extends Extension
         foreach ($vars as $key => $value) {
             if (is_array($value)) {
                 $vars[$key] = $this->normaliseQueryVars($value, $maxLength);
+            } elseif (is_scalar($value)) {
+                $value = (string) $value;
+                $vars[$key] = strlen($value) > $maxLength
+                    ? substr($value, 0, $maxLength) . '~' . md5($value)
+                    : $value;
             } else {
-                $vars[$key] = is_scalar($value) ? substr((string) $value, 0, $maxLength) : '';
+                $vars[$key] = '';
             }
         }
 
