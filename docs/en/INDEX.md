@@ -187,3 +187,23 @@ Cloudflare-CDN-Cache-Control: max-age=86400
 ```
 
 For more information about CDN-specific cache control, refer to the [official document](https://developers.cloudflare.com/cache/concepts/cdn-cache-control/) on Cloudflare.
+
+### Query strings (fail closed)
+
+Template fragments (and, through `ControllerExtension`, the HTTP cache headers) are only used when
+the query string is safe to cache (`PageControllerExtension::hasCacheSafeQueryVars()`).
+A request is **not** cached if:
+
+- `cache_relevant_query_vars` is set and a non-empty query parameter is not listed there (and is not a
+  tracking parameter from `cache_key_ignore_params`). An unlisted parameter is not part of the cache key,
+  so its value (e.g. a search phrase shown in a form) would be cached and shown to everybody.
+- a value does not match `cache_safe_query_var_pattern` (default: `/^[A-Za-z0-9_-]{1,30}$/`, so no free text)
+  or the stricter pattern for that parameter in `cache_safe_query_var_patterns` (default: `start` is 1-4 digits).
+  If `cache_relevant_query_vars` is empty, parameter names must match the default pattern as well.
+- there are more than `cache_safe_query_var_max_count` (default: 6) non-empty values.
+
+Empty values (`?keyword=&topic=12`) are ignored. Set a pattern to an empty string, or the count to `0`,
+to switch that part of the check off (not recommended).
+
+Never put free-text parameters (search phrases) in `cache_relevant_query_vars`, and never print request
+data in a part of a template that has a cache key that does not include the URL (header, footer, menu).

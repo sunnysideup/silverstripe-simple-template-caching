@@ -45,6 +45,11 @@ class ControllerExtension extends Extension
             return $this->returnNoCache();
         }
 
+        // 3b. a query string that is not part of the cache key (or not safe) must never be cached (fail closed)
+        if ($this->controllerHas($controller, 'hasCacheSafeQueryVars') && ! $controller->hasCacheSafeQueryVars()) {
+            return $this->returnNoCache();
+        }
+
         // 4. request checks - no DB, no session
         $request = $controller->getRequest();
         if (! $request->isGET()) {
